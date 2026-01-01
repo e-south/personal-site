@@ -32,7 +32,7 @@ export const profile = {
   fullName: 'Eric J. South',
   title: 'PhD Candidate',
   institute: 'Boston University',
-  author_name: 'Eric J. South', // used to highlight your name in papers
+  authorName: 'Eric J. South', // used to highlight your name in papers
   // Short homepage blurb (used in Hero)
   about:
     "PhD Candidate in the Dunlop Lab at Boston University's Biological Design Center. I develop genetic circuits, high-throughput functional assays, and DNA sequence‑to‑expression models to steer cell physiology for synthetic biology applications. Previously: Imperial College London; James Madison University.",

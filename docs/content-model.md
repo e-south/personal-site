@@ -51,4 +51,4 @@ Fields:
 
 At least one of link or pdf is required for papers.
 
-Tip: use a trailing `*` on author names to denote equal contribution; highlighting ignores trailing `*`.
+Tip: use a trailing `*` on author names to denote equal contribution; highlighting ignores trailing `*` and uses `profile.authorName` from `src/settings.ts`.

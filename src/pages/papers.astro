@@ -2,6 +2,7 @@
 import Layout from '@/layouts/Layout.astro';
 import AuthorList from '@/components/ui/AuthorList.astro';
 import { getPapers } from '@/lib/content';
+import { profile } from '@/settings';
 
 const papers = await getPapers();
 ---
@@ -24,7 +25,10 @@ const papers = await getPapers();
               ) : (
                 <h2 class="card-title text-xl">{paper.title}</h2>
               )}
-              <AuthorList authors={paper.authors} />
+              <AuthorList
+                authors={paper.authors}
+                highlightName={profile.authorName}
+              />
               <p class="text-sm mb-3">
                 <span class="italic">{paper.venue}</span> • {paper.year}
               </p>

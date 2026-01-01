@@ -6,6 +6,7 @@ import List from '@/components/ui/List.astro';
 import PublicationsList from '@/components/ui/PublicationsList.astro';
 import { getPapers } from '@/lib/content';
 import { parseISODate } from '@/lib/dates';
+import { profile } from '@/settings';
 
 import type { Experience, Education } from '@/types/cv';
 
@@ -47,7 +48,10 @@ const orderedPublications = await getPapers();
     orderedPublications.length > 0 && (
       <section class="mb-12">
         <h2 class="text-2xl font-bold mb-6 border-b pb-2">Publications</h2>
-        <PublicationsList elements={orderedPublications} />
+        <PublicationsList
+          elements={orderedPublications}
+          highlightName={profile.authorName}
+        />
       </section>
     )
   }

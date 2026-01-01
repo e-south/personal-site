@@ -38,6 +38,10 @@ export type PaperItem = {
   abstract?: string;
 };
 
+let blogEntriesCache: BlogEntry[] | null = null;
+let projectRecordsCache: ProjectRecord[] | null = null;
+let papersCache: PaperItem[] | null = null;
+
 const mapProjectRecord = (project: ProjectEntry): ProjectRecord => ({
   title: project.data.title,
   description: project.data.description,
@@ -59,13 +63,24 @@ const toProjectCard = ({
   imageAlt,
 });
 
-const getProjectRecords = async (): Promise<ProjectRecord[]> =>
-  (await getCollection('projects')).map(mapProjectRecord);
+const getProjectRecords = async (): Promise<ProjectRecord[]> => {
+  if (projectRecordsCache) {
+    return projectRecordsCache;
+  }
+
+  projectRecordsCache = (await getCollection('projects')).map(mapProjectRecord);
+  return projectRecordsCache;
+};
 
 export async function getPublishedBlogEntries(): Promise<BlogEntry[]> {
-  return (await getCollection('blog'))
+  if (blogEntriesCache) {
+    return blogEntriesCache;
+  }
+
+  blogEntriesCache = (await getCollection('blog'))
     .filter((post) => !post.data.draft)
     .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+  return blogEntriesCache;
 }
 
 export async function getBlogListItems(): Promise<BlogListItem[]> {
@@ -100,7 +115,11 @@ export async function getProjectsByStatus(
 }
 
 export async function getPapers(): Promise<PaperItem[]> {
-  return (await getCollection('papers'))
+  if (papersCache) {
+    return papersCache;
+  }
+
+  papersCache = (await getCollection('papers'))
     .sort((a, b) => b.data.year - a.data.year)
     .map((paper) => {
       const link = paper.data.link ?? paper.data.pdf;
@@ -113,6 +132,7 @@ export async function getPapers(): Promise<PaperItem[]> {
         abstract: paper.data.abstract,
       };
     });
+  return papersCache;
 }
 
 export async function getRecentPapers(limit = 3): Promise<PaperItem[]> {

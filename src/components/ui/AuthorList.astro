@@ -4,9 +4,10 @@ import { isHighlightedAuthor } from '@/lib/utils';
 interface Props {
   authors: string[];
   label?: string;
+  highlightName?: string;
 }
 
-const { authors, label = 'Authors' } = Astro.props;
+const { authors, label = 'Authors', highlightName } = Astro.props;
 ---
 
 <p class="text-base mb-2">
@@ -16,7 +17,12 @@ const { authors, label = 'Authors' } = Astro.props;
       <>
         <span
           class:list={[
-            { 'font-medium underline': isHighlightedAuthor(author) },
+            {
+              'font-medium underline': isHighlightedAuthor(
+                author,
+                highlightName,
+              ),
+            },
           ]}
         >
           {author}

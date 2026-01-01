@@ -3,6 +3,7 @@ import Layout from '@/layouts/Layout.astro';
 import { Image } from 'astro:assets';
 import { render } from 'astro:content';
 import { getPublishedBlogEntries } from '@/lib/content';
+import { formatLongDate } from '@/lib/dates';
 
 export async function getStaticPaths() {
   const posts = await getPublishedBlogEntries();
@@ -42,13 +43,7 @@ const { Content } = await render(post);
                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
               ></path>
             </svg>
-            {
-              date.toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })
-            }
+            {formatLongDate(date)}
           </time>
 
           <!-- Tags -->

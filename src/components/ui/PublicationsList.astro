@@ -12,9 +12,10 @@ interface PublicationItem {
 
 interface Props {
   elements: PublicationItem[];
+  highlightName?: string;
 }
 
-const { elements } = Astro.props;
+const { elements, highlightName } = Astro.props;
 ---
 
 <ul class="space-y-8">
@@ -33,7 +34,7 @@ const { elements } = Astro.props;
         ) : (
           <h3 class="text-lg font-bold mb-2">{element.title}</h3>
         )}
-        <AuthorList authors={element.authors} />
+        <AuthorList authors={element.authors} highlightName={highlightName} />
         <p class="text-sm mb-3">
           <span class="italic">{element.venue}</span> • {element.year}
         </p>
