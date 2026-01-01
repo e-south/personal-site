@@ -1,17 +1,73 @@
-# Astro Academia Documentation
+# Personal Site
 
-## What is Astro Academia?
+Your day‑to‑day: pulling upstream safely
 
-Astro Academia is a personal academic website built using Astro, a modern static site generator. The website is designed to showcase academic achievements, research papers, blog posts, and a CV. It is fast, responsive, and easy to maintain, making it an ideal platform for academics and researchers to present their work.
+When the template updates:
 
-If you find Astro Academia useful or appreciate my work, consider supporting me! Your support helps keep this project maintained and encourages further development. 🚀✨
+1) refresh your upstream snapshot
+```bash
+git checkout upstream-main
+git fetch upstream
+git reset --hard upstream/main
+```
 
-<a href="https://buymeacoffee.com/maiobarbero" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-yellow.png" alt="Buy Me A Coffee" height="41" width="174"></a>
-<a href="https://www.producthunt.com/products/astro-academia?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-astro&#0045;academia" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1026976&theme=light&t=1760776422941" alt="Astro&#0032;Academia - Academic&#0032;website&#0032;template | Product Hunt" style="width: 189px; height: 41px;" width="189" height="41" /></a>
+2) merge into your site
+```bash
+git checkout main
+git merge --no-ff upstream-main
+```
 
-## How to use it
+3) resolve any conflicts (your personal files should auto-keep via `.gitattributes`
 
-Fork this repository to create your new website starting from this template.
+4) run the site, fix small breakages if API changed
+
+```bash
+npm ci
+npm run dev
+```
+
+5) push
+```
+git push origin main
+```
+
+If you prefer a tidy history, you can rebase instead of merge:
+
+```
+git checkout main
+git fetch upstream
+git rebase upstream/main
+# resolve; then:
+git push --force-with-lease
+```
+
+(Use rebase only if you’re comfortable force‑pushing your fork’s main.)
+
+When you only want some upstream changes
+
+You can cherry‑pick just the commits you want:
+
+```
+git fetch upstream
+git log --oneline upstream/main   # find the commit(s)
+git checkout -b apply-upstream-feature
+git cherry-pick <sha> [<sha2> ...]
+# test, then:
+git checkout main
+git merge --no-ff apply-upstream-feature
+git branch -d apply-upstream-feature
+```
+
+Reduce future merge pain (small structural tweaks)
+
+“Personalization” hotspots:
+
+- `src/settings.ts` – your name, socials, base URL, etc.
+- `src/data/cv.ts` – your CV sections
+- `src/content/**` – your blog posts
+- `src/assets/profile_pictures.jpg` – your avatar
+
+
 
 ## How to Create a CV Using the `cv.ts` File
 
@@ -99,5 +155,4 @@ This is the content of the new blog post. Write your article here using Markdown
 
 Once you have added the new blog post, it will be automatically included in the blog collection and displayed on the blog page of your website.
 
-## Deploy
-The template provides a workflow to deploy the website on Github pages as a static website.
+

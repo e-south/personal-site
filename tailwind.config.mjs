@@ -1,10 +1,15 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-    content: ["./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}"],
-    theme: {
-        extend: {},
+  content: ["./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}"],
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['Inter Variable', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono Variable', 'ui-monospace', 'monospace'],
+      },
     },
-    plugins: [require("@tailwindcss/typography"), require("daisyui")],
+  },
+  plugins: [require("@tailwindcss/typography"), require("daisyui")],
     daisyui: {
         themes: [
             "light",

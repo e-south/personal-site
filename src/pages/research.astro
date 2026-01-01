@@ -3,21 +3,21 @@ import Layout from "@/layouts/Layout.astro";
 import { profile } from "@/settings";
 import BetterIcon from "@/components/ui/BetterIcon.astro";
 import List from "@/components/ui/List.astro";
-import {RESEARCH_ICONS} from "@/data/researchIcons";
+import { RESEARCH_ICONS } from "@/data/researchIcons";
 
 const { research_areas } = profile;
 ---
 
-<Layout title="Research | Dr. Marie Curie">
+<Layout title="Research | Eric J. South">
   <div class="prose max-w-none">
     <h1 class="text-3xl font-bold mb-8">Research Statement</h1>
 
     <div class="mb-12">
       <p class="text-lg mb-6">
-        My research focuses on groundbreaking investigations into radioactivity and the discovery of new radioactive elements. Through meticulous experimental techniques and innovative methodologies, I aim to advance our understanding of radioactive phenomena and their applications in both physics and chemistry.
+        I build genetic circuits, high-throughput functional assays, and DNA sequence-to-expression models to steer cell physiology for synthetic biology applications. My work spans experimental design of promoters and biosensors, pooled screening with next‑generation sequencing, and the development of computational models to predict and optimize gene regulation.
       </p>
       <p class="text-lg mb-6">
-        This interdisciplinary approach has led to significant discoveries, including the isolation of polonium and radium, contributing to the foundation of modern nuclear physics and radiochemistry.
+        I also study microbial communities and metabolic cross-feeding, engineering co-cultures that improve bioproduction. This interdisciplinary approach connects molecular sequence design, systems‑level behavior, and translational biotechnology.
       </p>
     </div>
 
@@ -52,18 +52,21 @@ const { research_areas } = profile;
 
     <List listTitle="Current Projects" listItems={[
       {
-        title: "Radioactivity Studies",
-        description: "Investigation of radioactive properties in uranium minerals and isolation of new radioactive elements."
+        title: "Sequence-to-expression design",
+        description:
+          "Design and modeling of stress-responsive promoters and densely packed TF-binding motifs to tune transcriptional outputs.",
+        image: "/images/research/EJS.png",
       },
       {
-        title: "Measurement Techniques",
-        description: "Development of precise methods for measuring radioactive emissions and their properties."
-      }
+        title: "High-throughput regulatory assays",
+        description:
+          "Pooled library construction, robotics-enabled screening, and NGS readouts for data-driven circuit optimization.",
+      },
+      {
+        title: "Synthetic microbial communities",
+        description:
+          "Cross-feeding yeast consortia and pathway balancing to enhance bioproduction.",
+      },
     ]} />
-
-    <h2 class="text-2xl font-bold mb-6">Research Impact</h2>
-    <p class="text-lg mb-6">
-      My research has opened new frontiers in radioactivity studies, leading to practical applications in both scientific research and medical treatments. The discoveries have revolutionized our understanding of atomic structure and radioactive decay processes.
-    </p>
   </div>
 </Layout>

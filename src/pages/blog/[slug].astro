@@ -1,6 +1,7 @@
 ---
 import Layout from '@/layouts/Layout.astro'
 import {template} from '@/settings'
+import { Image } from 'astro:assets'
 import {getCollection, render} from 'astro:content'
 
 export async function getStaticPaths(): Promise<Array<{ params: { slug: string }, props: { post: any } }>> {
@@ -67,7 +68,13 @@ const { Content } = await render(post);
 					}
 				</div>
 			</div>
-
+      {/* Optional cover image */}
+      {post.data.cover && (
+        <Image
+          src={post.data.cover}
+          alt={post.data.coverAlt ?? title}
+          class="rounded-lg mb-8 w-full aspect-video object-cover" />
+      )}
 			<!-- Post content -->
 			<div
 				class='prose mt-8 prose-h2:text-2xl prose-h2:font-bold prose-h2:mb-4

@@ -1,0 +1,13 @@
+{
+  // Use bash explicitly
+  "terminal.integrated.defaultProfile.osx": "bash",
+
+  // Don't modify new terminals with Python/Conda activation
+  "python.terminal.activateEnvironment": false,
+
+  // Make sure no interpreter points to a conda env globally
+  "python.defaultInterpreterPath": "/usr/bin/python3",
+
+  // Optional: safer terminals that inherit a clean app env
+  "terminal.integrated.inheritEnv": true
+}

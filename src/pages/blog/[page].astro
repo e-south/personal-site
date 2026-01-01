@@ -1,6 +1,7 @@
 ---
 import Pagination from '@/components/ui/Pagination.astro'
 import Layout from '@/layouts/Layout.astro'
+import { Image } from 'astro:assets'
 import { trimExcerpt } from '@/lib/utils'
 import { template } from '@/settings'
 import { getCollection } from 'astro:content'
@@ -15,6 +16,8 @@ export async function getStaticPaths({ paginate }): Promise<Astro.getStaticPaths
             badge: post.data.tags[0],
             excerpt: trimExcerpt(post.data.excerpt),
             slug: `${template.base}/blog/${post.id}`,
+			cover: post.data.cover,
+    		coverAlt: post.data.coverAlt,
         }))
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
@@ -31,7 +34,16 @@ const { page } = Astro.props
 		<div class='grid gap-8'>
 			{
 				page.data.map(post => (
-					<article class='card bg-base-200 transition-all'>
+					<article class='card bg-base-200 transition-all overflow-hidden'>
+            {post.cover && (
+              <figure class='aspect-video'>
+                <Image
+                  src={post.cover}
+                  alt={post.coverAlt ?? post.title}
+                  class='w-full h-full object-cover'
+                />
+              </figure>
+            )}
 						<div class='card-body'>
 							<div class='flex justify-between items-start'>
 								<h2 class='card-title text-xl'>

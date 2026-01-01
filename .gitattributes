@@ -1,0 +1,5 @@
+# Always keep my personalized content when merging upstream
+src/settings.ts                   merge=ours
+src/data/**                       merge=ours
+src/content/**                    merge=ours
+src/assets/profile_pictures.jpg   merge=ours
