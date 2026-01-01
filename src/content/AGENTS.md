@@ -5,3 +5,4 @@
 - Slugs are stable: do not rename folders for existing posts/projects/papers unless you add redirects.
 - Prefer concise summaries; homepage pulls items with featured: true.
 - When adding external links (GitHub, papers), verify they resolve (no typos).
+- Papers must include an authors list (array of names).

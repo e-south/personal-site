@@ -26,6 +26,7 @@ cp .env.example .env
 - Build: `npm run build`
 - Preview: `npm run preview`
 - Full checks: `npm run verify`
+- Security audit: `npm run audit` (or `npm run audit:prod`)
 
 ## Content
 
@@ -39,6 +40,8 @@ Schemas live in `src/content.config.ts`. Use `featured: true` to surface items o
 
 - Site settings: `src/settings.ts`
 - CV data: `src/data/cv.ts`
+- Content queries: `src/lib/content.ts`
+- Base-aware URLs: `src/lib/urls.ts`
 
 ## CI
 
@@ -61,3 +64,4 @@ GitHub Actions runs `npm run verify` on pull requests and `main` pushes.
 
 - Architecture: `docs/architecture.md`
 - Content model: `docs/content-model.md`
+- Operations: `docs/operations.md`

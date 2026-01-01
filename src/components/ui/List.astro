@@ -1,7 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
-import { template } from '@/settings';
+import { withBase } from '@/lib/urls';
 interface Props {
   listTitle: string;
   listItems: {
@@ -23,7 +23,7 @@ const { listTitle, listItems } = Astro.props;
           <figure class="aspect-video">
             {typeof item.image === 'string' ? (
               <img
-                src={`${template.base}${item.image}`}
+                src={withBase(item.image)}
                 alt={item.imageAlt ?? item.title}
                 class="w-full h-full object-cover"
                 loading="lazy"

@@ -1,31 +1,10 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import List from '@/components/ui/List.astro';
-import { getCollection } from 'astro:content';
+import { getFeaturedProjectCards, getProjectCards } from '@/lib/content';
 
-const projects = (await getCollection('projects')).map((project) => ({
-  title: project.data.title,
-  description: project.data.description,
-  image: project.data.image,
-  imageAlt: project.data.imageAlt,
-  featured: project.data.featured,
-}));
-
-const featuredProjects = projects
-  .filter((project) => project.featured)
-  .map(({ title, description, image, imageAlt }) => ({
-    title,
-    description,
-    image,
-    imageAlt,
-  }));
-
-const allProjects = projects.map(({ title, description, image, imageAlt }) => ({
-  title,
-  description,
-  image,
-  imageAlt,
-}));
+const featuredProjects = await getFeaturedProjectCards();
+const allProjects = await getProjectCards();
 ---
 
 <Layout title="Projects">

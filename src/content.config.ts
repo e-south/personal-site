@@ -52,7 +52,7 @@ const papers = defineCollection({
   schema: z
     .object({
       title: z.string(),
-      authors: z.string(),
+      authors: z.array(z.string()).min(1),
       venue: z.string(),
       year: z.number().int(),
       link: z.string().url().optional(),

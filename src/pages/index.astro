@@ -7,27 +7,16 @@ import Hero from '@/components/ui/Hero.astro';
 import Grid from '@/components/ui/Grid.astro';
 import ArticleList from '@/components/ui/ArticleList.astro';
 import List from '@/components/ui/List.astro';
-import { getCollection } from 'astro:content';
+import { getFeaturedProjectCards, getRecentPapers } from '@/lib/content';
 
 const { fullName, title, institute, research_areas } = profile;
 
-const featuredProjects = (await getCollection('projects'))
-  .filter((project) => project.data.featured)
-  .map((project) => ({
-    title: project.data.title,
-    description: project.data.description,
-    image: project.data.image,
-    imageAlt: project.data.imageAlt,
-  }));
-
-const recentPapers = (await getCollection('papers'))
-  .sort((a, b) => b.data.year - a.data.year)
-  .slice(0, 3)
-  .map((paper) => ({
-    title: paper.data.title,
-    venue: paper.data.venue,
-    year: paper.data.year,
-  }));
+const featuredProjects = await getFeaturedProjectCards();
+const recentPapers = (await getRecentPapers()).map((paper) => ({
+  title: paper.title,
+  venue: paper.venue,
+  year: paper.year,
+}));
 ---
 
 <Layout>

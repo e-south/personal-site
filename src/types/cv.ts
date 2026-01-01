@@ -2,7 +2,6 @@ export interface Experience {
   company: string;
   start: string;
   end?: string | null;
-  time: string;
   title: string;
   location?: string;
   description?: string;
@@ -12,7 +11,6 @@ export interface Education {
   school: string;
   start: string;
   end?: string | null;
-  time: string;
   degree: string;
   location?: string;
   description?: string;

@@ -1,29 +1,10 @@
 import { profile } from '../settings';
 import { template } from '../settings';
 
-const escapeHtml = (value: string) =>
-  value.replace(/[&<>"']/g, (char) => {
-    const map: Record<string, string> = {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;',
-    };
-    return map[char] ?? char;
-  });
+const normalizeAuthor = (author: string) => author.replace(/\*+$/, '').trim();
 
-export function highlightAuthor(authors: string): string {
-  const safeAuthors = escapeHtml(authors);
-  const safeName = escapeHtml(profile.author_name);
-  if (safeAuthors.includes(safeName)) {
-    return safeAuthors.replace(
-      safeName,
-      `<span class='font-medium underline'>${safeName}</span>`,
-    );
-  }
-  return safeAuthors;
-}
+export const isHighlightedAuthor = (author: string) =>
+  normalizeAuthor(author) === profile.author_name;
 
 export function trimExcerpt(excerpt: string): string {
   const excerptLength = template.excerptLength;

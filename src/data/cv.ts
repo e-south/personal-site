@@ -5,7 +5,6 @@ export const experiences = [
     company: 'Boston University — Biological Design Center',
     start: '2020-09-01',
     end: null,
-    time: 'Sep 2020 - present',
     title: 'PhD Candidate',
     location: 'Boston, MA, USA',
     description:
@@ -15,7 +14,6 @@ export const experiences = [
     company: 'LanzaTech — Synthetic Biology & Host Strain Engineering',
     start: '2022-05-01',
     end: '2022-08-01',
-    time: 'May 2022 - Aug 2022',
     title: 'Engineering Biology Research Consortium Intern',
     location: 'Chicago, IL, USA',
     description:
@@ -26,7 +24,6 @@ export const experiences = [
       'Imperial College London — Centre for Synthetic Biology (with The Francis Crick Institute)',
     start: '2018-08-01',
     end: '2020-07-01',
-    time: 'Aug 2018 - Jul 2020',
     title: 'Postgraduate Researcher (MRes)',
     location: 'London, UK',
     description:
@@ -36,7 +33,6 @@ export const experiences = [
     company: 'Science Entrepreneur Club',
     start: '2019-03-01',
     end: '2019-12-01',
-    time: 'Mar 2019 - Dec 2019',
     title: 'Outreach Manager',
     location: 'London, UK',
     description:
@@ -46,7 +42,6 @@ export const experiences = [
     company: 'SRI International — Center for Macromolecular Bioscience',
     start: '2017-06-01',
     end: '2018-08-01',
-    time: 'Jun 2017 - Aug 2018',
     title: 'Student Associate',
     location: 'Shenandoah Valley, VA, USA',
     description:
@@ -56,7 +51,6 @@ export const experiences = [
     company: 'James Madison University — School of Integrated Sciences',
     start: '2014-01-01',
     end: '2017-12-31',
-    time: '2014 - 2017',
     title: 'Undergraduate Researcher (REU)',
     location: 'Harrisonburg, VA, USA',
     description:
@@ -69,7 +63,6 @@ export const education = [
     school: 'Boston University',
     start: '2020-09-01',
     end: null,
-    time: 'Sep 2020 - present',
     degree:
       'PhD Candidate, Molecular Biology, Cell Biology, and Biochemistry (MCBB)',
     location: 'Boston, MA, USA',
@@ -80,7 +73,6 @@ export const education = [
     school: 'Imperial College London',
     start: '2018-01-01',
     end: '2019-12-31',
-    time: '2018 - 2019',
     degree: 'MRes, Systems & Synthetic Biology (Distinction)',
     location: 'London, UK',
     description:
@@ -90,7 +82,6 @@ export const education = [
     school: 'James Madison University',
     start: '2014-01-01',
     end: '2018-12-31',
-    time: '2014 - 2018',
     degree: 'B.S., Biotechnology (Magna Cum Laude, GPA 3.72)',
     location: 'Harrisonburg, VA, USA',
     description:

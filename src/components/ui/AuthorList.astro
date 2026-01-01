@@ -1,0 +1,28 @@
+---
+import { isHighlightedAuthor } from '@/lib/utils';
+
+interface Props {
+  authors: string[];
+  label?: string;
+}
+
+const { authors, label = 'Authors' } = Astro.props;
+---
+
+<p class="text-base mb-2">
+  <span class="font-medium">{label}:</span>{' '}
+  {
+    authors.map((author, index) => (
+      <>
+        <span
+          class:list={[
+            { 'font-medium underline': isHighlightedAuthor(author) },
+          ]}
+        >
+          {author}
+        </span>
+        {index < authors.length - 1 && ', '}
+      </>
+    ))
+  }
+</p>

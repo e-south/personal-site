@@ -1,21 +1,16 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import { Image } from 'astro:assets';
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
+import { getPublishedBlogEntries } from '@/lib/content';
 
 export async function getStaticPaths() {
-  const blogEntries = await getCollection('blog');
+  const posts = await getPublishedBlogEntries();
 
-  const posts = blogEntries
-    .filter((post) => !post.data.draft)
-    .map((post) => {
-      const slug = post.slug;
-      return {
-        params: { slug },
-        props: { post },
-      };
-    });
-  return posts;
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
 }
 const { post } = Astro.props;
 const { title, date, tags } = post.data;

@@ -13,17 +13,20 @@ Personal site built with Astro. Goals:
 - Dev: npm run dev
 - Build: npm run build
 - Preview: npm run preview
+- Ops notes: docs/operations.md
 
 ## Checks (must pass before finishing)
 
 - Verify: npm run verify
   - format:check, lint, typecheck, test, build
+- Security audit (optional): npm run audit
 
 ## Architecture conventions
 
 - Pages (src/pages) are thin: routing + data query + layout selection.
 - Reusable UI in src/components.
 - Shared helpers in src/lib (pure functions preferred).
+- Use src/lib/content.ts for collection queries and src/lib/urls.ts for base-aware links.
 - Content lives in src/content as collections (blog/projects/papers).
 - Do not commit generated output: dist/ and .astro/.
 

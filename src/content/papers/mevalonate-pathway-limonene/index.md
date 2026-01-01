@@ -1,6 +1,9 @@
 ---
 title: 'Transcriptional Tuning of Mevalonate Pathway Enzymes to Identify the Impact on Limonene Production in Escherichia coli'
-authors: 'Jonghyeon Shin*, Eric J. South*, Mary J. Dunlop'
+authors:
+  - 'Jonghyeon Shin*'
+  - 'Eric J. South*'
+  - 'Mary J. Dunlop'
 venue: 'ACS Omega'
 year: 2022
 link: 'https://doi.org/10.1021/acsomega.2c00483'

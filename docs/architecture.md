@@ -13,7 +13,7 @@
 - src/layouts: page shells
 - src/content: content collections (blog, projects, papers)
 - src/data: small typed data (profile, socials)
-- src/lib: pure helpers (formatting, mapping)
+- src/lib: pure helpers (formatting, content queries, URL base handling)
 
 ## Build + deploy
 
@@ -22,6 +22,16 @@
 - Build config is env-driven and fail-fast:
   - PUBLIC_SITE_URL is required (canonical URLs, sitemap, RSS).
   - PUBLIC_BASE_PATH is required ("" for root or "/base" for subpaths).
+
+## Content + routing helpers
+
+- Use `src/lib/content.ts` for collection queries (sorting, mapping, filtering).
+- Use `src/lib/urls.ts` for base-aware URLs instead of manual concatenation.
+
+## Maintenance
+
+- Dependency updates are automated via Dependabot (`.github/dependabot.yml`).
+- Troubleshooting and operational notes live in `docs/operations.md`.
 
 ## Branch protection (recommended)
 

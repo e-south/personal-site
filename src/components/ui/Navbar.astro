@@ -4,13 +4,21 @@ import { profile } from '../../settings';
 import SocialIcons from './SocialIcons.astro';
 import ProfilePictures from '@/assets/profile_pictures.jpg';
 import { getCollection } from 'astro:content';
-import { template } from '@/settings';
+import { withBase } from '@/lib/urls';
 
 const isBlogPopulated = await getCollection('blog').then(
   (collection) => collection.length > 0,
 );
 
 const { fullName, title } = profile;
+
+const navItems = [
+  { label: 'Home', href: '/' },
+  { label: 'Research', href: '/research' },
+  { label: 'Projects', href: '/projects' },
+  { label: 'Papers', href: '/papers' },
+  { label: 'CV', href: '/cv' },
+];
 ---
 
 <aside
@@ -31,25 +39,19 @@ const { fullName, title } = profile;
       </div>
       <div class="mx-4 mt-16">
         <ul class="space-y-4 menu grow shrink menu-md overflow-y-auto">
-          <li>
-            <a href={`${template.base}/`} class="text-lg">Home</a>
-          </li>
-          <li>
-            <a href={`${template.base}/research`} class="text-lg">Research</a>
-          </li>
-          <li>
-            <a href={`${template.base}/projects`} class="text-lg">Projects</a>
-          </li>
-          <li>
-            <a href={`${template.base}/papers`} class="text-lg">Papers</a>
-          </li>
-          <li>
-            <a href={`${template.base}/cv`} class="text-lg">CV</a>
-          </li>
+          {
+            navItems.map((item) => (
+              <li>
+                <a href={withBase(item.href)} class="text-lg">
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
           {
             isBlogPopulated && (
               <li>
-                <a href={`${template.base}/blog/1`} class="text-lg">
+                <a href={withBase('/blog/1')} class="text-lg">
                   Blog
                 </a>
               </li>

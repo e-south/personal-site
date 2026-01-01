@@ -1,5 +1,6 @@
 ---
 import { isExperience } from '@/types/cv';
+import { formatDateRange } from '@/lib/dates';
 import type { Experience, Education } from '@/types/cv';
 
 interface Props {
@@ -33,7 +34,9 @@ const { elements, colored } = Astro.props;
         <div
           class={`${index % 2 === 0 ? 'timeline-start' : 'timeline-end'} mb-10 md:text-end`}
         >
-          <time class="font-mono italic">{element.time}</time>
+          <time class="font-mono italic">
+            {formatDateRange(element.start, element.end)}
+          </time>
           <div class="text-lg font-black">
             {isExperience(element) ? element.title : element.degree}
           </div>

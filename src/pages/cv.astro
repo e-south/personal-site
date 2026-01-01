@@ -4,7 +4,8 @@ import { experiences, education, skills } from '@/data/cv';
 import CvTimeline from '@/components/ui/CvTimeline.astro';
 import List from '@/components/ui/List.astro';
 import PublicationsList from '@/components/ui/PublicationsList.astro';
-import { getCollection } from 'astro:content';
+import { getPapers } from '@/lib/content';
+import { parseISODate } from '@/lib/dates';
 
 import type { Experience, Education } from '@/types/cv';
 
@@ -14,22 +15,13 @@ const sortByEndDate = <T extends { start: string; end?: string | null }>(
 ) => {
   const endA = a.end ?? a.start;
   const endB = b.end ?? b.start;
-  return new Date(endB).getTime() - new Date(endA).getTime();
+  return parseISODate(endB).getTime() - parseISODate(endA).getTime();
 };
 
 const orderedExperiences: Experience[] = [...experiences].sort(sortByEndDate);
 const orderedEducations: Education[] = [...education].sort(sortByEndDate);
 
-const orderedPublications = (await getCollection('papers'))
-  .sort((a, b) => b.data.year - a.data.year)
-  .map((paper) => ({
-    title: paper.data.title,
-    authors: paper.data.authors,
-    venue: paper.data.venue,
-    year: paper.data.year,
-    link: paper.data.link ?? paper.data.pdf,
-    abstract: paper.data.abstract,
-  }));
+const orderedPublications = await getPapers();
 ---
 
 <Layout>

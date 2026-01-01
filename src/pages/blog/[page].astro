@@ -2,20 +2,9 @@
 import Pagination from '@/components/ui/Pagination.astro';
 import Layout from '@/layouts/Layout.astro';
 import { Image } from 'astro:assets';
-import type { ImageMetadata } from 'astro';
-import { trimExcerpt } from '@/lib/utils';
 import { template } from '@/settings';
-import { getCollection } from 'astro:content';
-
-type BlogListItem = {
-  title: string;
-  date: Date;
-  badge?: string;
-  excerpt: string;
-  slug: string;
-  cover?: ImageMetadata;
-  coverAlt?: string;
-};
+import { getBlogListItems } from '@/lib/content';
+import type { BlogListItem } from '@/lib/content';
 
 type PageData = {
   data: BlogListItem[];
@@ -31,20 +20,7 @@ type Paginate = (
 ) => Array<{ params: { page?: string }; props: { page: PageData } }>;
 
 export async function getStaticPaths({ paginate }: { paginate: Paginate }) {
-  const blogEntries = await getCollection('blog');
-
-  const posts: BlogListItem[] = blogEntries
-    .filter((post) => !post.data.draft)
-    .map((post) => ({
-      title: post.data.title,
-      date: post.data.date,
-      badge: post.data.tags[0],
-      excerpt: trimExcerpt(post.data.excerpt),
-      slug: `${template.base}/blog/${post.slug}`,
-      cover: post.data.cover,
-      coverAlt: post.data.coverAlt,
-    }))
-    .sort((a, b) => b.date.getTime() - a.date.getTime());
+  const posts: BlogListItem[] = await getBlogListItems();
 
   return paginate(posts, {
     pageSize: template.postPerPage,

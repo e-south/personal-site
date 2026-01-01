@@ -13,11 +13,14 @@
     "typecheck": "astro check",
     "test": "vitest run",
     "verify": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run build",
+    "audit": "npm audit",
+    "audit:prod": "npm audit --omit=dev",
     "prepare": "husky install"
   },
   "engines": {
     "node": ">=20"
   },
+  "packageManager": "npm@10.8.2",
   "lint-staged": {
     "*.{js,ts,mjs,astro,json,md,mdx,css,yml,yaml}": [
       "prettier --write"
@@ -27,15 +30,13 @@
     ]
   },
   "dependencies": {
-    "@astrojs/react": "^4.1.4",
-    "@astrojs/rss": "^4.0.11",
-    "@astrojs/sitemap": "^3.2.1",
-    "@astrojs/tailwind": "^5.1.4",
+    "@astrojs/react": "^4.4.2",
+    "@astrojs/rss": "^4.0.14",
+    "@astrojs/sitemap": "^3.6.0",
+    "@astrojs/tailwind": "^6.0.2",
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource-variable/jetbrains-mono": "^5.2.8",
-    "@types/react": "^19.0.7",
-    "@types/react-dom": "^19.0.3",
-    "astro": "^5.14.5",
+    "astro": "^5.16.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwindcss": "^3.4.17",
@@ -44,6 +45,8 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.6",
     "@tailwindcss/typography": "^0.5.16",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
     "daisyui": "^4.12.23",
@@ -55,6 +58,6 @@
     "prettier": "^3.4.2",
     "prettier-plugin-astro": "^0.14.1",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "vitest": "^4.0.16"
   }
 }

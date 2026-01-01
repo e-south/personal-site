@@ -41,7 +41,7 @@ Collection: src/content/papers
 Fields:
 
 - title (string)
-- authors (string)
+- authors (string[])
 - venue (string)
 - year (number)
 - link (url, optional)
@@ -50,3 +50,5 @@ Fields:
 - featured (boolean, optional)
 
 At least one of link or pdf is required for papers.
+
+Tip: use a trailing `*` on author names to denote equal contribution; highlighting ignores trailing `*`.

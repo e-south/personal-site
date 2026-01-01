@@ -1,18 +1,9 @@
 ---
 import Layout from '@/layouts/Layout.astro';
-import { highlightAuthor } from '@/lib/utils';
-import { getCollection } from 'astro:content';
+import AuthorList from '@/components/ui/AuthorList.astro';
+import { getPapers } from '@/lib/content';
 
-const papers = (await getCollection('papers'))
-  .sort((a, b) => b.data.year - a.data.year)
-  .map((paper) => ({
-    title: paper.data.title,
-    authors: paper.data.authors,
-    venue: paper.data.venue,
-    year: paper.data.year,
-    link: paper.data.link ?? paper.data.pdf,
-    abstract: paper.data.abstract,
-  }));
+const papers = await getPapers();
 ---
 
 <Layout title="Papers">
@@ -33,10 +24,7 @@ const papers = (await getCollection('papers'))
               ) : (
                 <h2 class="card-title text-xl">{paper.title}</h2>
               )}
-              <p class="text-base mb-2">
-                <span class="font-medium">Authors:</span>{' '}
-                <span set:html={highlightAuthor(paper.authors)} />
-              </p>
+              <AuthorList authors={paper.authors} />
               <p class="text-sm mb-3">
                 <span class="italic">{paper.venue}</span> • {paper.year}
               </p>

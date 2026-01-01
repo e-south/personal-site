@@ -1,12 +1,10 @@
 import rss from '@astrojs/rss';
-import { seo, template } from '../settings';
-import { getCollection } from 'astro:content';
+import { seo } from '../settings';
+import { getPublishedBlogEntries } from '@/lib/content';
+import { toAbsoluteUrl } from '@/lib/urls';
 
 export async function GET(context) {
-  const blog = await getCollection('blog');
-  const posts = blog
-    .filter((post) => !post.data.draft)
-    .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+  const posts = await getPublishedBlogEntries();
   return rss({
     // `<title>` field in output xml
     title: seo.default_title,
@@ -21,10 +19,7 @@ export async function GET(context) {
       title: post.data.title,
       pubDate: post.data.date,
       description: post.data.excerpt,
-      link: new URL(
-        `${template.base}/blog/${post.slug}`,
-        context.site,
-      ).toString(),
+      link: toAbsoluteUrl(`/blog/${post.slug}`, context.site),
     })),
     // (optional) inject custom xml
     customData: `<language>en-us</language>`,

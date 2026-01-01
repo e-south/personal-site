@@ -1,5 +1,5 @@
 ---
-import { template } from '@/settings';
+import { withBase } from '@/lib/urls';
 interface Props {
   gridTitle: string;
   gridItems: {
@@ -20,7 +20,7 @@ const { gridTitle, gridItems } = Astro.props;
         {item.image && (
           <figure class="aspect-video">
             <img
-              src={`${template.base}${item.image}`}
+              src={withBase(item.image)}
               alt={item.title}
               class="w-full h-full object-cover"
               loading="lazy"

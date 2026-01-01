@@ -4,18 +4,11 @@ import { profile } from '@/settings';
 import BetterIcon from '@/components/ui/BetterIcon.astro';
 import List from '@/components/ui/List.astro';
 import { RESEARCH_ICONS } from '@/data/researchIcons';
-import { getCollection } from 'astro:content';
+import { getProjectsByStatus } from '@/lib/content';
 
 const { research_areas } = profile;
 
-const currentProjects = (await getCollection('projects'))
-  .filter((project) => project.data.status === 'active')
-  .map((project) => ({
-    title: project.data.title,
-    description: project.data.description,
-    image: project.data.image,
-    imageAlt: project.data.imageAlt,
-  }));
+const currentProjects = await getProjectsByStatus('active');
 ---
 
 <Layout title="Research | Eric J. South">
@@ -55,10 +48,7 @@ const currentProjects = (await getCollection('projects'))
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                  d={
-                    RESEARCH_ICONS[area.field as keyof typeof RESEARCH_ICONS]
-                      ?.path || RESEARCH_ICONS['computer-science'].path
-                  }
+                  d={RESEARCH_ICONS[area.field].path}
                 />
               </svg>
             </BetterIcon>
