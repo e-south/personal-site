@@ -43,6 +43,9 @@ git config core.hooksPath .husky
 If you see `.git/config` lock errors, pause Dropbox sync or exclude `.git/` from
 sync to avoid file locks during installs.
 
+Pre‑push runs the full `npm run verify` gate. Ensure `.env` is set so the build
+can resolve `PUBLIC_SITE_URL` and `PUBLIC_BASE_PATH`.
+
 ## Dropbox + Git locks
 
 If a `git push` succeeds but reports lock errors, your refs are usually stale
@@ -55,6 +58,7 @@ git fetch origin dev/site-infra
 To reduce lock contention in Dropbox:
 
 - Prefer `git push origin HEAD` (avoids writing upstream config).
+- Or use the helper script: `scripts/git-sync.sh` (push + fetch).
 - Ensure the repo is marked “Available offline” in Dropbox.
 - If the issue persists, consider excluding `.git/` from Dropbox sync (the
   working tree remains in Dropbox).
