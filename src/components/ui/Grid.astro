@@ -9,26 +9,29 @@ interface Props {
   }[];
 }
 
-const {gridTitle, gridItems} = Astro.props;
+const { gridTitle, gridItems } = Astro.props;
 ---
+
 <h2 class="text-3xl font-bold mb-8">{gridTitle}</h2>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-  {gridItems.map((item) => (
-    <div class="card bg-base-200 overflow-hidden">
-      {item.image && (
-        <figure class="aspect-video">
-          <img
-            src={`${template.base}${item.image}`}
-            alt={item.title}
-            class="w-full h-full object-cover"
-            loading="lazy"
-          />
-        </figure>
-      )}
-      <div class="card-body">
-        <h3 class="card-title text-xl">{item.title}</h3>
-        <p>{item.description}</p>
+  {
+    gridItems.map((item) => (
+      <div class="card bg-base-200 overflow-hidden">
+        {item.image && (
+          <figure class="aspect-video">
+            <img
+              src={`${template.base}${item.image}`}
+              alt={item.title}
+              class="w-full h-full object-cover"
+              loading="lazy"
+            />
+          </figure>
+        )}
+        <div class="card-body">
+          <h3 class="card-title text-xl">{item.title}</h3>
+          <p>{item.description}</p>
+        </div>
       </div>
-    </div>
-  ))}
+    ))
+  }
 </div>

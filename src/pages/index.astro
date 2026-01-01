@@ -1,17 +1,37 @@
 ---
-import Layout from '../layouts/Layout.astro'
+import Layout from '../layouts/Layout.astro';
 
-import { profile } from '@/settings'
-import { publications } from '@/data/cv'
-import ProfilePictures from '@/assets/profile_pictures.jpg'
-import Hero from '@/components/ui/Hero.astro'
-import Grid from '@/components/ui/Grid.astro'
-import ArticleList from '@/components/ui/ArticleList.astro'
+import { profile } from '@/settings';
+import ProfilePictures from '@/assets/profile_pictures.jpg';
+import Hero from '@/components/ui/Hero.astro';
+import Grid from '@/components/ui/Grid.astro';
+import ArticleList from '@/components/ui/ArticleList.astro';
+import List from '@/components/ui/List.astro';
+import { getCollection } from 'astro:content';
 
-const { fullName, title, institute, research_areas } = profile
+const { fullName, title, institute, research_areas } = profile;
+
+const featuredProjects = (await getCollection('projects'))
+  .filter((project) => project.data.featured)
+  .map((project) => ({
+    title: project.data.title,
+    description: project.data.description,
+    image: project.data.image,
+    imageAlt: project.data.imageAlt,
+  }));
+
+const recentPapers = (await getCollection('papers'))
+  .sort((a, b) => b.data.year - a.data.year)
+  .slice(0, 3)
+  .map((paper) => ({
+    title: paper.data.title,
+    venue: paper.data.venue,
+    year: paper.data.year,
+  }));
 ---
+
 <Layout>
-  <section class='flex items-center gap-12 border-b pb-12'>
+  <section class="flex items-center gap-12 border-b pb-12">
     <Hero
       fullName={fullName}
       title={title}
@@ -21,11 +41,23 @@ const { fullName, title, institute, research_areas } = profile
     />
   </section>
 
-  <section class='py-12 border-b'>
-    <Grid gridTitle='Research Areas' gridItems={research_areas} />
+  <section class="py-12 border-b">
+    <Grid gridTitle="Research Areas" gridItems={research_areas} />
   </section>
 
-  <section class='py-12 border-t'>
-    <ArticleList listTitle='Recent Publications' listItems={publications} />
-  </section>
+  {
+    featuredProjects.length > 0 && (
+      <section class="py-12 border-b">
+        <List listTitle="Featured Projects" listItems={featuredProjects} />
+      </section>
+    )
+  }
+
+  {
+    recentPapers.length > 0 && (
+      <section class="py-12 border-t">
+        <ArticleList listTitle="Recent Publications" listItems={recentPapers} />
+      </section>
+    )
+  }
 </Layout>

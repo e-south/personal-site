@@ -1,89 +1,70 @@
 ---
-import Layout from '@/layouts/Layout.astro'
-import { experiences, education, skills, publications } from '../data/cv'
-import CvTimeline from '@/components/ui/CvTimeline.astro'
+import Layout from '@/layouts/Layout.astro';
+import { experiences, education, skills } from '@/data/cv';
+import CvTimeline from '@/components/ui/CvTimeline.astro';
+import List from '@/components/ui/List.astro';
+import PublicationsList from '@/components/ui/PublicationsList.astro';
+import { getCollection } from 'astro:content';
 
-import type { Experience, Education, Publication } from '../types/cv'
-import List from '@/components/ui/List.astro'
-import PublicationsList from '@/components/ui/PublicationsList.astro'
+import type { Experience, Education } from '@/types/cv';
 
-let orderedExperiences: Experience[] = []
-let orderedEducations: Education[] = []
-let orderedPublications: Publication[] = []
+const sortByEndDate = <T extends { start: string; end?: string | null }>(
+  a: T,
+  b: T,
+) => {
+  const endA = a.end ?? a.start;
+  const endB = b.end ?? b.start;
+  return new Date(endB).getTime() - new Date(endA).getTime();
+};
 
-const orderElement = <T extends { time: string }>(a: T, b: T) => {
-  const presentValues = ['present', 'now', 'current', 'today']
-  if (
-			presentValues.includes(
-				(a['time'] as string)?.split(' - ')[1]?.toLowerCase()
-			)
-		) {
-			// If the date is 'present', it should be the first element
-			return -1
-		}
-		const dateA = new Date((a['time'] as string)?.split(' - ')[1])
-		const dateB = new Date((b['time'] as string)?.split(' - ')[1])
-		return dateB.getTime() - dateA.getTime()
-}
+const orderedExperiences: Experience[] = [...experiences].sort(sortByEndDate);
+const orderedEducations: Education[] = [...education].sort(sortByEndDate);
 
-if (experiences.length > 0) {
-	orderedExperiences = experiences.sort((a, b) => {
-		return orderElement(a, b)
-	})
-}
-
-if (education.length > 0) {
-	orderedEducations = education.sort((a, b) => {
-		return orderElement(a, b)
-	})
-}
-
-if (publications.length > 0) {
-	orderedPublications = publications.sort((a, b) => {
-		return orderElement(a, b)
-	})
-}
+const orderedPublications = (await getCollection('papers'))
+  .sort((a, b) => b.data.year - a.data.year)
+  .map((paper) => ({
+    title: paper.data.title,
+    authors: paper.data.authors,
+    venue: paper.data.venue,
+    year: paper.data.year,
+    link: paper.data.link ?? paper.data.pdf,
+    abstract: paper.data.abstract,
+  }));
 ---
 
 <Layout>
-	{
-		orderedEducations.length > 0 && (
-			<section class='mb-12'>
-				<h2 class='text-2xl font-bold mb-6 border-b pb-2'>
-					Education
-				</h2>
-				<CvTimeline elements={orderedEducations} colored={true} />
-			</section>
-		)
-	}
+  {
+    orderedEducations.length > 0 && (
+      <section class="mb-12">
+        <h2 class="text-2xl font-bold mb-6 border-b pb-2">Education</h2>
+        <CvTimeline elements={orderedEducations} colored={true} />
+      </section>
+    )
+  }
 
-	{
-		orderedExperiences.length > 0 && (
-			<section class='mb-12'>
-				<h2 class='text-2xl font-bold mb-6 border-b pb-2'>
-					Experiences
-				</h2>
-				<CvTimeline elements={orderedExperiences} colored={true} />
-			</section>
-		)
-	}
+  {
+    orderedExperiences.length > 0 && (
+      <section class="mb-12">
+        <h2 class="text-2xl font-bold mb-6 border-b pb-2">Experiences</h2>
+        <CvTimeline elements={orderedExperiences} colored={true} />
+      </section>
+    )
+  }
 
-	{
-		orderedPublications.length > 0 && (
-			<section class='mb-12'>
-				<h2 class='text-2xl font-bold mb-6 border-b pb-2'>
-					Last publications
-				</h2>
-				<PublicationsList elements={orderedPublications}/>
-			</section>
-		)
-	}
+  {
+    orderedPublications.length > 0 && (
+      <section class="mb-12">
+        <h2 class="text-2xl font-bold mb-6 border-b pb-2">Publications</h2>
+        <PublicationsList elements={orderedPublications} />
+      </section>
+    )
+  }
 
-	{
-		skills.length > 0 && (
-			<section class='mb-12'>
-				<List listTitle='Skills' listItems={skills}/>
-			</section>
-		)
-	}
+  {
+    skills.length > 0 && (
+      <section class="mb-12">
+        <List listTitle="Skills" listItems={skills} />
+      </section>
+    )
+  }
 </Layout>

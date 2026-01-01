@@ -49,16 +49,21 @@ export const social = {
   orcid: '',
 };
 
+const basePath = import.meta.env.PUBLIC_BASE_PATH;
+if (basePath === undefined) {
+  throw new Error(
+    'PUBLIC_BASE_PATH is required (use "" for root deploys). Set it in .env.',
+  );
+}
+
 export const template = {
-  // Set to your real domain when you deploy (OK to keep localhost during dev)
-  website_url: 'https://localhost:4321',
   menu_left: false,
   transitions: true,
   lightTheme: 'light',
   darkTheme: 'dark',
   excerptLength: 200,
   postPerPage: 5,
-  base: '', // e.g., '/personal-site' if you deploy to GitHub Pages
+  base: basePath, // e.g., '/personal-site' if you deploy to GitHub Pages
 };
 
 export const seo = {

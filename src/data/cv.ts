@@ -1,6 +1,10 @@
+import type { Education, Experience, Skill } from '@/types/cv';
+
 export const experiences = [
   {
     company: 'Boston University — Biological Design Center',
+    start: '2020-09-01',
+    end: null,
     time: 'Sep 2020 - present',
     title: 'PhD Candidate',
     location: 'Boston, MA, USA',
@@ -9,6 +13,8 @@ export const experiences = [
   },
   {
     company: 'LanzaTech — Synthetic Biology & Host Strain Engineering',
+    start: '2022-05-01',
+    end: '2022-08-01',
     time: 'May 2022 - Aug 2022',
     title: 'Engineering Biology Research Consortium Intern',
     location: 'Chicago, IL, USA',
@@ -16,7 +22,10 @@ export const experiences = [
       'Contributed to genetic tool development for gas-fermenting strains. Helped establish experimental + computational workflows for pooled DNA libraries, high-throughput screening, NGS, and biosensors.',
   },
   {
-    company: 'Imperial College London — Centre for Synthetic Biology (with The Francis Crick Institute)',
+    company:
+      'Imperial College London — Centre for Synthetic Biology (with The Francis Crick Institute)',
+    start: '2018-08-01',
+    end: '2020-07-01',
     time: 'Aug 2018 - Jul 2020',
     title: 'Postgraduate Researcher (MRes)',
     location: 'London, UK',
@@ -25,6 +34,8 @@ export const experiences = [
   },
   {
     company: 'Science Entrepreneur Club',
+    start: '2019-03-01',
+    end: '2019-12-01',
     time: 'Mar 2019 - Dec 2019',
     title: 'Outreach Manager',
     location: 'London, UK',
@@ -33,48 +44,59 @@ export const experiences = [
   },
   {
     company: 'SRI International — Center for Macromolecular Bioscience',
+    start: '2017-06-01',
+    end: '2018-08-01',
     time: 'Jun 2017 - Aug 2018',
     title: 'Student Associate',
     location: 'Shenandoah Valley, VA, USA',
     description:
-      'Analyzed peptide drug‑candidate internalization in mammalian cells (flow cytometry, Western blotting) and supported development of cell-type-specific cancer therapies.',
+      'Analyzed peptide drug-candidate internalization in mammalian cells (flow cytometry, Western blotting) and supported development of cell-type-specific cancer therapies.',
   },
   {
     company: 'James Madison University — School of Integrated Sciences',
+    start: '2014-01-01',
+    end: '2017-12-31',
     time: '2014 - 2017',
     title: 'Undergraduate Researcher (REU)',
     location: 'Harrisonburg, VA, USA',
     description:
-      'Characterized human Uba1 enzyme; purified ubiquitin‑like proteins from E. coli (SEC, ion-exchange chromatography).',
+      'Characterized human Uba1 enzyme; purified ubiquitin-like proteins from E. coli (SEC, ion-exchange chromatography).',
   },
-];
+] satisfies Experience[];
 
 export const education = [
   {
     school: 'Boston University',
+    start: '2020-09-01',
+    end: null,
     time: 'Sep 2020 - present',
-    degree: 'PhD Candidate, Molecular Biology, Cell Biology, and Biochemistry (MCBB)',
+    degree:
+      'PhD Candidate, Molecular Biology, Cell Biology, and Biochemistry (MCBB)',
     location: 'Boston, MA, USA',
     description:
       'Advisor: Mary J. Dunlop. Thesis: “Molecular Sequence Design for Interfacing with Gene Regulatory Networks.”',
   },
   {
     school: 'Imperial College London',
+    start: '2018-01-01',
+    end: '2019-12-31',
     time: '2018 - 2019',
     degree: 'MRes, Systems & Synthetic Biology (Distinction)',
     location: 'London, UK',
     description:
-      "Outstanding Student award; coursework across experimental & theoretical systems biology and synthetic biology. Advisors: Rodrigo Ledesma-Amaro (primary), Markus Ralser. Thesis: “A Screening Platform to Identify Synthetic Microbial Communities.”",
+      'Outstanding Student award; coursework across experimental & theoretical systems biology and synthetic biology. Advisors: Rodrigo Ledesma-Amaro (primary), Markus Ralser. Thesis: “A Screening Platform to Identify Synthetic Microbial Communities.”',
   },
   {
     school: 'James Madison University',
+    start: '2014-01-01',
+    end: '2018-12-31',
     time: '2014 - 2018',
     degree: 'B.S., Biotechnology (Magna Cum Laude, GPA 3.72)',
     location: 'Harrisonburg, VA, USA',
     description:
-      "President, Biotechnology Association; Executive board, Tri-Beta Biological Honor Society.",
+      'President, Biotechnology Association; Executive board, Tri-Beta Biological Honor Society.',
   },
-];
+] satisfies Education[];
 
 export const skills = [
   {
@@ -112,48 +134,4 @@ export const skills = [
     description:
       'BDC SPIN organizer; EBRC industry liaison; Science Entrepreneur Club outreach; JMU Biotech Assoc. president; Tri-Beta exec board.',
   },
-];
-
-export const publications = [
-  {
-    title: 'Generating information-dense promoter sequences with optimal string packing',
-    authors: 'Virgile Andreani*, Eric J. South*, Mary J. Dunlop',
-    journal: 'PLOS Computational Biology',
-    time: '2024',
-    link: 'https://doi.org/10.1371/journal.pcbi.1012276',
-    abstract:
-      'Introduces a computational approach to pack TF binding sites densely in DNA to probe how arrangement impacts expression at scale.',
-  },
-  {
-    title:
-      'A molecular toolkit of cross-feeding strains for engineering synthetic yeast communities',
-    authors:
-      'Huadong Peng, Alexander P. S. Darlington, Eric J. South, Hao-Hong Chen, Wei Jiang, Rodrigo Ledesma-Amaro',
-    journal: 'Nature Microbiology',
-    time: '2024',
-    link: '',
-    abstract:
-      'Engineers auxotrophic and overexpression yeast strains to enable controllable synthetic co-cultures via metabolite exchange.',
-  },
-  {
-    title:
-      'Spontaneously establishing syntrophic yeast communities improve bioproduction',
-    authors:
-      'Simran Aulakh*, Lara Sellés Vidal*, Eric J. South*, Sreejith Varma, Lucia Herrera Dominguez, Huadong Peng, Markus Ralser, Rodrigo Ledesma-Amaro',
-    journal: 'Nature Chemical Biology',
-    time: '2023',
-    link: 'https://doi.org/10.1038/s41589-023-01341-2',
-    abstract:
-      'High‑throughput workflows reveal synergistic yeast communities that enhance bioproduction through spontaneous cross-feeding.',
-  },
-  {
-    title:
-      'Transcriptional Tuning of Mevalonate Pathway Enzymes to Identify the Impact on Limonene Production in Escherichia coli',
-    authors: 'Jonghyeon Shin*, Eric J. South*, Mary J. Dunlop',
-    journal: 'ACS Omega',
-    time: '2022',
-    link: '',
-    abstract:
-      'Systematic transcriptional tuning of pathway enzymes to quantify effects on limonene production in E. coli.',
-  },
-];
+] satisfies Skill[];

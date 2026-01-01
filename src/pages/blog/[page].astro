@@ -1,85 +1,114 @@
 ---
-import Pagination from '@/components/ui/Pagination.astro'
-import Layout from '@/layouts/Layout.astro'
-import { Image } from 'astro:assets'
-import { trimExcerpt } from '@/lib/utils'
-import { template } from '@/settings'
-import { getCollection } from 'astro:content'
+import Pagination from '@/components/ui/Pagination.astro';
+import Layout from '@/layouts/Layout.astro';
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { trimExcerpt } from '@/lib/utils';
+import { template } from '@/settings';
+import { getCollection } from 'astro:content';
 
-export async function getStaticPaths({ paginate }): Promise<Astro.getStaticPathsResult> {
-    const blogEntries = await getCollection("blog");
+type BlogListItem = {
+  title: string;
+  date: Date;
+  badge?: string;
+  excerpt: string;
+  slug: string;
+  cover?: ImageMetadata;
+  coverAlt?: string;
+};
 
-    const posts = blogEntries
-        .map(post => ({
-            title: post.data.title,
-            date: post.data.date,
-            badge: post.data.tags[0],
-            excerpt: trimExcerpt(post.data.excerpt),
-            slug: `${template.base}/blog/${post.id}`,
-			cover: post.data.cover,
-    		coverAlt: post.data.coverAlt,
-        }))
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+type PageData = {
+  data: BlogListItem[];
+  url: {
+    prev?: string;
+    next?: string;
+  };
+};
 
-    return paginate(posts, {
-        pageSize: template.postPerPage,
-    });
+type Paginate = (
+  data: BlogListItem[],
+  options: { pageSize: number },
+) => Array<{ params: { page?: string }; props: { page: PageData } }>;
+
+export async function getStaticPaths({ paginate }: { paginate: Paginate }) {
+  const blogEntries = await getCollection('blog');
+
+  const posts: BlogListItem[] = blogEntries
+    .filter((post) => !post.data.draft)
+    .map((post) => ({
+      title: post.data.title,
+      date: post.data.date,
+      badge: post.data.tags[0],
+      excerpt: trimExcerpt(post.data.excerpt),
+      slug: `${template.base}/blog/${post.slug}`,
+      cover: post.data.cover,
+      coverAlt: post.data.coverAlt,
+    }))
+    .sort((a, b) => b.date.getTime() - a.date.getTime());
+
+  return paginate(posts, {
+    pageSize: template.postPerPage,
+  });
 }
-const { page } = Astro.props
+const { page } = Astro.props as { page: PageData };
 ---
 
-<Layout title='Blog'>
-    <div>
-		<h1 class='text-3xl font-bold mb-8'>Blog Posts</h1>
-		<div class='grid gap-8'>
-			{
-				page.data.map(post => (
-					<article class='card bg-base-200 transition-all overflow-hidden'>
+<Layout title="Blog">
+  <div>
+    <h1 class="text-3xl font-bold mb-8">Blog Posts</h1>
+    <div class="grid gap-8">
+      {
+        page.data.map((post) => (
+          <article class="card bg-base-200 transition-all overflow-hidden">
             {post.cover && (
-              <figure class='aspect-video'>
+              <figure class="aspect-video">
                 <Image
                   src={post.cover}
                   alt={post.coverAlt ?? post.title}
-                  class='w-full h-full object-cover'
+                  class="w-full h-full object-cover"
                 />
               </figure>
             )}
-						<div class='card-body'>
-							<div class='flex justify-between items-start'>
-								<h2 class='card-title text-xl'>
-                            <a href={post.slug} class='hover:text-accent'>
-										{post.title}
-									</a>
-								</h2>
-								<div class='badge badge-accent badge-outline p-4'>
-									{post.badge}
-								</div>
-							</div>
-							<time datetime={post.date} class='text-sm text-base-content/71'>
-								{new Date(post.date).toLocaleDateString('en-US', {
-									year: 'numeric',
-									month: 'long',
-									day: 'numeric',
-								})}
-							</time>
-							<p class='mt-4'>{post.excerpt}</p>
-							<div class='card-actions justify-end'>
-								<a
-                            href={post.slug}
-									class='btn btn-sm btn-secondary text-secondary-content'
-								>
-									Read More
-								</a>
-							</div>
-						</div>
-					</article>
-				))
-			}
-		</div>
-
-		<div class='flex justify-center mt-8'>
-			<Pagination page={page} />
-		</div>
+            <div class="card-body">
+              <div class="flex justify-between items-start">
+                <h2 class="card-title text-xl">
+                  <a href={post.slug} class="hover:text-accent">
+                    {post.title}
+                  </a>
+                </h2>
+                {post.badge && (
+                  <div class="badge badge-accent badge-outline p-4">
+                    {post.badge}
+                  </div>
+                )}
+              </div>
+              <time
+                datetime={post.date.toISOString()}
+                class="text-sm text-base-content/71"
+              >
+                {post.date.toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </time>
+              <p class="mt-4">{post.excerpt}</p>
+              <div class="card-actions justify-end">
+                <a
+                  href={post.slug}
+                  class="btn btn-sm btn-secondary text-secondary-content"
+                >
+                  Read More
+                </a>
+              </div>
+            </div>
+          </article>
+        ))
+      }
     </div>
 
+    <div class="flex justify-center mt-8">
+      <Pagination page={page} />
+    </div>
+  </div>
 </Layout>
