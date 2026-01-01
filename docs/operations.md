@@ -43,6 +43,22 @@ git config core.hooksPath .husky
 If you see `.git/config` lock errors, pause Dropbox sync or exclude `.git/` from
 sync to avoid file locks during installs.
 
+## Dropbox + Git locks
+
+If a `git push` succeeds but reports lock errors, your refs are usually stale
+locally. Refresh them with:
+
+```bash
+git fetch origin dev/site-infra
+```
+
+To reduce lock contention in Dropbox:
+
+- Prefer `git push origin HEAD` (avoids writing upstream config).
+- Ensure the repo is marked “Available offline” in Dropbox.
+- If the issue persists, consider excluding `.git/` from Dropbox sync (the
+  working tree remains in Dropbox).
+
 ## NPM cache
 
 This repo uses a local cache (`.npm-cache`, ignored). If you see permission
