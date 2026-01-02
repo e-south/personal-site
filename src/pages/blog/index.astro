@@ -1,0 +1,19 @@
+---
+import { withBase } from '@/lib/urls';
+
+const redirectPath = withBase('/blog/1');
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="refresh" content={`0; url=${redirectPath}`} />
+    <link rel="canonical" href={redirectPath} />
+    <title>Redirecting...</title>
+  </head>
+  <body class="bg-base-100 text-base-content font-sans">
+    <p class="p-6">
+      Redirecting to <a href={redirectPath}>the blog</a>.
+    </p>
+  </body>
+</html>

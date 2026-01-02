@@ -12,11 +12,11 @@ interface Props {
 const { gridTitle, gridItems } = Astro.props;
 ---
 
-<h2 class="text-3xl font-bold mb-8">{gridTitle}</h2>
+<h2 class="text-2xl font-semibold mb-6">{gridTitle}</h2>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
   {
     gridItems.map((item) => (
-      <div class="card bg-base-200 overflow-hidden">
+      <div class="border border-base-content/10 rounded-xl overflow-hidden">
         {item.image && (
           <figure class="aspect-video">
             <img
@@ -27,9 +27,9 @@ const { gridTitle, gridItems } = Astro.props;
             />
           </figure>
         )}
-        <div class="card-body">
-          <h3 class="card-title text-xl">{item.title}</h3>
-          <p>{item.description}</p>
+        <div class="p-6 space-y-2">
+          <h3 class="text-xl font-semibold">{item.title}</h3>
+          <p class="text-base-content/75 leading-relaxed">{item.description}</p>
         </div>
       </div>
     ))

@@ -7,9 +7,11 @@ import tailwind from '@astrojs/tailwind';
 
 import sitemap from '@astrojs/sitemap';
 
-const env = loadEnv(process.env.NODE_ENV ?? 'development', process.cwd(), '');
-const site = env.PUBLIC_SITE_URL;
-const base = env.PUBLIC_BASE_PATH;
+const mode = process.env.NODE_ENV ?? 'development';
+const env = loadEnv(mode, process.cwd(), '');
+const isDev = mode === 'development';
+const site = env.PUBLIC_SITE_URL || (isDev ? 'http://localhost:4321' : '');
+const base = env.PUBLIC_BASE_PATH ?? (isDev ? '' : undefined);
 
 if (!site) {
   throw new Error(

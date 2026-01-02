@@ -1,6 +1,7 @@
 import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 
+import { template } from '@/settings';
 import { trimExcerpt } from '@/lib/utils';
 import { withBase } from '@/lib/urls';
 
@@ -20,6 +21,9 @@ export type BlogListItem = {
 export type ProjectCard = {
   title: string;
   description: string;
+  summary?: string;
+  tech: string[];
+  links?: ProjectEntry['data']['links'];
   image?: ProjectEntry['data']['image'];
   imageAlt?: string;
 };
@@ -36,15 +40,21 @@ export type PaperItem = {
   year: number;
   link?: string;
   abstract?: string;
+  featured?: boolean;
 };
 
 let blogEntriesCache: BlogEntry[] | null = null;
 let projectRecordsCache: ProjectRecord[] | null = null;
 let papersCache: PaperItem[] | null = null;
 
+const shouldUseCache = !import.meta.env.DEV;
+
 const mapProjectRecord = (project: ProjectEntry): ProjectRecord => ({
   title: project.data.title,
   description: project.data.description,
+  summary: project.data.summary,
+  tech: project.data.tech,
+  links: project.data.links,
   image: project.data.image,
   imageAlt: project.data.imageAlt,
   featured: project.data.featured,
@@ -54,33 +64,50 @@ const mapProjectRecord = (project: ProjectEntry): ProjectRecord => ({
 const toProjectCard = ({
   title,
   description,
+  summary,
+  tech,
+  links,
   image,
   imageAlt,
 }: ProjectRecord): ProjectCard => ({
   title,
   description,
+  summary,
+  tech,
+  links,
   image,
   imageAlt,
 });
 
 const getProjectRecords = async (): Promise<ProjectRecord[]> => {
-  if (projectRecordsCache) {
+  if (shouldUseCache && projectRecordsCache) {
     return projectRecordsCache;
   }
 
-  projectRecordsCache = (await getCollection('projects')).map(mapProjectRecord);
-  return projectRecordsCache;
+  const records = (await getCollection('projects')).map(mapProjectRecord);
+  if (shouldUseCache) {
+    projectRecordsCache = records;
+  }
+  return records;
 };
 
 export async function getPublishedBlogEntries(): Promise<BlogEntry[]> {
-  if (blogEntriesCache) {
+  if (shouldUseCache && blogEntriesCache) {
     return blogEntriesCache;
   }
 
-  blogEntriesCache = (await getCollection('blog'))
+  const entries = (await getCollection('blog'))
     .filter((post) => !post.data.draft)
     .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
-  return blogEntriesCache;
+  if (shouldUseCache) {
+    blogEntriesCache = entries;
+  }
+  return entries;
+}
+
+export async function hasPublishedBlogPosts(): Promise<boolean> {
+  const posts = await getPublishedBlogEntries();
+  return posts.length > 0;
 }
 
 export async function getBlogListItems(): Promise<BlogListItem[]> {
@@ -89,7 +116,7 @@ export async function getBlogListItems(): Promise<BlogListItem[]> {
     title: post.data.title,
     date: post.data.date,
     badge: post.data.tags[0],
-    excerpt: trimExcerpt(post.data.excerpt),
+    excerpt: trimExcerpt(post.data.excerpt, template.excerptLength),
     slug: withBase(`/blog/${post.slug}`),
     cover: post.data.cover,
     coverAlt: post.data.coverAlt,
@@ -115,11 +142,11 @@ export async function getProjectsByStatus(
 }
 
 export async function getPapers(): Promise<PaperItem[]> {
-  if (papersCache) {
+  if (shouldUseCache && papersCache) {
     return papersCache;
   }
 
-  papersCache = (await getCollection('papers'))
+  const papers = (await getCollection('papers'))
     .sort((a, b) => b.data.year - a.data.year)
     .map((paper) => {
       const link = paper.data.link ?? paper.data.pdf;
@@ -130,11 +157,19 @@ export async function getPapers(): Promise<PaperItem[]> {
         year: paper.data.year,
         link: link ? withBase(link) : undefined,
         abstract: paper.data.abstract,
+        featured: paper.data.featured,
       };
     });
-  return papersCache;
+  if (shouldUseCache) {
+    papersCache = papers;
+  }
+  return papers;
 }
 
 export async function getRecentPapers(limit = 3): Promise<PaperItem[]> {
   return (await getPapers()).slice(0, limit);
+}
+
+export async function getFeaturedPapers(limit = 4): Promise<PaperItem[]> {
+  return (await getPapers()).filter((paper) => paper.featured).slice(0, limit);
 }

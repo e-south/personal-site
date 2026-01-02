@@ -1,5 +1,4 @@
 ---
-import Envelope from '@/assets/social-icons/envelope.svg';
 import GitHub from '@/assets/social-icons/github.svg';
 import GitLab from '@/assets/social-icons/gitlab.svg';
 import LinkedIn from '@/assets/social-icons/linkedin-in.svg';
@@ -12,7 +11,7 @@ import Orcid from '@/assets/social-icons/orcid.svg';
 import { social } from '@/settings';
 
 const activeSocial = Object.keys(social).filter(
-  (key) => social[key as keyof typeof social] !== '',
+  (key) => key !== 'email' && social[key as keyof typeof social] !== '',
 );
 const calculatedIconSize =
   activeSocial.length <= 5
@@ -29,24 +28,13 @@ const calculatedContainerSize =
 ---
 
 <div class="flex flex-wrap justify-between items-center">
-  <!-- Email -->
-  {
-    social.email !== '' && (
-      <a
-        href={`mailto:${social.email}`}
-        class={`${calculatedContainerSize} inline-flex items-center justify-center rounded-xl hover:bg-primary/20 transition-all duration-300`}
-      >
-        <Envelope class={calculatedIconSize} fill="currentColor" />
-      </a>
-    )
-  }
-
   <!-- GitHub -->
   {
     social.github !== '' && (
       <a
         href={social.github}
         target="_blank"
+        rel="noreferrer noopener"
         class={`${calculatedContainerSize} inline-flex items-center justify-center rounded-xl hover:bg-primary/20 transition-all duration-300`}
       >
         <GitHub class={calculatedIconSize} fill="currentColor" />
@@ -60,6 +48,7 @@ const calculatedContainerSize =
       <a
         href={social.gitlab}
         target="_blank"
+        rel="noreferrer noopener"
         class={`${calculatedContainerSize} inline-flex items-center justify-center rounded-xl hover:bg-primary/20 transition-all duration-300`}
       >
         <GitLab class={calculatedIconSize} fill="currentColor" />
@@ -73,6 +62,7 @@ const calculatedContainerSize =
       <a
         href={social.x}
         target="_blank"
+        rel="noreferrer noopener"
         class={`${calculatedContainerSize} inline-flex items-center justify-center rounded-xl hover:bg-primary/20 transition-all duration-300`}
       >
         <X class={calculatedIconSize} fill="currentColor" />
@@ -86,6 +76,7 @@ const calculatedContainerSize =
       <a
         href={social.linkedin}
         target="_blank"
+        rel="noreferrer noopener"
         class={`${calculatedContainerSize} inline-flex items-center justify-center rounded-xl hover:bg-primary/20 transition-all duration-300`}
       >
         <LinkedIn class={calculatedIconSize} fill="currentColor" />
@@ -99,6 +90,7 @@ const calculatedContainerSize =
       <a
         href={social.scholar}
         target="_blank"
+        rel="noreferrer noopener"
         class={`${calculatedContainerSize} inline-flex items-center justify-center rounded-xl hover:bg-primary/20 transition-all duration-300`}
       >
         <Scholar class={calculatedIconSize} fill="currentColor" />
@@ -112,6 +104,7 @@ const calculatedContainerSize =
       <a
         href={social.inspire}
         target="_blank"
+        rel="noreferrer noopener"
         class={`${calculatedContainerSize} inline-flex items-center justify-center rounded-xl hover:bg-primary/20 transition-all duration-300`}
       >
         <Inspire class={calculatedIconSize} fill="currentColor" />
@@ -125,6 +118,7 @@ const calculatedContainerSize =
       <a
         href={social.arxiv}
         target="_blank"
+        rel="noreferrer noopener"
         class={`${calculatedContainerSize} inline-flex items-center justify-center rounded-xl hover:bg-primary/20 transition-all duration-300`}
       >
         <Arxiv class={calculatedIconSize} fill="currentColor" />
@@ -137,6 +131,7 @@ const calculatedContainerSize =
       <a
         href={social.orcid}
         target="_blank"
+        rel="noreferrer noopener"
         class={`${calculatedContainerSize} inline-flex items-center justify-center rounded-xl hover:bg-primary/20 transition-all duration-300`}
       >
         <Orcid class={calculatedIconSize} fill="currentColor" />

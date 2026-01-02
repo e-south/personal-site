@@ -11,14 +11,9 @@ npm run dev
 
 ## Environment
 
-Copy the example file and set your real values:
-
-```bash
-cp .env.example .env
-```
-
-- `PUBLIC_SITE_URL` is required (used for canonical URLs, sitemap, and RSS).
+- Production builds require `PUBLIC_SITE_URL` (canonical URLs, sitemap, RSS).
 - `PUBLIC_BASE_PATH` must be set to `""` for root deploys or `"/your-base"` for subpaths.
+- Local dev defaults to `http://localhost:4321` + empty base when env is unset.
 
 ## Scripts
 
@@ -32,14 +27,19 @@ cp .env.example .env
 
 - Blog posts: `src/content/blog`
 - Projects: `src/content/projects`
-- Papers: `src/content/papers`
+- Publications (papers collection): `src/content/papers`
+- CV metadata: `src/content/cv`
+- CV PDF: `public/cv/Eric_South_CV.pdf`
+- Site copy (home/projects/publications/contact/blog): `src/content/site`
 
 Schemas live in `src/content.config.ts`. Use `featured: true` to surface items on the homepage.
 
 ## Configuration
 
 - Site settings: `src/settings.ts`
-- CV data: `src/data/cv.ts`
+- Typography toggles: `template.bodyFont`, `template.displayFont`, `template.proseFont` in `src/settings.ts`
+- Navigation + feature flags: `src/data/navigation.ts` (`features.blogNav` = `auto` | `show` | `hide`)
+- Site copy: `src/content/site`
 - Content queries: `src/lib/content.ts`
 - Base-aware URLs: `src/lib/urls.ts`
 

@@ -1,10 +1,10 @@
 ---
-title: 'Sequence-to-expression design'
-description: 'Design and modeling of stress-responsive promoters and dense TF-binding motif layouts to tune transcriptional outputs.'
-summary: 'Computational promoter design and sequence-to-expression modeling for controllable transcription.'
+title: 'Sequence-to-expression modeling'
+description: 'Developing models that learn relationships between DNA sequence features and expression outcomes to guide design.'
+summary: 'Predictive modeling to connect sequence → expression in engineered regulatory systems.'
 status: 'active'
-tech: ['Promoter design', 'NGS', 'CNNs']
+tech: ['CNNs', 'PyTorch', 'Feature learning', 'Predictive modeling']
 featured: true
 ---
 
-Explores promoter sequence design and sequence-to-expression modeling to enable predictable control of transcriptional outputs.
+Models sequence features to predict expression outcomes and inform regulatory element design.

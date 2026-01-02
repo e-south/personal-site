@@ -1,5 +1,3 @@
-import { template } from '../settings';
-
 const normalizeAuthor = (author: string) => author.replace(/\*+$/, '').trim();
 
 export const isHighlightedAuthor = (author: string, highlightName?: string) =>
@@ -7,9 +5,8 @@ export const isHighlightedAuthor = (author: string, highlightName?: string) =>
     highlightName && normalizeAuthor(author) === normalizeAuthor(highlightName),
   );
 
-export function trimExcerpt(excerpt: string): string {
-  const excerptLength = template.excerptLength;
-  return excerpt.length > excerptLength
-    ? `${excerpt.substring(0, excerptLength)}...`
+export function trimExcerpt(excerpt: string, maxLength: number): string {
+  return excerpt.length > maxLength
+    ? `${excerpt.substring(0, maxLength)}...`
     : excerpt;
 }

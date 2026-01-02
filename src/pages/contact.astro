@@ -1,0 +1,56 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { getEntry, render } from 'astro:content';
+
+const contactEntry = await getEntry('site', 'contact');
+const linksEntry = await getEntry('site', 'links');
+const { Content } = contactEntry
+  ? await render(contactEntry)
+  : { Content: null };
+
+const contactData = contactEntry?.data;
+const linksData = linksEntry?.data;
+const title = contactData?.title ?? 'Contact';
+const intro = contactData?.intro ?? 'I typically respond within a few days.';
+const email = linksData?.email ?? 'ericjsouth@gmail.com';
+const locationShort = linksData?.location ?? 'Cambridge, MA';
+---
+
+<Layout title={title}>
+  <div class="mx-auto w-full max-w-3xl space-y-10">
+    <header class="space-y-3">
+      <h1 class="text-4xl sm:text-5xl font-semibold">{title}</h1>
+      <p class="text-base-content/70">{intro}</p>
+    </header>
+
+    <section class="space-y-6 text-base-content/80">
+      <div class="space-y-2">
+        <p
+          class="text-sm uppercase tracking-[0.2em] text-base-content/60 font-sans"
+        >
+          Email
+        </p>
+        <p class="select-all text-lg">{email}</p>
+      </div>
+
+      <div class="grid gap-6 sm:grid-cols-2">
+        <div class="space-y-2">
+          <p
+            class="text-sm uppercase tracking-[0.2em] text-base-content/60 font-sans"
+          >
+            Location
+          </p>
+          <p>{locationShort}</p>
+        </div>
+      </div>
+
+      {
+        Content && (
+          <div class="text-base-content/70 leading-relaxed">
+            <Content />
+          </div>
+        )
+      }
+    </section>
+  </div>
+</Layout>

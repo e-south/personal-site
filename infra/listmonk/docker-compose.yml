@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  listmonk-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: listmonk
+      POSTGRES_PASSWORD: listmonk
+      POSTGRES_DB: listmonk
+    volumes:
+      - listmonk-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  listmonk:
+    image: listmonk/listmonk:latest
+    depends_on:
+      - listmonk-db
+    ports:
+      - '9000:9000'
+    environment:
+      LISTMONK_app__address: 0.0.0.0:9000
+      LISTMONK_db__host: listmonk-db
+      LISTMONK_db__port: 5432
+      LISTMONK_db__user: listmonk
+      LISTMONK_db__password: listmonk
+      LISTMONK_db__database: listmonk
+      LISTMONK_db__sslmode: disable
+    command: ['sh', '-c', './listmonk --install --yes && ./listmonk']
+    restart: unless-stopped
+
+volumes:
+  listmonk-data:

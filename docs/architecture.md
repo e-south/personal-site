@@ -2,7 +2,7 @@
 
 ## Goals
 
-- Content-driven personal site (blog, projects, papers, CV)
+- Content-driven personal site (blog, projects, publications, CV)
 - Fast builds, minimal client JS
 - Typed + validated content models
 
@@ -11,17 +11,18 @@
 - src/pages: route wiring and layout selection
 - src/components: reusable UI blocks
 - src/layouts: page shells
-- src/content: content collections (blog, projects, papers)
-- src/data: small typed data (profile, socials)
+- src/content: content collections (blog, projects, papers, cv, site)
+- src/data: small typed data (profile, socials, navigation config)
 - src/lib: pure helpers (formatting, content queries, URL base handling)
 
 ## Build + deploy
 
 - Single quality gate: npm run verify
 - CI runs verify on pull requests and main
-- Build config is env-driven and fail-fast:
+- Build config is env-driven and fail-fast in production:
   - PUBLIC_SITE_URL is required (canonical URLs, sitemap, RSS).
   - PUBLIC_BASE_PATH is required ("" for root or "/base" for subpaths).
+  - Development defaults to http://localhost:4321 with base "" if unset.
 
 ## Content + routing helpers
 

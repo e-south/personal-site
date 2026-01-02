@@ -1,29 +1,82 @@
 ---
 import Layout from '@/layouts/Layout.astro';
-import List from '@/components/ui/List.astro';
-import { getFeaturedProjectCards, getProjectCards } from '@/lib/content';
+import { getProjectCards } from '@/lib/content';
+import { getEntry } from 'astro:content';
+import TagChip from '@/components/ui/TagChip.astro';
+import PillLink from '@/components/ui/PillLink.astro';
 
-const featuredProjects = await getFeaturedProjectCards();
 const allProjects = await getProjectCards();
+const projectsEntry = await getEntry('site', 'projects');
+const projectsData = projectsEntry?.data;
+const title = projectsData?.title ?? 'Projects';
+const intro =
+  projectsData?.intro ??
+  'Research and software projects focused on linking DNA sequence design to measurable function.';
+const interests = projectsData?.interests ?? [];
+const linkLabels: Record<string, string> = {
+  repo: 'Code',
+  live: 'Live',
+  paper: 'Paper',
+};
 ---
 
-<Layout title="Projects">
-  <div class="prose max-w-none">
-    <h1 class="text-3xl font-bold mb-8">Projects</h1>
+<Layout title={title}>
+  <div class="mx-auto w-full max-w-4xl space-y-12">
+    <header class="space-y-4">
+      <h1 class="text-4xl sm:text-5xl font-semibold">{title}</h1>
+      <p class="text-base-content/70">{intro}</p>
+      {
+        interests.length > 0 && (
+          <div class="flex flex-wrap gap-2">
+            {interests.map((interest) => (
+              <TagChip label={interest} size="xs" uppercase />
+            ))}
+          </div>
+        )
+      }
+    </header>
 
     {
-      featuredProjects.length > 0 && (
-        <section class="mb-12">
-          <List listTitle="Featured Projects" listItems={featuredProjects} />
-        </section>
-      )
-    }
+      allProjects.length > 0 ? (
+        <section class="grid gap-6 md:grid-cols-2">
+          {allProjects.map((project) => (
+            <article class="flex flex-col gap-4 rounded-2xl border border-base-content/15 bg-base-200/30 p-6">
+              <div class="space-y-2">
+                <h2 class="text-2xl font-semibold">{project.title}</h2>
+                <p class="text-base-content/80 leading-relaxed">
+                  {project.description}
+                </p>
+                {project.summary && (
+                  <p class="text-sm text-base-content/60">{project.summary}</p>
+                )}
+              </div>
 
-    {
-      allProjects.length > 0 && (
-        <section>
-          <List listTitle="All Projects" listItems={allProjects} />
+              {project.tech.length > 0 && (
+                <ul class="flex flex-wrap gap-2">
+                  {project.tech.map((tag) => (
+                    <li>
+                      <TagChip label={tag} size="xs" uppercase />
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {project.links && (
+                <div class="flex flex-wrap gap-4 text-sm text-base-content/70 font-sans">
+                  {Object.entries(project.links).map(([key, href]) =>
+                    href ? (
+                      <PillLink href={href}>{linkLabels[key] ?? key}</PillLink>
+                    ) : null,
+                  )}
+                </div>
+              )}
+            </article>
+          ))}
         </section>
+      ) : (
+        <p class="text-base-content/60">
+          Projects are being curated. Check back soon.
+        </p>
       )
     }
   </div>

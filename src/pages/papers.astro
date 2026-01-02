@@ -1,54 +1,19 @@
 ---
-import Layout from '@/layouts/Layout.astro';
-import AuthorList from '@/components/ui/AuthorList.astro';
-import { getPapers } from '@/lib/content';
-import { profile } from '@/settings';
+import { withBase } from '@/lib/urls';
 
-const papers = await getPapers();
+const redirectPath = withBase('/publications');
 ---
 
-<Layout title="Papers">
-  <div class="prose max-w-none">
-    <h1 class="text-3xl font-bold mb-8">Publications</h1>
-
-    <div class="space-y-8">
-      {
-        papers.map((paper) => (
-          <div class="card bg-base-200">
-            <div class="card-body">
-              {paper.link ? (
-                <h2 class="card-title text-xl">
-                  <a href={paper.link} class="hover:text-accent">
-                    {paper.title}
-                  </a>
-                </h2>
-              ) : (
-                <h2 class="card-title text-xl">{paper.title}</h2>
-              )}
-              <AuthorList
-                authors={paper.authors}
-                highlightName={profile.authorName}
-              />
-              <p class="text-sm mb-3">
-                <span class="italic">{paper.venue}</span> • {paper.year}
-              </p>
-              {paper.abstract && (
-                <p class="text-sm text-base-content/80">{paper.abstract}</p>
-              )}
-              {paper.link && (
-                <div class="card-actions justify-end mt-4">
-                  <a
-                    href={paper.link}
-                    class="btn btn-sm btn-secondary text-secondary-content"
-                  >
-                    Read Paper
-                  </a>
-                </div>
-              )}
-            </div>
-          </div>
-        ))
-      }
-    </div>
-  </div>
-</Layout>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="refresh" content={`0; url=${redirectPath}`} />
+    <link rel="canonical" href={redirectPath} />
+    <title>Redirecting...</title>
+  </head>
+  <body class="bg-base-100 text-base-content font-sans">
+    <p class="p-6">
+      Redirecting to <a href={redirectPath}>publications</a>.
+    </p>
+  </body>
+</html>

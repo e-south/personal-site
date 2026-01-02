@@ -4,7 +4,10 @@ import Layout from '@/layouts/Layout.astro';
 import { Image } from 'astro:assets';
 import { template } from '@/settings';
 import { getBlogListItems } from '@/lib/content';
+import { getEntry } from 'astro:content';
 import type { BlogListItem } from '@/lib/content';
+import PillLink from '@/components/ui/PillLink.astro';
+import SubscribeCta from '@/components/ui/SubscribeCta.astro';
 
 type PageData = {
   data: BlogListItem[];
@@ -27,17 +30,28 @@ export async function getStaticPaths({ paginate }: { paginate: Paginate }) {
   });
 }
 const { page } = Astro.props as { page: PageData };
+const blogEntry = await getEntry('site', 'blog');
+const blogData = blogEntry?.data;
+const title = blogData?.title ?? 'Blog';
+const intro =
+  blogData?.intro ?? 'Notes on research, tools, and work in progress.';
 ---
 
-<Layout title="Blog">
-  <div>
-    <h1 class="text-3xl font-bold mb-8">Blog Posts</h1>
-    <div class="grid gap-8">
+<Layout title={title}>
+  <div class="mx-auto max-w-3xl space-y-12">
+    <header class="space-y-3">
+      <h1 class="text-4xl sm:text-5xl font-semibold">{title}</h1>
+      <p class="text-base-content/70">{intro}</p>
+    </header>
+
+    <SubscribeCta />
+
+    <div class="space-y-10">
       {
         page.data.map((post) => (
-          <article class="card bg-base-200 transition-all overflow-hidden">
+          <article class="border-b border-base-content/15 pb-10 last:border-b-0 last:pb-0">
             {post.cover && (
-              <figure class="aspect-video">
+              <figure class="aspect-video mb-6 overflow-hidden rounded-xl border border-base-content/10">
                 <Image
                   src={post.cover}
                   alt={post.coverAlt ?? post.title}
@@ -45,45 +59,33 @@ const { page } = Astro.props as { page: PageData };
                 />
               </figure>
             )}
-            <div class="card-body">
-              <div class="flex justify-between items-start">
-                <h2 class="card-title text-xl">
-                  <a href={post.slug} class="hover:text-accent">
-                    {post.title}
-                  </a>
-                </h2>
+            <div class="space-y-3">
+              <div class="flex flex-wrap items-center gap-3 text-sm text-base-content/70 uppercase tracking-[0.12em]">
+                <time datetime={post.date.toISOString()}>
+                  {post.date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </time>
                 {post.badge && (
-                  <div class="badge badge-accent badge-outline p-4">
-                    {post.badge}
-                  </div>
+                  <span class="text-base-content/60">{post.badge}</span>
                 )}
               </div>
-              <time
-                datetime={post.date.toISOString()}
-                class="text-sm text-base-content/71"
-              >
-                {post.date.toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </time>
-              <p class="mt-4">{post.excerpt}</p>
-              <div class="card-actions justify-end">
-                <a
-                  href={post.slug}
-                  class="btn btn-sm btn-secondary text-secondary-content"
-                >
-                  Read More
+              <h2 class="text-2xl font-semibold">
+                <a href={post.slug} class="hover:text-accent">
+                  {post.title}
                 </a>
-              </div>
+              </h2>
+              <p class="text-base-content/80 leading-relaxed">{post.excerpt}</p>
+              <PillLink href={post.slug}>Read more</PillLink>
             </div>
           </article>
         ))
       }
     </div>
 
-    <div class="flex justify-center mt-8">
+    <div class="flex justify-center">
       <Pagination page={page} />
     </div>
   </div>

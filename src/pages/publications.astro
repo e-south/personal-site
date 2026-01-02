@@ -1,0 +1,72 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { getFeaturedPapers } from '@/lib/content';
+import { getEntry } from 'astro:content';
+import { getNavigation } from '@/data/navigation';
+import PillLink from '@/components/ui/PillLink.astro';
+
+const featuredPapers = await getFeaturedPapers(4);
+const publicationsEntry = await getEntry('site', 'publications');
+const publicationsData = publicationsEntry?.data;
+const title = publicationsData?.title ?? 'Publications';
+const intro =
+  publicationsData?.intro ?? 'Publications are maintained on Google Scholar.';
+const scholarLabel = publicationsData?.scholarLabel ?? 'Google Scholar';
+const selectedHeading =
+  publicationsData?.selectedHeading ?? 'Selected publications';
+const note =
+  publicationsData?.note ??
+  'Full list and citation metrics live on Google Scholar.';
+const navigation = getNavigation();
+const scholarLink = navigation.external.find((link) =>
+  link.label.toLowerCase().includes('scholar'),
+);
+---
+
+<Layout title={title}>
+  <div class="mx-auto w-full max-w-3xl space-y-12">
+    <header class="space-y-3">
+      <h1 class="text-4xl sm:text-5xl font-semibold">{title}</h1>
+      <p class="text-base-content/70">{intro}</p>
+      {
+        scholarLink ? (
+          <PillLink
+            href={scholarLink.href}
+            variant="pastel"
+            toneKey={scholarLabel}
+          >
+            {scholarLabel}
+          </PillLink>
+        ) : (
+          <p class="text-sm text-base-content/50">Scholar link coming soon.</p>
+        )
+      }
+      <p class="text-sm text-base-content/60">{note}</p>
+    </header>
+
+    {
+      featuredPapers.length > 0 && (
+        <section class="space-y-6">
+          <h2 class="text-sm uppercase tracking-[0.2em] text-base-content/60 font-sans">
+            {selectedHeading}
+          </h2>
+          <div class="space-y-6">
+            {featuredPapers.map((paper) => (
+              <article class="border-b border-base-content/15 pb-4 last:border-b-0">
+                <h3 class="text-xl font-semibold">{paper.title}</h3>
+                <p class="text-sm text-base-content/60 uppercase tracking-[0.16em] font-sans">
+                  {paper.venue} - {paper.year}
+                </p>
+                {paper.link && (
+                  <PillLink href={paper.link} class="mt-2">
+                    View publication
+                  </PillLink>
+                )}
+              </article>
+            ))}
+          </div>
+        </section>
+      )
+    }
+  </div>
+</Layout>

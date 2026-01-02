@@ -1,10 +1,10 @@
 ---
-title: 'Synthetic microbial communities'
-description: 'Cross-feeding yeast consortia and pathway balancing to enhance bioproduction.'
+title: 'Synthetic microbial communities: cross-feeding and syntrophy'
+description: 'High-throughput identification and engineering of community interactions to improve bioproduction and stability.'
 summary: 'Engineering co-cultures that improve bioproduction through metabolite exchange.'
 status: 'active'
-tech: ['Yeast', 'Metabolic engineering', 'Co-culture']
-featured: false
+tech: ['Yeast communities', 'Cross-feeding', 'Robotics', 'Screening']
+featured: true
 ---
 
-Designs co-cultures and pathway balancing strategies to enhance bioproduction through metabolite exchange.
+Designs cross-feeding microbial consortia and screening strategies to improve community productivity.

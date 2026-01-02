@@ -4,6 +4,10 @@ import { Image } from 'astro:assets';
 import { render } from 'astro:content';
 import { getPublishedBlogEntries } from '@/lib/content';
 import { formatLongDate } from '@/lib/dates';
+import Prose from '@/components/ui/Prose.astro';
+import TagChip from '@/components/ui/TagChip.astro';
+import SubscribeCta from '@/components/ui/SubscribeCta.astro';
+import { analytics } from '@/settings';
 
 export async function getStaticPaths() {
   const posts = await getPublishedBlogEntries();
@@ -16,13 +20,13 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const { title, date, tags } = post.data;
 const { Content } = await render(post);
+const showViewCounts =
+  analytics.showViewCounts && Boolean(analytics.goatcounterEndpoint);
 ---
 
 <Layout title={title}>
   <div class="max-w-4xl mx-auto">
-    <article
-      class="prose max-w-none prose-headings:text-base-content prose-p:text-base-content/80"
-    >
+    <article class="space-y-8" data-email-root>
       <!-- Header section -->
       <div class="mb-8 border-b pb-8">
         <h1 class="text-4xl font-bold mb-4 text-base-content">{title}</h1>
@@ -51,8 +55,15 @@ const { Content } = await render(post);
             tags.length > 0 && (
               <div class="flex flex-wrap gap-2">
                 {tags.map((tag) => (
-                  <span class="badge badge-accent badge-outline">{tag}</span>
+                  <TagChip label={tag} size="xs" />
                 ))}
+              </div>
+            )
+          }
+          {
+            showViewCounts && (
+              <div class="text-xs uppercase tracking-[0.2em] text-base-content/50">
+                Views: <span data-view-count>—</span>
               </div>
             )
           }
@@ -69,22 +80,38 @@ const { Content } = await render(post);
         )
       }
       <!-- Post content -->
-      <div
-        class="prose mt-8 prose-h2:text-2xl prose-h2:font-bold prose-h2:mb-4
-         prose-h3:text-xl prose-h3:font-semibold prose-h3:mb-3
-         prose-p:mb-4 prose-p:leading-relaxed
-         prose-strong:text-base-content prose-strong:font-bold
-         prose-em:italic
-         prose-a:text-accent prose-a:no-underline hover:prose-a:underline
-         prose-code:text-accent prose-code:bg-base-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
-         prose-blockquote:border-l-4 prose-blockquote:border-accent prose-blockquote:pl-4 prose-blockquote:italic
-         prose-ul:list-disc prose-ul:pl-6
-         prose-ol:list-decimal prose-ol:pl-6
-         prose-li:mb-2
-         prose-img:rounded-lg prose-img:my-8"
-      >
+      <Prose class="mt-2">
         <Content />
-      </div>
+      </Prose>
     </article>
+
+    <div class="mt-12">
+      <SubscribeCta />
+    </div>
   </div>
 </Layout>
+
+<script is:inline define:vars={{ showViewCounts }}>
+  if (showViewCounts) {
+    const viewCount = document.querySelector('[data-view-count]');
+    const renderCounts = () => {
+      const goatcounter = window.goatcounter;
+      if (
+        !viewCount ||
+        !goatcounter ||
+        typeof goatcounter.visit_count !== 'function'
+      ) {
+        return;
+      }
+      goatcounter.visit_count({
+        append: viewCount,
+        no_branding: true,
+      });
+    };
+    if (document.readyState === 'complete') {
+      renderCounts();
+    } else {
+      window.addEventListener('load', renderCounts, { once: true });
+    }
+  }
+</script>

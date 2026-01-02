@@ -13,7 +13,7 @@ venue: 'Nature Chemical Biology'
 year: 2023
 link: 'https://doi.org/10.1038/s41589-023-01341-2'
 abstract: 'High-throughput workflows reveal synergistic yeast communities that enhance bioproduction through spontaneous cross-feeding.'
-featured: false
+featured: true
 ---
 
 High-throughput community screening reveals syntrophic pairings that boost bioproduction.

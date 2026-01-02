@@ -4,8 +4,10 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter Variable', 'system-ui', 'sans-serif'],
+        sans: ['Manrope Variable', 'system-ui', 'sans-serif'],
+        display: ['Fraunces Variable', 'ui-serif', 'serif'],
         mono: ['JetBrains Mono Variable', 'ui-monospace', 'monospace'],
+        serif: ['Source Serif 4 Variable', 'ui-serif', 'serif'],
       },
     },
   },

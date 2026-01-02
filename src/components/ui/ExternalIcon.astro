@@ -1,0 +1,31 @@
+---
+import GitHub from '@/assets/social-icons/github.svg';
+import LinkedIn from '@/assets/social-icons/linkedin-in.svg';
+import Scholar from '@/assets/social-icons/google-scholar.svg';
+import X from '@/assets/social-icons/x-twitter.svg';
+import Bluesky from '@/assets/social-icons/bluesky.svg';
+import type { ExternalNavItem } from '@/data/navigation';
+
+type IconName = ExternalNavItem['icon'];
+
+const { name, class: className = '' } = Astro.props as {
+  name: IconName;
+  class?: string;
+};
+
+const iconClass = className || 'h-4 w-4';
+---
+
+{
+  name === 'github' ? (
+    <GitHub class={iconClass} fill="currentColor" />
+  ) : name === 'linkedin' ? (
+    <LinkedIn class={iconClass} fill="currentColor" />
+  ) : name === 'scholar' ? (
+    <Scholar class={iconClass} fill="currentColor" />
+  ) : name === 'x' ? (
+    <X class={iconClass} fill="currentColor" />
+  ) : (
+    <Bluesky class={iconClass} fill="currentColor" />
+  )
+}

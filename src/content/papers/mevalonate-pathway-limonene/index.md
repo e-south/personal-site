@@ -8,7 +8,7 @@ venue: 'ACS Omega'
 year: 2022
 link: 'https://doi.org/10.1021/acsomega.2c00483'
 abstract: 'Systematic transcriptional tuning of pathway enzymes to quantify effects on limonene production in E. coli.'
-featured: false
+featured: true
 ---
 
 Systematically tunes pathway expression to quantify effects on limonene production.

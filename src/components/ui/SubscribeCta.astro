@@ -1,0 +1,175 @@
+---
+import { newsletter } from '@/settings';
+
+type Props = {
+  title?: string;
+  description?: string;
+  class?: string;
+};
+
+const {
+  title = 'Subscribe',
+  description = 'Get new posts by email. No spam, unsubscribe anytime.',
+  class: className = '',
+} = Astro.props as Props;
+
+const { enabled, listmonkPublicBaseUrl, publicListUuids } = newsletter;
+const listUuids = publicListUuids.join(',');
+const shouldRender = enabled && Boolean(listmonkPublicBaseUrl);
+---
+
+{
+  shouldRender && (
+    <section
+      class:list={[
+        'rounded-2xl border border-base-content/10 bg-base-content/5 px-5 py-5 sm:px-6',
+        className,
+      ]}
+      aria-label="Newsletter subscription"
+    >
+      <div class="space-y-3">
+        <h2 class="text-lg font-semibold">{title}</h2>
+        <p class="text-sm text-base-content/70">{description}</p>
+      </div>
+      <form
+        class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center"
+        data-newsletter-form
+        data-listmonk-base={listmonkPublicBaseUrl}
+        data-list-uuids={listUuids}
+      >
+        <label class="sr-only" for="newsletter-email">
+          Email
+        </label>
+        <input
+          id="newsletter-email"
+          name="email"
+          type="email"
+          required
+          autocomplete="email"
+          placeholder="you@example.com"
+          class="w-full rounded-xl border border-base-content/15 bg-base-100 px-3 py-2 text-sm text-base-content placeholder:text-base-content/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-base-content/40 sm:max-w-xs"
+        />
+        <label class="sr-only" for="newsletter-name">
+          Name
+        </label>
+        <input
+          id="newsletter-name"
+          name="name"
+          type="text"
+          autocomplete="name"
+          placeholder="Name (optional)"
+          class="w-full rounded-xl border border-base-content/15 bg-base-100 px-3 py-2 text-sm text-base-content placeholder:text-base-content/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-base-content/40 sm:max-w-xs"
+        />
+        <input
+          type="text"
+          name="company"
+          tabindex="-1"
+          autocomplete="off"
+          class="sr-only"
+          aria-hidden="true"
+        />
+        <button
+          type="submit"
+          class="inline-flex items-center justify-center rounded-xl bg-base-content px-4 py-2 text-sm font-semibold text-base-100 transition hover:bg-base-content/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-base-content/40"
+        >
+          Subscribe
+        </button>
+        <p
+          class="text-sm text-base-content/60"
+          data-newsletter-status
+          aria-live="polite"
+        />
+      </form>
+    </section>
+  )
+}
+
+<script is:inline>
+  const forms = document.querySelectorAll('[data-newsletter-form]');
+
+  const parseListUuids = (value) =>
+    value
+      .split(',')
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+
+  const loadPublicLists = async (baseUrl) => {
+    const response = await fetch(`${baseUrl}/api/public/lists`);
+    if (!response.ok) {
+      throw new Error('Unable to fetch public lists.');
+    }
+    const payload = await response.json();
+    const results = Array.isArray(payload)
+      ? payload
+      : (payload?.data?.results ?? payload?.data ?? payload?.results ?? []);
+    return results.map((item) => item?.uuid ?? item?.id).filter(Boolean);
+  };
+
+  forms.forEach((form) => {
+    const baseUrlRaw = form.getAttribute('data-listmonk-base');
+    const baseUrl = baseUrlRaw?.replace(/\/+$/, '');
+    const configuredLists = parseListUuids(
+      form.getAttribute('data-list-uuids') || '',
+    );
+    const statusEl = form.querySelector('[data-newsletter-status]');
+    const honeypot = form.querySelector('input[name="company"]');
+    const emailInput = form.querySelector('input[name="email"]');
+    const nameInput = form.querySelector('input[name="name"]');
+
+    if (!baseUrl) {
+      return;
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      if (honeypot && honeypot.value) {
+        return;
+      }
+
+      if (!emailInput?.value || !emailInput.validity.valid) {
+        if (statusEl) statusEl.textContent = 'Enter a valid email.';
+        return;
+      }
+
+      if (statusEl) statusEl.textContent = 'Subscribing...';
+      const submitButton = form.querySelector('button[type="submit"]');
+      if (submitButton) submitButton.disabled = true;
+
+      try {
+        const listUuids =
+          configuredLists.length > 0
+            ? configuredLists
+            : await loadPublicLists(baseUrl);
+
+        if (!listUuids.length) {
+          throw new Error('No public lists available.');
+        }
+
+        const response = await fetch(`${baseUrl}/api/public/subscription`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: emailInput.value,
+            name: nameInput?.value || undefined,
+            list_uuids: listUuids,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Subscription failed.');
+        }
+
+        if (statusEl) statusEl.textContent = 'Check your inbox to confirm.';
+        form.reset();
+      } catch (error) {
+        if (statusEl) {
+          statusEl.textContent =
+            error instanceof Error ? error.message : 'Something went wrong.';
+        }
+      } finally {
+        if (submitButton) submitButton.disabled = false;
+      }
+    });
+  });
+</script>

@@ -1,70 +1,19 @@
 ---
-import Layout from '@/layouts/Layout.astro';
-import { profile } from '@/settings';
-import BetterIcon from '@/components/ui/BetterIcon.astro';
-import List from '@/components/ui/List.astro';
-import { RESEARCH_ICONS } from '@/data/researchIcons';
-import { getProjectsByStatus } from '@/lib/content';
+import { withBase } from '@/lib/urls';
 
-const { research_areas } = profile;
-
-const currentProjects = await getProjectsByStatus('active');
+const redirectPath = withBase('/projects');
 ---
 
-<Layout title="Research | Eric J. South">
-  <div class="prose max-w-none">
-    <h1 class="text-3xl font-bold mb-8">Research Statement</h1>
-
-    <div class="mb-12">
-      <p class="text-lg mb-6">
-        I build genetic circuits, high-throughput functional assays, and DNA
-        sequence-to-expression models to steer cell physiology for synthetic
-        biology applications. My work spans experimental design of promoters and
-        biosensors, pooled screening with next‑generation sequencing, and the
-        development of computational models to predict and optimize gene
-        regulation.
-      </p>
-      <p class="text-lg mb-6">
-        I also study microbial communities and metabolic cross-feeding,
-        engineering co-cultures that improve bioproduction. This
-        interdisciplinary approach connects molecular sequence design,
-        systems‑level behavior, and translational biotechnology.
-      </p>
-    </div>
-
-    <h2 class="text-2xl font-bold mb-6">Research Areas</h2>
-    <div class="grid gap-8 mb-12">
-      {
-        research_areas.map((area) => (
-          <div class="flex gap-6 items-start">
-            <BetterIcon>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke-width="2"
-                class="size-6 stroke-accent"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d={RESEARCH_ICONS[area.field].path}
-                />
-              </svg>
-            </BetterIcon>
-            <div>
-              <h3 class="text-xl font-semibold mb-2">{area.title}</h3>
-              <p class="text-base">{area.description}</p>
-            </div>
-          </div>
-        ))
-      }
-    </div>
-
-    {
-      currentProjects.length > 0 && (
-        <List listTitle="Current Projects" listItems={currentProjects} />
-      )
-    }
-  </div>
-</Layout>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="refresh" content={`0; url=${redirectPath}`} />
+    <link rel="canonical" href={redirectPath} />
+    <title>Redirecting...</title>
+  </head>
+  <body class="bg-base-100 text-base-content font-sans">
+    <p class="p-6">
+      Redirecting to <a href={redirectPath}>projects</a>.
+    </p>
+  </body>
+</html>

@@ -11,13 +11,22 @@ const longFormatter = new Intl.DateTimeFormat('en-US', {
 
 export const parseISODate = (value: string) => {
   const dateOnlyMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  const date = dateOnlyMatch
-    ? new Date(
-        Number(dateOnlyMatch[1]),
-        Number(dateOnlyMatch[2]) - 1,
-        Number(dateOnlyMatch[3]),
-      )
-    : new Date(value);
+  if (dateOnlyMatch) {
+    const year = Number(dateOnlyMatch[1]);
+    const month = Number(dateOnlyMatch[2]);
+    const day = Number(dateOnlyMatch[3]);
+    const date = new Date(year, month - 1, day);
+    if (
+      date.getFullYear() !== year ||
+      date.getMonth() !== month - 1 ||
+      date.getDate() !== day
+    ) {
+      throw new Error(`Invalid date: ${value}`);
+    }
+    return date;
+  }
+
+  const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
     throw new Error(`Invalid date: ${value}`);
   }
