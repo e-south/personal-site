@@ -17,6 +17,14 @@ export default [
       },
     },
   },
+  {
+    files: ['src/lib/home.ts'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+      },
+    },
+  },
   ...astroPlugin.configs['flat/recommended'],
   {
     files: ['**/*.ts', '**/*.tsx'],

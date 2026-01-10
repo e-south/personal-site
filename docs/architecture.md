@@ -11,15 +11,15 @@
 - src/pages: route wiring and layout selection
 - src/components: reusable UI blocks
 - src/layouts: page shells
-- src/content: content collections (blog, projects, papers, cv, site)
+- src/content: content collections (blog, projects, papers, cv, home, page-\*, links, story)
 - src/data: small typed data (profile, socials, navigation config)
-- src/lib: pure helpers (formatting, content queries, URL base handling)
+- src/lib: pure helpers (formatting, content queries, URL base handling, env validation, story assembly)
 
 ## Build + deploy
 
 - Single quality gate: npm run verify
 - CI runs verify on pull requests and main
-- Build config is env-driven and fail-fast in production:
+- Build config is env-driven and fail-fast in production (via `src/lib/env.mjs`):
   - PUBLIC_SITE_URL is required (canonical URLs, sitemap, RSS).
   - PUBLIC_BASE_PATH is required ("" for root or "/base" for subpaths).
   - Development defaults to http://localhost:4321 with base "" if unset.
@@ -28,6 +28,9 @@
 
 - Use `src/lib/content.ts` for collection queries (sorting, mapping, filtering).
 - Use `src/lib/urls.ts` for base-aware URLs instead of manual concatenation.
+- Page copy entries live in `src/content/home`, `src/content/page-*`, and `src/content/links`.
+- The CV page embeds the PDF referenced by `cvPdf` in `src/content/page-cv/cv.md`.
+  The file must exist in `public/cv/` (use a `/cv/...` path).
 
 ## Maintenance
 

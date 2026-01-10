@@ -16,9 +16,11 @@
     "clean": "rm -rf .astro node_modules/.astro dist",
     "audit": "npm audit",
     "audit:prod": "npm audit --omit=dev",
-    "prepare": "husky install",
+    "prepare": "node scripts/prepare.mjs",
     "newsletter:send": "tsx scripts/newsletter/send.ts",
-    "newsletter:stats": "tsx scripts/newsletter/stats.ts"
+    "newsletter:stats": "tsx scripts/newsletter/stats.ts",
+    "content:new:blog": "tsx scripts/content/new-blog.ts",
+    "content:cv:update": "tsx scripts/content/update-cv.ts"
   },
   "engines": {
     "node": ">=20"

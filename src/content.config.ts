@@ -1,28 +1,5 @@
 import { defineCollection, z } from 'astro:content';
-
-const parseISODate = (value: string) => {
-  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (match) {
-    const year = Number(match[1]);
-    const month = Number(match[2]);
-    const day = Number(match[3]);
-    const date = new Date(year, month - 1, day);
-    if (
-      date.getFullYear() !== year ||
-      date.getMonth() !== month - 1 ||
-      date.getDate() !== day
-    ) {
-      throw new Error(`Invalid date: ${value}`);
-    }
-    return date;
-  }
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    throw new Error(`Invalid date: ${value}`);
-  }
-  return date;
-};
+import { parseISODate } from '@/lib/dates';
 
 const coerceDate = z.union([z.string(), z.date()]).transform((value, ctx) => {
   if (value instanceof Date) {
@@ -114,32 +91,101 @@ const cv = defineCollection({
   }),
 });
 
-const siteLink = z.object({
-  label: z.string(),
-  href: z.string(),
-  key: z.string().optional(),
-});
-
-const site = defineCollection({
+const home = defineCollection({
   type: 'content',
   schema: z.object({
     title: z.string(),
-    name: z.string().optional(),
+    name: z.string(),
+    locationLine: z.string(),
     headline: z.string().optional(),
-    locationLine: z.string().optional(),
-    imageCaption: z.string().optional(),
-    microLine: z.string().optional(),
-    intro: z.string().optional(),
-    note: z.string().optional(),
-    email: z.string().optional(),
-    location: z.string().optional(),
-    quickLinks: z.array(siteLink).default([]),
-    externalLinks: z.array(siteLink).default([]),
-    interests: z.array(z.string()).default([]),
-    scholarLabel: z.string().optional(),
-    selectedHeading: z.string().optional(),
-    downloadLabel: z.string().optional(),
+    overview: z.string(),
   }),
 });
 
-export const collections = { blog, projects, papers, cv, site };
+const pageProjects = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    intro: z.string(),
+    interests: z.array(z.string()),
+  }),
+});
+
+const pagePublications = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    intro: z.string(),
+    scholarLabel: z.string(),
+    selectedHeading: z.string(),
+    note: z.string(),
+  }),
+});
+
+const pageBlog = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    intro: z.string(),
+  }),
+});
+
+const pageContact = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    intro: z.string(),
+  }),
+});
+
+const pageCv = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    intro: z.string(),
+    downloadLabel: z.string(),
+    cvPdf: z.string().min(1),
+  }),
+});
+
+const links = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    email: z.string().email(),
+    location: z.string(),
+  }),
+});
+
+const story = defineCollection({
+  type: 'content',
+  schema: z
+    .object({
+      title: z.string(),
+      ctaLabel: z.string().optional(),
+      ctaHref: z.string().url().optional(),
+    })
+    .refine((data) => !(data.ctaLabel && !data.ctaHref), {
+      message: 'ctaHref is required when ctaLabel is set.',
+      path: ['ctaHref'],
+    })
+    .refine((data) => !(data.ctaHref && !data.ctaLabel), {
+      message: 'ctaLabel is required when ctaHref is set.',
+      path: ['ctaLabel'],
+    }),
+});
+
+export const collections = {
+  blog,
+  projects,
+  papers,
+  cv,
+  home,
+  'page-projects': pageProjects,
+  'page-publications': pagePublications,
+  'page-blog': pageBlog,
+  'page-contact': pageContact,
+  'page-cv': pageCv,
+  links,
+  story,
+};

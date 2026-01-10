@@ -60,6 +60,7 @@ const { internal: navItems, external: externalLinks } = navigation;
     }}
   >
     <div class="bg-base-100 min-h-screen">
+      <div id="page-top" aria-hidden="true"></div>
       <Navbar items={navItems} externalLinks={externalLinks} />
       <main
         class:list={[
@@ -96,6 +97,35 @@ const { internal: navItems, external: externalLinks } = navigation;
         {showFooter && <Footer />}
       </main>
     </div>
+
+    <script type="module">
+      const setExternalTargets = () => {
+        const anchors = document.querySelectorAll('a[href]');
+        anchors.forEach((anchor) => {
+          const href = anchor.getAttribute('href');
+          if (!href) return;
+          if (
+            href.startsWith('#') ||
+            href.startsWith('mailto:') ||
+            href.startsWith('tel:')
+          ) {
+            return;
+          }
+          try {
+            const url = new URL(href, window.location.href);
+            if (url.origin === window.location.origin) return;
+          } catch {
+            console.warn('[external-links] Invalid href:', href);
+            return;
+          }
+          anchor.setAttribute('target', '_blank');
+          anchor.setAttribute('rel', 'noopener noreferrer');
+        });
+      };
+
+      setExternalTargets();
+      document.addEventListener('astro:page-load', setExternalTargets);
+    </script>
   </body>
 </html>
 

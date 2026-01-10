@@ -1,19 +1,43 @@
 ---
 const { page } = Astro.props;
+const prevUrl = page?.url?.prev ?? '';
+const nextUrl = page?.url?.next ?? '';
+const prevDisabled = !prevUrl;
+const nextDisabled = !nextUrl;
 ---
 
 <div class="join flex justify-center mt-8">
   {/* Previous button */}
-  <a
-    href={page.url.prev}
-    class:list={['join-item btn btn-sm', { 'btn-disabled': !page.url.prev }]}
-    >«</a
-  >
+  {
+    prevDisabled ? (
+      <span
+        class="join-item btn btn-sm btn-disabled"
+        aria-disabled="true"
+        aria-label="Previous page"
+      >
+        «
+      </span>
+    ) : (
+      <a href={prevUrl} class="join-item btn btn-sm" aria-label="Previous page">
+        «
+      </a>
+    )
+  }
 
   {/* Next button */}
-  <a
-    href={page.url.next}
-    class:list={['join-item btn btn-sm', { 'btn-disabled': !page.url.next }]}
-    >»</a
-  >
+  {
+    nextDisabled ? (
+      <span
+        class="join-item btn btn-sm btn-disabled"
+        aria-disabled="true"
+        aria-label="Next page"
+      >
+        »
+      </span>
+    ) : (
+      <a href={nextUrl} class="join-item btn btn-sm" aria-label="Next page">
+        »
+      </a>
+    )
+  }
 </div>

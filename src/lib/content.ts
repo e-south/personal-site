@@ -4,6 +4,7 @@ import type { CollectionEntry } from 'astro:content';
 import { template } from '@/settings';
 import { trimExcerpt } from '@/lib/utils';
 import { withBase } from '@/lib/urls';
+import { requireValue } from '@/lib/require';
 
 type BlogEntry = CollectionEntry<'blog'>;
 type ProjectEntry = CollectionEntry<'projects'>;
@@ -119,7 +120,9 @@ export async function getBlogListItems(): Promise<BlogListItem[]> {
     excerpt: trimExcerpt(post.data.excerpt, template.excerptLength),
     slug: withBase(`/blog/${post.slug}`),
     cover: post.data.cover,
-    coverAlt: post.data.coverAlt,
+    coverAlt: post.data.cover
+      ? requireValue(post.data.coverAlt, `blog/${post.slug} coverAlt`)
+      : undefined,
   }));
 }
 

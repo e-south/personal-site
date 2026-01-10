@@ -22,14 +22,16 @@ npm run dev
 - Preview: `npm run preview`
 - Full checks: `npm run verify`
 - Security audit: `npm run audit` (or `npm run audit:prod`)
+- Content helper: `npm run content:new:blog` (scaffold a blog post)
+- Content helper: `npm run content:cv:update` (bump CV updated date)
 
 ## Content
 
 - Blog posts: `src/content/blog`
 - Projects: `src/content/projects`
 - Publications (papers collection): `src/content/papers`
-- CV metadata: `src/content/cv`
-- CV PDF: `public/cv/Eric_South_CV.pdf`
+- CV content + metadata: `src/content/cv`
+- CV PDF (required embed): `public/cv/ejsouth-CV.pdf` (must match `cvPdf` in `src/content/page-cv/cv.md`)
 - Site copy (home/projects/publications/contact/blog): `src/content/site`
 
 Schemas live in `src/content.config.ts`. Use `featured: true` to surface items on the homepage.

@@ -1,0 +1,134 @@
+---
+import type { StoryMediaItem, StoryMediaLeafItem } from '@/data/storyMedia';
+
+type Props = {
+  item: StoryMediaLeafItem;
+  eager?: boolean;
+  frameOverride?: StoryMediaItem['frame'];
+};
+
+const { item, eager = false, frameOverride } = Astro.props as Props;
+
+const frameHeights = {
+  sm: '56vh',
+  md: '66vh',
+  lg: '76vh',
+  xl: '84vh',
+} as const;
+
+const getFrameHeight = (frame?: StoryMediaItem['frame']) =>
+  frame ? frameHeights[frame] : frameHeights.md;
+
+const getMediaSizing = (media: StoryMediaLeafItem) => {
+  if (media.kind === 'image') {
+    return {
+      maxWidth: media.image.width,
+      ratio: `${media.image.width} / ${media.image.height}`,
+    };
+  }
+  if (!media.poster) {
+    throw new Error(`Story video "${media.id}" is missing a poster.`);
+  }
+  return {
+    maxWidth: media.poster.width,
+    ratio: `${media.poster.width} / ${media.poster.height}`,
+  };
+};
+
+const effectiveFrame = frameOverride ?? item.frame;
+const { maxWidth, ratio } = getMediaSizing(item);
+const maxHeight = getFrameHeight(effectiveFrame);
+---
+
+<figure
+  class="story-media-frame"
+  style={`--story-media-max: ${maxWidth}px; --story-media-height: ${maxHeight}; aspect-ratio: ${ratio};`}
+>
+  <div class="story-media-surface">
+    {
+      item.kind === 'image' ? (
+        <img
+          src={item.image.src}
+          alt={item.alt}
+          width={item.image.width}
+          height={item.image.height}
+          loading={eager ? 'eager' : 'lazy'}
+          decoding="async"
+          class="story-media-asset"
+        />
+      ) : (
+        <video
+          class="story-media-asset"
+          data-story-video
+          muted
+          loop
+          playsinline
+          autoplay
+          preload="metadata"
+          poster={item.poster.src}
+          aria-label={item.alt}
+        >
+          <source src={item.src} type="video/mp4" />
+        </video>
+      )
+    }
+  </div>
+  {
+    item.caption && (
+      <figcaption class="story-media-caption">{item.caption}</figcaption>
+    )
+  }
+</figure>
+
+<style>
+  .story-media-frame {
+    position: relative;
+    width: 100%;
+    max-width: var(--story-media-max, 720px);
+    max-height: var(--story-media-height, 70vh);
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    border-radius: 0.9rem;
+    overflow: hidden;
+  }
+
+  .story-media-surface {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+    background: transparent;
+    border-radius: inherit;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  .story-media-asset {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: var(--story-media-height, 70vh);
+    border-radius: 0;
+    object-fit: contain;
+    display: block;
+  }
+
+  .story-media-caption {
+    position: absolute;
+    inset: auto 0.75rem 0.75rem 0.75rem;
+    max-width: calc(100% - 1.5rem);
+    box-sizing: border-box;
+    padding: 0.55rem 0.75rem;
+    border-radius: 0.65rem;
+    text-align: left;
+    font-size: 0.7rem;
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    color: #f8fafc;
+    background: color-mix(in oklab, #0b0b0c 72%, transparent);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 1;
+  }
+</style>

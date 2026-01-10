@@ -4,23 +4,24 @@ import { getFeaturedPapers } from '@/lib/content';
 import { getEntry } from 'astro:content';
 import { getNavigation } from '@/data/navigation';
 import PillLink from '@/components/ui/PillLink.astro';
+import { requireEntry } from '@/lib/require';
 
 const featuredPapers = await getFeaturedPapers(4);
-const publicationsEntry = await getEntry('site', 'publications');
-const publicationsData = publicationsEntry?.data;
-const title = publicationsData?.title ?? 'Publications';
-const intro =
-  publicationsData?.intro ?? 'Publications are maintained on Google Scholar.';
-const scholarLabel = publicationsData?.scholarLabel ?? 'Google Scholar';
-const selectedHeading =
-  publicationsData?.selectedHeading ?? 'Selected publications';
-const note =
-  publicationsData?.note ??
-  'Full list and citation metrics live on Google Scholar.';
-const navigation = getNavigation();
-const scholarLink = navigation.external.find((link) =>
-  link.label.toLowerCase().includes('scholar'),
+const publicationsEntry = requireEntry(
+  await getEntry('page-publications', 'publications'),
+  'page-publications/publications',
 );
+const publicationsData = publicationsEntry.data;
+const title = publicationsData.title;
+const intro = publicationsData.intro;
+const scholarLabel = publicationsData.scholarLabel;
+const selectedHeading = publicationsData.selectedHeading;
+const note = publicationsData.note;
+const navigation = getNavigation();
+const scholarLink = navigation.external.find((link) => link.icon === 'scholar');
+if (!scholarLink) {
+  throw new Error('Scholar link is missing from navigation.');
+}
 ---
 
 <Layout title={title}>
@@ -28,19 +29,9 @@ const scholarLink = navigation.external.find((link) =>
     <header class="space-y-3">
       <h1 class="text-4xl sm:text-5xl font-semibold">{title}</h1>
       <p class="text-base-content/70">{intro}</p>
-      {
-        scholarLink ? (
-          <PillLink
-            href={scholarLink.href}
-            variant="pastel"
-            toneKey={scholarLabel}
-          >
-            {scholarLabel}
-          </PillLink>
-        ) : (
-          <p class="text-sm text-base-content/50">Scholar link coming soon.</p>
-        )
-      }
+      <PillLink href={scholarLink.href} variant="pastel" toneKey={scholarLabel}>
+        {scholarLabel}
+      </PillLink>
       <p class="text-sm text-base-content/60">{note}</p>
     </header>
 

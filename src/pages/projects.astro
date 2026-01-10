@@ -4,15 +4,17 @@ import { getProjectCards } from '@/lib/content';
 import { getEntry } from 'astro:content';
 import TagChip from '@/components/ui/TagChip.astro';
 import PillLink from '@/components/ui/PillLink.astro';
+import { requireEntry } from '@/lib/require';
 
 const allProjects = await getProjectCards();
-const projectsEntry = await getEntry('site', 'projects');
-const projectsData = projectsEntry?.data;
-const title = projectsData?.title ?? 'Projects';
-const intro =
-  projectsData?.intro ??
-  'Research and software projects focused on linking DNA sequence design to measurable function.';
-const interests = projectsData?.interests ?? [];
+const projectsEntry = requireEntry(
+  await getEntry('page-projects', 'projects'),
+  'page-projects/projects',
+);
+const projectsData = projectsEntry.data;
+const title = projectsData.title;
+const intro = projectsData.intro;
+const interests = projectsData.interests;
 const linkLabels: Record<string, string> = {
   repo: 'Code',
   live: 'Live',

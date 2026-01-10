@@ -6,6 +6,7 @@ import path from 'node:path';
 import { load } from 'cheerio';
 
 import { loadCliEnv, parsePositiveInt, requireEnv, requireUrl } from './env';
+import { absolutizeUrl, resolveSlug } from './utils';
 
 type SendArgs = {
   slug?: string;
@@ -27,27 +28,6 @@ const args = parseArgs({
 
 const values = args.values as SendArgs;
 loadCliEnv();
-
-const resolveSlug = (inputUrl?: string, inputSlug?: string): string => {
-  const normalizedSlug = inputSlug?.trim();
-  if (normalizedSlug) return normalizedSlug;
-  if (!inputUrl) return '';
-
-  let pathname = '';
-  try {
-    pathname = new URL(inputUrl).pathname;
-  } catch {
-    throw new Error('--url must be a valid absolute URL.');
-  }
-
-  const segments = pathname.split('/').filter(Boolean);
-  const blogIndex = segments.indexOf('blog');
-  if (blogIndex < 0 || !segments[blogIndex + 1]) {
-    return '';
-  }
-
-  return segments[blogIndex + 1];
-};
 
 let slug = '';
 try {
@@ -117,13 +97,7 @@ const ensureBuild = async () => {
   await run('npm', ['run', 'build']);
 };
 
-const absolutizeUrl = (url: string) => {
-  try {
-    return new URL(url, canonicalUrl).toString();
-  } catch {
-    return url;
-  }
-};
+const absolutizeLink = (url: string) => absolutizeUrl(url, canonicalUrl);
 
 const inlineStyles = {
   h1: 'font-size:28px;line-height:1.2;margin:0 0 16px 0;',
@@ -221,13 +195,13 @@ const main = async () => {
 
   article.find('a').each((_, el) => {
     const href = $(el).attr('href');
-    if (href) $(el).attr('href', absolutizeUrl(href));
+    if (href) $(el).attr('href', absolutizeLink(href));
     $(el).attr('style', inlineStyles.a);
   });
 
   article.find('img').each((_, el) => {
     const src = $(el).attr('src');
-    if (src) $(el).attr('src', absolutizeUrl(src));
+    if (src) $(el).attr('src', absolutizeLink(src));
     $(el).attr('style', 'max-width:100%;height:auto;border-radius:12px;');
   });
 

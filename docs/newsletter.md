@@ -49,7 +49,7 @@ PUBLIC_LISTMONK_URL=http://localhost:9000
 PUBLIC_LISTMONK_LIST_UUIDS=<comma-separated public list UUIDs>
 ```
 
-The subscription form uses the public list UUIDs. If none are set, it will fetch public lists from listmonk at runtime.
+The subscription form requires the public list UUIDs. If they are missing, the CTA will not render.
 
 The newsletter CLI scripts load `.env` automatically (shell environment variables override `.env`).
 
@@ -93,4 +93,5 @@ Use the component wherever appropriate:
 <SubscribeCta />
 ```
 
-It renders only when `newsletter.enabled` is true and `PUBLIC_LISTMONK_URL` is set.
+It renders only when `newsletter.enabled` is true and both `PUBLIC_LISTMONK_URL`
+and `PUBLIC_LISTMONK_LIST_UUIDS` are set.

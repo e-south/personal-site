@@ -15,7 +15,8 @@ const {
 
 const { enabled, listmonkPublicBaseUrl, publicListUuids } = newsletter;
 const listUuids = publicListUuids.join(',');
-const shouldRender = enabled && Boolean(listmonkPublicBaseUrl);
+const shouldRender =
+  enabled && Boolean(listmonkPublicBaseUrl) && publicListUuids.length > 0;
 ---
 
 {
@@ -93,18 +94,6 @@ const shouldRender = enabled && Boolean(listmonkPublicBaseUrl);
       .map((entry) => entry.trim())
       .filter(Boolean);
 
-  const loadPublicLists = async (baseUrl) => {
-    const response = await fetch(`${baseUrl}/api/public/lists`);
-    if (!response.ok) {
-      throw new Error('Unable to fetch public lists.');
-    }
-    const payload = await response.json();
-    const results = Array.isArray(payload)
-      ? payload
-      : (payload?.data?.results ?? payload?.data ?? payload?.results ?? []);
-    return results.map((item) => item?.uuid ?? item?.id).filter(Boolean);
-  };
-
   forms.forEach((form) => {
     const baseUrlRaw = form.getAttribute('data-listmonk-base');
     const baseUrl = baseUrlRaw?.replace(/\/+$/, '');
@@ -116,7 +105,15 @@ const shouldRender = enabled && Boolean(listmonkPublicBaseUrl);
     const emailInput = form.querySelector('input[name="email"]');
     const nameInput = form.querySelector('input[name="name"]');
 
-    if (!baseUrl) {
+    if (!baseUrl) return;
+
+    if (configuredLists.length === 0) {
+      if (statusEl) {
+        statusEl.textContent =
+          'Newsletter lists are not configured. Set PUBLIC_LISTMONK_LIST_UUIDS.';
+      }
+      const submitButton = form.querySelector('button[type="submit"]');
+      if (submitButton) submitButton.disabled = true;
       return;
     }
 
@@ -137,22 +134,13 @@ const shouldRender = enabled && Boolean(listmonkPublicBaseUrl);
       if (submitButton) submitButton.disabled = true;
 
       try {
-        const listUuids =
-          configuredLists.length > 0
-            ? configuredLists
-            : await loadPublicLists(baseUrl);
-
-        if (!listUuids.length) {
-          throw new Error('No public lists available.');
-        }
-
         const response = await fetch(`${baseUrl}/api/public/subscription`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             email: emailInput.value,
             name: nameInput?.value || undefined,
-            list_uuids: listUuids,
+            list_uuids: configuredLists,
           }),
         });
 

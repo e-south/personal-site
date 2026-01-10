@@ -21,7 +21,7 @@ Local dev defaults to `http://localhost:4321` + empty base when these are unset.
 
 Optional features:
 
-- Newsletter UI: `PUBLIC_LISTMONK_URL`, `PUBLIC_LISTMONK_LIST_UUIDS`
+- Newsletter UI: set both `PUBLIC_LISTMONK_URL` and `PUBLIC_LISTMONK_LIST_UUIDS` (validated at build time)
 - Analytics: `PUBLIC_GOATCOUNTER_ENDPOINT`, `PUBLIC_GOATCOUNTER_VIEW_COUNTS`
 
 Newsletter CLI scripts auto-load `.env` (shell env overrides `.env`).
@@ -53,6 +53,12 @@ npm run verify
 
 This runs format/lint/typecheck/tests/build. Treat it as the pre‑deploy
 baseline.
+
+## Content authoring shortcuts
+
+- New blog post (scaffold): `npm run content:new:blog -- --title "..." --excerpt "..."`
+- Update CV date: `npm run content:cv:update` (edit `src/content/cv/cv.md` and add the PDF in `public/cv/` if you want the embed)
+- Personalization copy: update `src/content/home/*.md`, `src/content/page-*/*.md`, `src/content/links/*.md`, and `src/settings.ts`
 
 ## Newsletter (listmonk)
 

@@ -62,41 +62,61 @@ Fields:
 - title (string)
 - updated (date, optional)
 
-CV metadata lives here (title, updated date) while the page embeds a PDF from
-`public/cv/Eric_South_CV.pdf`.
+The CV page renders the Markdown body for a text version and embeds the PDF
+specified by `cvPdf` in `src/content/page-cv/cv.md`. The PDF must exist in
+`public/cv/` (use a `/cv/...` path).
 
-## Site copy
+## Page copy
 
-Collection: src/content/site
+Page copy is split into single-purpose collections so required fields are
+validated during content sync.
 
-Each top-level page pulls narrative copy from a single Markdown file here:
+Home
 
-- home.md
-- projects.md
-- publications.md
-- cv.md
-- contact.md
-- blog.md
-- links.md (email + location)
+- Collection: `src/content/home`
+- File: `home.md`
+- Fields: title (string), name (string), locationLine (string), headline (string, optional), overview (string)
 
-Fields (all optional unless noted):
+Projects page
 
-- title (string, required)
-- name (string)
-- headline (string)
-- locationLine (string)
-- imageCaption (string)
-- microLine (string)
-- intro (string)
-- note (string)
-- email (string)
-- location (string)
-- quickLinks (array of { label, href })
-- externalLinks (array of { label, href, key? })
-- interests (string[])
-- scholarLabel (string)
-- selectedHeading (string)
-- downloadLabel (string)
+- Collection: `src/content/page-projects`
+- File: `projects.md`
+- Fields: title (string), intro (string), interests (string[])
+
+Publications page
+
+- Collection: `src/content/page-publications`
+- File: `publications.md`
+- Fields: title (string), intro (string), scholarLabel (string), selectedHeading (string), note (string)
+
+Blog page
+
+- Collection: `src/content/page-blog`
+- File: `blog.md`
+- Fields: title (string), intro (string)
+
+Contact page
+
+- Collection: `src/content/page-contact`
+- File: `contact.md`
+- Fields: title (string), intro (string)
+
+CV page copy
+
+- Collection: `src/content/page-cv`
+- File: `cv.md`
+- Fields: title (string), intro (string), downloadLabel (string), cvPdf (string, required)
+
+Links
+
+- Collection: `src/content/links`
+- File: `links.md`
+- Fields: title (string), email (string), location (string)
 
 Navigation and external profile links live in `src/data/navigation.ts` to keep
 header links in one place.
+
+## Content helpers
+
+- New blog post: `npm run content:new:blog -- --title "..." --excerpt "..." [--tags "a,b"]`
+- Update CV date: `npm run content:cv:update` (uses today; pass `--date YYYY-MM-DD` to override)

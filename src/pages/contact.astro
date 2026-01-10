@@ -1,19 +1,24 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import { getEntry, render } from 'astro:content';
+import { requireEntry, requireValue } from '@/lib/require';
 
-const contactEntry = await getEntry('site', 'contact');
-const linksEntry = await getEntry('site', 'links');
-const { Content } = contactEntry
-  ? await render(contactEntry)
-  : { Content: null };
+const contactEntry = requireEntry(
+  await getEntry('page-contact', 'contact'),
+  'page-contact/contact',
+);
+const linksEntry = requireEntry(
+  await getEntry('links', 'links'),
+  'links/links',
+);
+const { Content } = await render(contactEntry);
 
-const contactData = contactEntry?.data;
-const linksData = linksEntry?.data;
-const title = contactData?.title ?? 'Contact';
-const intro = contactData?.intro ?? 'I typically respond within a few days.';
-const email = linksData?.email ?? 'ericjsouth@gmail.com';
-const locationShort = linksData?.location ?? 'Cambridge, MA';
+const contactData = contactEntry.data;
+const linksData = linksEntry.data;
+const title = contactData.title;
+const intro = contactData.intro;
+const email = requireValue(linksData.email, 'links/links.email');
+const locationShort = requireValue(linksData.location, 'links/links.location');
 ---
 
 <Layout title={title}>

@@ -1,71 +1,127 @@
 ---
-import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
 
-import ProfilePictures from '@/assets/profile_pictures.jpg';
-import { profile } from '@/settings';
-import { getEntry, render } from 'astro:content';
+import { heroImages } from '@/data/heroImages';
+import { storyRegistry } from '@/data/storyMedia';
+import PillLink from '@/components/ui/PillLink.astro';
+import HomeController from '@/components/home/HomeController';
+import StoryChapters from '@/components/home/StoryChapters.astro';
+import { getCollection, getEntry } from 'astro:content';
+import { requireEntry } from '@/lib/require';
 
-const homeEntry = await getEntry('site', 'home');
-const linksEntry = await getEntry('site', 'links');
-const { Content } = homeEntry ? await render(homeEntry) : { Content: null };
+const homeEntry = requireEntry(await getEntry('home', 'home'), 'home/home');
+const storyEntries = await getCollection('story');
+if (storyEntries.length === 0) {
+  throw new Error('Story chapters are missing.');
+}
 
-const homeData = homeEntry?.data;
-const linksData = linksEntry?.data;
-const name = homeData?.name ?? profile.fullName;
-const headline = homeData?.headline ?? '';
-const locationLine = homeData?.locationLine ?? linksData?.location ?? '';
-const imageCaption = homeData?.imageCaption ?? '';
-const microLine = homeData?.microLine ?? '';
+const homeData = homeEntry.data;
+const name = homeData.name;
+const headline = homeData.headline ?? '';
+const locationLine = homeData.locationLine;
+const overview = homeData.overview;
+
+const heroItems = heroImages.map((item) => ({
+  src: item.image.src,
+  alt: item.alt,
+  caption: item.caption,
+}));
+const heroFirst = heroImages[0];
 ---
 
 <Layout showFooter={false}>
-  <section
-    class="flex min-h-[calc(100vh-9rem)] flex-col justify-between gap-10"
-  >
-    <div class="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
-      <div class="space-y-6">
-        <div class="space-y-3">
+  <section id="top" class="space-y-16" data-story-top>
+    <div class="flex min-h-[calc(100vh-9rem)] flex-col gap-10">
+      <div class="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
+        <div class="space-y-6">
+          <div class="space-y-3">
+            {
+              locationLine && (
+                <p class="text-sm uppercase tracking-[0.2em] text-base-content/60 font-sans">
+                  {locationLine}
+                </p>
+              )
+            }
+            <h1 class="text-4xl sm:text-5xl font-semibold tracking-tight">
+              {name}
+            </h1>
+            {
+              headline && (
+                <h2 class="text-2xl sm:text-3xl text-base-content/80">
+                  {headline}
+                </h2>
+              )
+            }
+          </div>
           {
-            locationLine && (
-              <p class="text-sm uppercase tracking-[0.2em] text-base-content/60 font-sans">
-                {locationLine}
+            overview && (
+              <p class="text-lg text-base-content/80 leading-relaxed">
+                {overview}
               </p>
             )
           }
-          <h1 class="text-4xl sm:text-5xl font-semibold tracking-tight">
-            {name}
-          </h1>
-          {
-            headline && (
-              <h2 class="text-2xl sm:text-3xl text-base-content/80">
-                {headline}
-              </h2>
-            )
-          }
         </div>
-        <div class="space-y-4 text-lg text-base-content/80 leading-relaxed">
-          {Content ? <Content /> : <p>{profile.about}</p>}
+
+        <div class="order-first lg:order-none">
+          <div class="relative mx-auto max-w-xs overflow-hidden rounded-3xl">
+            <figure
+              class="relative"
+              data-hero-rotator
+              data-images={JSON.stringify(heroItems)}
+              data-interval="6500"
+            >
+              <img
+                src={heroFirst.image.src}
+                alt={heroFirst.alt}
+                width={heroFirst.image.width}
+                height={heroFirst.image.height}
+                class="aspect-[4/5] w-full object-cover transition-opacity duration-500 ease-out"
+                loading="eager"
+                decoding="async"
+                data-hero-image
+              />
+              <figcaption
+                class="pointer-events-none absolute bottom-3 left-1/2 w-[90%] -translate-x-1/2 rounded-2xl bg-black/45 px-3 py-1.5 text-center text-[0.7rem] leading-snug text-white/90 backdrop-blur-sm transition-opacity duration-500 ease-out"
+                data-hero-caption
+                data-empty={heroFirst.caption ? 'false' : 'true'}
+                aria-hidden={heroFirst.caption ? 'false' : 'true'}
+              >
+                {heroFirst.caption}
+              </figcaption>
+            </figure>
+          </div>
         </div>
-        {microLine && <p class="text-sm text-base-content/60">{microLine}</p>}
       </div>
 
-      <div class="order-first lg:order-none">
-        <div class="relative mx-auto max-w-xs overflow-hidden rounded-3xl">
-          <Image
-            src={ProfilePictures}
-            alt={`Profile picture of ${name}`}
-            class="aspect-[4/5] w-full rounded-2xl object-cover"
-          />
-          {
-            imageCaption && (
-              <div class="mt-4 text-xs text-base-content/50 font-sans">
-                {imageCaption}
-              </div>
-            )
-          }
-        </div>
+      <div class="flex justify-center -mt-4">
+        <PillLink
+          href="#about"
+          variant="pastel"
+          class="border-transparent px-6 py-2 text-[0.7rem] uppercase tracking-[0.25em]"
+          data-scroll-link
+        >
+          More about me
+        </PillLink>
       </div>
     </div>
+
+    <StoryChapters chapters={storyEntries} registry={storyRegistry} />
   </section>
+
+  <HomeController client:load />
+
+  <style>
+    [data-hero-rotator].is-fading [data-hero-image],
+    [data-hero-rotator].is-fading [data-hero-caption] {
+      opacity: 0;
+    }
+
+    [data-hero-caption][data-empty='true'] {
+      opacity: 0;
+    }
+
+    :global(html.story-snap) [data-story-top] {
+      scroll-snap-align: start;
+    }
+  </style>
 </Layout>

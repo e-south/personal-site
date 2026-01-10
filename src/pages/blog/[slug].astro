@@ -8,6 +8,7 @@ import Prose from '@/components/ui/Prose.astro';
 import TagChip from '@/components/ui/TagChip.astro';
 import SubscribeCta from '@/components/ui/SubscribeCta.astro';
 import { analytics } from '@/settings';
+import { requireValue } from '@/lib/require';
 
 export async function getStaticPaths() {
   const posts = await getPublishedBlogEntries();
@@ -74,7 +75,7 @@ const showViewCounts =
         post.data.cover && (
           <Image
             src={post.data.cover}
-            alt={post.data.coverAlt ?? title}
+            alt={requireValue(post.data.coverAlt, `blog/${post.slug} coverAlt`)}
             class="rounded-lg mb-8 w-full aspect-video object-cover"
           />
         )

@@ -15,7 +15,8 @@ const {
   class: className = '',
   variant = 'default',
   toneKey,
-} = Astro.props as Props;
+  ...rest
+} = Astro.props as Props & Record<string, unknown>;
 const hasScheme = (value: string) => /^[a-z][a-z0-9+.-]*:/i.test(value);
 const isExternal = external ?? hasScheme(href);
 const pastelHue = variant === 'pastel' ? hashToHue(toneKey ?? href) : undefined;
@@ -25,6 +26,7 @@ const pastelHue = variant === 'pastel' ? hashToHue(toneKey ?? href) : undefined;
   href={href}
   target={isExternal ? '_blank' : undefined}
   rel={isExternal ? 'noreferrer noopener' : undefined}
+  {...rest}
   class:list={[
     'pill-link inline-flex items-center gap-2 rounded-full border border-base-content/15 bg-base-content/5 px-3 py-1 text-sm font-sans text-base-content/70 transition-colors hover:border-base-content/30 hover:text-base-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-base-content/40',
     variant === 'pastel' ? 'pill-link--pastel' : '',

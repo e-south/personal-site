@@ -1,19 +1,55 @@
 ---
+import Layout from '@/layouts/Layout.astro';
+import SubscribeCta from '@/components/ui/SubscribeCta.astro';
+import { getEntry, render } from 'astro:content';
+import { hasPublishedBlogPosts } from '@/lib/content';
+import { requireEntry } from '@/lib/require';
 import { withBase } from '@/lib/urls';
 
 const redirectPath = withBase('/blog/1');
+const hasPosts = await hasPublishedBlogPosts();
+
+const blogEntry = requireEntry(
+  await getEntry('page-blog', 'blog'),
+  'page-blog/blog',
+);
+const { Content } = await render(blogEntry);
+const blogData = blogEntry.data;
+const title = blogData.title;
+const intro = blogData.intro;
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="refresh" content={`0; url=${redirectPath}`} />
-    <link rel="canonical" href={redirectPath} />
-    <title>Redirecting...</title>
-  </head>
-  <body class="bg-base-100 text-base-content font-sans">
-    <p class="p-6">
-      Redirecting to <a href={redirectPath}>the blog</a>.
-    </p>
-  </body>
-</html>
+{
+  hasPosts ? (
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="refresh" content={`0; url=${redirectPath}`} />
+        <link rel="canonical" href={redirectPath} />
+        <title>Redirecting...</title>
+      </head>
+      <body class="bg-base-100 text-base-content font-sans">
+        <p class="p-6">
+          Redirecting to <a href={redirectPath}>the blog</a>.
+        </p>
+      </body>
+    </html>
+  ) : (
+    <Layout title={title}>
+      <div class="mx-auto max-w-3xl space-y-12">
+        <header class="space-y-3">
+          <h1 class="text-4xl sm:text-5xl font-semibold">{title}</h1>
+          <p class="text-base-content/70">{intro}</p>
+        </header>
+
+        <SubscribeCta />
+
+        {Content && (
+          <div class="text-base-content/70 leading-relaxed">
+            <Content />
+          </div>
+        )}
+      </div>
+    </Layout>
+  )
+}
