@@ -16,7 +16,7 @@ export type StoryChapter = {
   media: StoryMediaItem[];
 };
 
-type RenderResult = { Content: unknown };
+type RenderResult = { Content: AstroComponentFactory };
 export type RenderStoryEntry = (
   entry: CollectionEntry<'story'>,
 ) => Promise<RenderResult>;
@@ -29,7 +29,7 @@ type BuildStoryChaptersOptions = {
 
 const defaultRenderEntry: RenderStoryEntry = async (entry) => {
   const { render } = await import('astro:content');
-  return render(entry);
+  return render(entry) as Promise<RenderResult>;
 };
 
 export const buildStoryChapters = async ({

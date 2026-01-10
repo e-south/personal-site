@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import type { CollectionEntry } from 'astro:content';
 import type { StoryMediaItem, StoryRegistry } from '../../data/storyMedia';
-import { buildStoryChapters } from '../story';
+import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
+import { buildStoryChapters, type RenderStoryEntry } from '../story';
 
-const renderEntry = async () => ({ Content: () => null });
+const renderEntry: RenderStoryEntry = async () => ({
+  Content: (() => null) as AstroComponentFactory,
+});
 
 const makeEntry = (slug: string): CollectionEntry<'story'> =>
   ({
