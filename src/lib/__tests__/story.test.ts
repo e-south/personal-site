@@ -5,7 +5,7 @@ import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
 import { buildStoryChapters, type RenderStoryEntry } from '../story';
 
 const renderEntry: RenderStoryEntry = async () => ({
-  Content: (() => null) as AstroComponentFactory,
+  Content: (() => null) as unknown as AstroComponentFactory,
 });
 
 const makeEntry = (slug: string): CollectionEntry<'story'> =>

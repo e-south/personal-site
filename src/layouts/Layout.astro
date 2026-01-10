@@ -98,7 +98,7 @@ const { internal: navItems, external: externalLinks } = navigation;
       </main>
     </div>
 
-    <script type="module">
+    <script type="module" is:inline>
       const setExternalTargets = () => {
         const anchors = document.querySelectorAll('a[href]');
         anchors.forEach((anchor) => {
