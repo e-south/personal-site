@@ -379,9 +379,6 @@ const assertStoryRegistry = () => {
       }
       const itemIds = new Set<string>();
       item.items.forEach((stackItem) => {
-        if (stackItem.kind === 'stack') {
-          throw new Error(`Story media "${id}" cannot nest stack items.`);
-        }
         if (stackItem.kind === 'video' && !stackItem.poster) {
           throw new Error(`Story video "${stackItem.id}" is missing a poster.`);
         }

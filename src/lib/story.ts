@@ -1,5 +1,10 @@
 import type { CollectionEntry } from 'astro:content';
-import type { StoryMediaItem, StoryRegistry } from '@/data/storyMedia';
+import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
+import type {
+  StoryMediaItem,
+  StoryRegistry,
+  StoryChapterSlug,
+} from '@/data/storyMedia';
 
 export type StoryChapter = {
   id: string;
@@ -7,7 +12,7 @@ export type StoryChapter = {
   order: number;
   ctaLabel?: string;
   ctaHref?: string;
-  Content: unknown;
+  Content: AstroComponentFactory;
   media: StoryMediaItem[];
 };
 
@@ -55,7 +60,7 @@ export const buildStoryChapters = async ({
   }
 
   const extraEntries = chapters.filter(
-    (entry) => !registry.order.includes(entry.slug),
+    (entry) => !registry.order.includes(entry.slug as StoryChapterSlug),
   );
   if (extraEntries.length > 0) {
     throw new Error(
@@ -87,11 +92,6 @@ export const buildStoryChapters = async ({
           }
           const itemIds = new Set<string>();
           item.items.forEach((stackItem) => {
-            if (stackItem.kind === 'stack') {
-              throw new Error(
-                `Story media "${item.id}" cannot nest stack items.`,
-              );
-            }
             if (stackItem.kind === 'video' && !stackItem.poster) {
               throw new Error(
                 `Story video "${stackItem.id}" is missing a poster.`,

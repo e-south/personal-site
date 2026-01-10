@@ -30,7 +30,7 @@ const introLine = (() => {
   return `${base} Updated ${updated}.`;
 })();
 
-const normalizeCvPath = (value) => {
+const normalizeCvPath = (value: string) => {
   if (!value || typeof value !== 'string') return null;
   const trimmed = value.trim();
   if (!trimmed) return null;
