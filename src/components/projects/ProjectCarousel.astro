@@ -1,0 +1,244 @@
+---
+import ProjectCarouselNav from '@/components/projects/ProjectCarouselNav.astro';
+import ProjectPanel from '@/components/projects/ProjectPanel.astro';
+import type { ProjectPanel as ProjectPanelType } from '@/lib/projects';
+
+type Props = {
+  projects: ProjectPanelType[];
+  class?: string;
+};
+
+const { projects, class: className } = Astro.props as Props;
+
+if (!Array.isArray(projects) || projects.length === 0) {
+  throw new Error('Project carousel is missing projects.');
+}
+
+const classes = [
+  'relative flex min-h-[70vh] md:min-h-[80vh] flex-col gap-4',
+  className ?? '',
+]
+  .join(' ')
+  .trim();
+
+const projectMeta = projects.map((project) => {
+  const slug = project.entry.slug;
+  if (!slug) {
+    throw new Error('Project entry slug is missing.');
+  }
+  return {
+    id: `project-${slug}`,
+    title: project.entry.data.title,
+  };
+});
+---
+
+<section
+  class={classes}
+  data-project-carousel
+  aria-roledescription="carousel"
+  aria-label="Projects carousel"
+>
+  <div class="relative flex-1 min-h-0">
+    <div class="grid h-full">
+      <div class="pointer-events-none col-start-1 row-start-1 z-10">
+        <div
+          class="sticky top-0 flex h-full items-center justify-start px-2 md:px-4"
+        >
+          <button
+            type="button"
+            class="pointer-events-auto rounded-full bg-base-100/80 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-base-content/70 shadow-sm backdrop-blur transition hover:text-base-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-40"
+            data-carousel-prev
+            aria-label="Previous project"
+            disabled
+          >
+            Prev
+          </button>
+        </div>
+      </div>
+      <div class="pointer-events-none col-start-1 row-start-1 z-10">
+        <div
+          class="sticky top-0 flex h-full items-center justify-end px-2 md:px-4"
+        >
+          <button
+            type="button"
+            class="pointer-events-auto rounded-full bg-base-100/80 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-base-content/70 shadow-sm backdrop-blur transition hover:text-base-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-40"
+            data-carousel-next
+            aria-label="Next project"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+      <div class="col-start-1 row-start-1">
+        <div
+          class="flex h-full snap-x snap-mandatory overflow-x-auto overflow-y-hidden overscroll-x-contain rounded-3xl bg-base-200/20"
+          data-carousel-track
+          tabindex="0"
+          aria-label="Projects"
+        >
+          {
+            projects.map((project, index) => (
+              <ProjectPanel
+                project={project}
+                index={index}
+                total={projects.length}
+              />
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ProjectCarouselNav projects={projectMeta} position="bottom" />
+</section>
+
+<script type="module" is:inline>
+  const carousel = document.querySelector('[data-project-carousel]');
+  if (!(carousel instanceof HTMLElement)) {
+    throw new Error('[projects-carousel] Root element not found.');
+  }
+
+  const track = carousel.querySelector('[data-carousel-track]');
+  if (!(track instanceof HTMLElement)) {
+    throw new Error('[projects-carousel] Track element not found.');
+  }
+
+  const panels = Array.from(
+    track.querySelectorAll('[data-carousel-panel]'),
+  ).filter((panel) => panel instanceof HTMLElement);
+
+  if (panels.length === 0) {
+    throw new Error('[projects-carousel] No panels found.');
+  }
+
+  const dots = Array.from(
+    carousel.querySelectorAll('[data-carousel-dot]'),
+  ).filter((dot) => dot instanceof HTMLButtonElement);
+
+  if (dots.length === 0 || dots.length % panels.length !== 0) {
+    throw new Error(
+      '[projects-carousel] Dot count does not match panel count.',
+    );
+  }
+
+  const prevButtons = Array.from(
+    carousel.querySelectorAll('[data-carousel-prev]'),
+  ).filter((button) => button instanceof HTMLButtonElement);
+
+  const nextButtons = Array.from(
+    carousel.querySelectorAll('[data-carousel-next]'),
+  ).filter((button) => button instanceof HTMLButtonElement);
+
+  const prefersReducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)',
+  );
+
+  const total = panels.length;
+  let activeIndex = 0;
+
+  const clampIndex = (index) => Math.max(0, Math.min(index, total - 1));
+  const getBehavior = () => (prefersReducedMotion.matches ? 'auto' : 'smooth');
+
+  const setActiveIndex = (nextIndex) => {
+    activeIndex = clampIndex(nextIndex);
+    dots.forEach((dot) => {
+      const dotIndex = Number(dot.dataset.index);
+      if (!Number.isInteger(dotIndex)) {
+        throw new Error('[projects-carousel] Dot index is invalid.');
+      }
+      const isActive = dotIndex === activeIndex;
+      dot.dataset.active = String(isActive);
+      dot.setAttribute('aria-current', isActive ? 'true' : 'false');
+    });
+    prevButtons.forEach((button) => {
+      const disabled = activeIndex === 0;
+      button.disabled = disabled;
+      button.setAttribute('aria-disabled', String(disabled));
+    });
+    nextButtons.forEach((button) => {
+      const disabled = activeIndex === total - 1;
+      button.disabled = disabled;
+      button.setAttribute('aria-disabled', String(disabled));
+    });
+    carousel.dataset.activeIndex = String(activeIndex);
+  };
+
+  const scrollToIndex = (nextIndex) => {
+    const clamped = clampIndex(nextIndex);
+    const panel = panels[clamped];
+    if (!panel) {
+      throw new Error('[projects-carousel] Target panel is missing.');
+    }
+    const trackRect = track.getBoundingClientRect();
+    const panelRect = panel.getBoundingClientRect();
+    track.scrollTo({
+      left: track.scrollLeft + (panelRect.left - trackRect.left),
+      behavior: getBehavior(),
+    });
+  };
+
+  prevButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      scrollToIndex(activeIndex - 1);
+    });
+  });
+
+  nextButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      scrollToIndex(activeIndex + 1);
+    });
+  });
+
+  dots.forEach((dot) => {
+    const index = Number(dot.dataset.index);
+    if (!Number.isInteger(index)) {
+      throw new Error('[projects-carousel] Dot index is invalid.');
+    }
+    dot.addEventListener('click', () => {
+      scrollToIndex(index);
+    });
+  });
+
+  track.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      scrollToIndex(activeIndex - 1);
+    }
+    if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      scrollToIndex(activeIndex + 1);
+    }
+    if (event.key === 'Home') {
+      event.preventDefault();
+      scrollToIndex(0);
+    }
+    if (event.key === 'End') {
+      event.preventDefault();
+      scrollToIndex(total - 1);
+    }
+  });
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      const visible = entries.filter((entry) => entry.isIntersecting);
+      if (visible.length === 0) return;
+      const mostVisible = visible.reduce((best, entry) =>
+        entry.intersectionRatio > best.intersectionRatio ? entry : best,
+      );
+      const index = Number(mostVisible.target.dataset.index);
+      if (!Number.isInteger(index)) {
+        throw new Error('[projects-carousel] Panel index is invalid.');
+      }
+      setActiveIndex(index);
+    },
+    {
+      root: track,
+      threshold: [0.45, 0.6, 0.75],
+    },
+  );
+
+  panels.forEach((panel) => observer.observe(panel));
+  setActiveIndex(0);
+</script>

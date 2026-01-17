@@ -1,0 +1,40 @@
+---
+type ProjectMeta = {
+  id: string;
+  title: string;
+};
+
+type Props = {
+  projects: ProjectMeta[];
+  position: 'top' | 'bottom';
+};
+
+const { projects, position } = Astro.props as Props;
+
+if (!Array.isArray(projects) || projects.length === 0) {
+  throw new Error('Project carousel navigation is missing projects.');
+}
+---
+
+<nav
+  class="flex items-center justify-center gap-3 rounded-full bg-base-100/90 px-4 py-2 text-sm text-base-content/70 shadow-sm backdrop-blur"
+  aria-label={`Project carousel navigation (${position})`}
+  data-carousel-nav={position}
+>
+  <div class="flex items-center gap-3" aria-label="Project slides">
+    {
+      projects.map((project, index) => (
+        <button
+          type="button"
+          class="h-2.5 w-2.5 rounded-full border border-base-content/30 bg-transparent transition data-[active=true]:border-base-content data-[active=true]:bg-base-content data-[active=true]:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+          data-carousel-dot
+          data-index={index}
+          data-active={index === 0 ? 'true' : 'false'}
+          aria-current={index === 0 ? 'true' : 'false'}
+          aria-controls={project.id}
+          aria-label={`Project ${index + 1} of ${projects.length}: ${project.title}`}
+        />
+      ))
+    }
+  </div>
+</nav>
