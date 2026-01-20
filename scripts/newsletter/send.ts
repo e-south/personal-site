@@ -295,8 +295,7 @@ const main = async () => {
   }
 };
 
-main().catch((error) => {
-  const label = error instanceof Error ? error.name : 'UnknownError';
-  console.error(`Newsletter send failed (${label}).`);
+main().catch(() => {
+  console.error('Newsletter send failed.');
   process.exit(1);
 });
