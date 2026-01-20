@@ -1,0 +1,18 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+  PUBLIC_BASE_PATH = ""
+
+[context.deploy-preview]
+  command = "PUBLIC_SITE_URL=$DEPLOY_PRIME_URL PUBLIC_BASE_PATH= npm run build"
+  publish = "dist"
+[context.branch-deploy]
+  command = "PUBLIC_SITE_URL=$DEPLOY_PRIME_URL PUBLIC_BASE_PATH= npm run build"
+  publish = "dist"
+
+[context.production]
+  command = "PUBLIC_SITE_URL=$URL PUBLIC_BASE_PATH= npm run build"
+  publish = "dist"

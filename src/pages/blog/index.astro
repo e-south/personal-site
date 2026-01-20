@@ -1,0 +1,108 @@
+---
+import Pagination from '@/components/ui/Pagination.astro';
+import Layout from '@/layouts/Layout.astro';
+import { Image } from 'astro:assets';
+import { template } from '@/settings';
+import { getBlogListItems } from '@/lib/content';
+import { getEntry, render } from 'astro:content';
+import type { BlogListItem } from '@/lib/content';
+import PillLink from '@/components/ui/PillLink.astro';
+import SubscribeCta from '@/components/ui/SubscribeCta.astro';
+import { requireEntry, requireValue } from '@/lib/require';
+import { formatLongDate } from '@/lib/dates';
+import { withBase } from '@/lib/urls';
+
+const posts: BlogListItem[] = await getBlogListItems();
+const pageSize = template.postPerPage;
+const page = {
+  data: posts.slice(0, pageSize),
+  url: {
+    prev: undefined,
+    next: posts.length > pageSize ? withBase('/blog/2') : undefined,
+  },
+};
+const hasPosts = posts.length > 0;
+
+const blogEntry = requireEntry(
+  await getEntry('page-blog', 'blog'),
+  'page-blog/blog',
+);
+const { Content } = await render(blogEntry);
+const blogData = blogEntry.data;
+const title = blogData.title;
+const intro = blogData.intro;
+---
+
+{
+  hasPosts ? (
+    <Layout title={title}>
+      <div class="mx-auto max-w-3xl space-y-12">
+        <header class="space-y-3">
+          <h1 class="text-4xl sm:text-5xl font-semibold">{title}</h1>
+          <p class="text-base-content/70">{intro}</p>
+        </header>
+
+        <SubscribeCta />
+
+        <div class="space-y-10">
+          {page.data.map((post) => (
+            <article class="border-b border-base-content/15 pb-10 last:border-b-0 last:pb-0">
+              {post.cover && (
+                <figure class="aspect-video mb-6 overflow-hidden rounded-xl border border-base-content/10">
+                  <Image
+                    src={post.cover}
+                    alt={requireValue(
+                      post.coverAlt,
+                      `blog/${post.slug} coverAlt`,
+                    )}
+                    class="w-full h-full object-cover"
+                  />
+                </figure>
+              )}
+              <div class="space-y-3">
+                <div class="flex flex-wrap items-center gap-3 text-sm text-base-content/70 uppercase tracking-[0.12em]">
+                  <time datetime={post.date.toISOString()}>
+                    {formatLongDate(post.date)}
+                  </time>
+                  {post.badge && (
+                    <span class="text-base-content/60">{post.badge}</span>
+                  )}
+                </div>
+                <h2 class="text-2xl font-semibold">
+                  <a href={post.slug} class="hover:text-accent">
+                    {post.title}
+                  </a>
+                </h2>
+                <p class="text-base-content/80 leading-relaxed">
+                  {post.excerpt}
+                </p>
+                <PillLink href={post.slug}>Read more</PillLink>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div class="flex justify-center">
+          <Pagination page={page} />
+        </div>
+      </div>
+    </Layout>
+  ) : (
+    <Layout title={title}>
+      <div class="mx-auto max-w-3xl space-y-12">
+        <header class="space-y-3">
+          <h1 class="text-4xl sm:text-5xl font-semibold">{title}</h1>
+          <p class="text-base-content/70">{intro}</p>
+        </header>
+
+        <SubscribeCta />
+
+        {Content && (
+          <div class="text-base-content/70 leading-relaxed">
+            <Content />
+          </div>
+        )}
+      </div>
+    </Layout>
+  )
+}

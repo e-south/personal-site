@@ -1,0 +1,46 @@
+---
+import type { ProjectBanner } from '@/lib/content';
+
+type Props = {
+  banner: ProjectBanner;
+};
+
+const { banner } = Astro.props as Props;
+const { image } = banner;
+const captionPlacement = banner.captionPlacement ?? 'below';
+const hasCaption = Boolean(banner.caption);
+const captionAbove = hasCaption && captionPlacement === 'above';
+const captionBelow = hasCaption && captionPlacement !== 'above';
+
+if (image.width <= 0 || image.height <= 0) {
+  throw new Error(
+    `Project banner "${banner.alt}" is missing image dimensions.`,
+  );
+}
+---
+
+<figure class="rounded-2xl border border-base-content/10 bg-white p-4">
+  {
+    captionAbove && (
+      <figcaption class="mb-3 text-xs text-base-content/60">
+        {banner.caption}
+      </figcaption>
+    )
+  }
+  <img
+    src={image.src}
+    alt={banner.alt}
+    width={image.width}
+    height={image.height}
+    loading="lazy"
+    decoding="async"
+    class="block w-full h-auto object-contain"
+  />
+  {
+    captionBelow && (
+      <figcaption class="mt-3 text-xs text-base-content/60">
+        {banner.caption}
+      </figcaption>
+    )
+  }
+</figure>

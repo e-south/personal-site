@@ -1,24 +1,41 @@
 # build output
 dist/
-
-# generated types
 .astro/
 
 # dependencies
 node_modules/
 
-# logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
 # environment variables
 .env
-.env.production
+.env.*
+!.env.example
 
-# macOS-specific files
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# coverage / test artifacts
+coverage/
+playwright-report/
+test-results/
+
+# tooling caches
+.eslintcache
+.cache/
+.vite/
+.npm/
+.npm-cache/
+
+# Netlify local
+.netlify/
+
+# OS / IDE
 .DS_Store
-
-# jetbrains setting folder
 .idea/
+.vscode/
+
+# local design drafts
+artwork-drafts/
+!artwork-drafts/README.md

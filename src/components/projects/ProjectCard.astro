@@ -1,0 +1,83 @@
+---
+import TagChip from '@/components/ui/TagChip.astro';
+import PillLink from '@/components/ui/PillLink.astro';
+import ProjectBanner from '@/components/projects/ProjectBanner.astro';
+import type { ProjectCard as ProjectCardType } from '@/lib/content';
+
+type Props = {
+  project: ProjectCardType;
+};
+
+const { project } = Astro.props as Props;
+
+const linkLabels: Record<string, string> = {
+  repo: 'Code',
+  live: 'Live',
+  paper: 'Paper',
+};
+
+const banners = project.banners ?? [];
+const bannersAbove = banners.filter((banner) => banner.placement === 'above');
+const bannersBelow = banners.filter((banner) => banner.placement === 'below');
+
+const parseEmphasis = (text: string) =>
+  text
+    .split(/(\*[^*]+\*)/g)
+    .filter(Boolean)
+    .map((segment) => {
+      const isEmphasis =
+        segment.startsWith('*') && segment.endsWith('*') && segment.length > 2;
+      return {
+        content: isEmphasis ? segment.slice(1, -1) : segment,
+        emphasis: isEmphasis,
+      };
+    });
+---
+
+<article
+  class="flex flex-col gap-5 rounded-2xl border border-base-content/15 bg-base-200/30 p-6"
+>
+  {bannersAbove.map((banner) => <ProjectBanner banner={banner} />)}
+
+  <div class="space-y-2">
+    <h2 class="text-2xl font-semibold">{project.title}</h2>
+    <p class="text-base-content/80 leading-relaxed">
+      {
+        parseEmphasis(project.description).map((part) =>
+          part.emphasis ? <em>{part.content}</em> : <span>{part.content}</span>,
+        )
+      }
+    </p>
+    {
+      project.summary && (
+        <p class="text-sm text-base-content/60">{project.summary}</p>
+      )
+    }
+  </div>
+
+  {
+    project.tech.length > 0 && (
+      <ul class="flex flex-wrap gap-2">
+        {project.tech.map((tag) => (
+          <li>
+            <TagChip label={tag} size="xs" uppercase />
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
+  {
+    project.links && (
+      <div class="flex flex-wrap gap-4 text-sm text-base-content/70 font-sans">
+        {Object.entries(project.links).map(([key, href]) =>
+          href ? (
+            <PillLink href={href}>{linkLabels[key] ?? key}</PillLink>
+          ) : null,
+        )}
+      </div>
+    )
+  }
+
+  {bannersBelow.map((banner) => <ProjectBanner banner={banner} />)}
+</article>

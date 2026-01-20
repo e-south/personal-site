@@ -1,0 +1,91 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { getFeaturedPapers } from '@/lib/content';
+import { getEntry } from 'astro:content';
+import { getNavigation } from '@/data/navigation';
+import PillLink from '@/components/ui/PillLink.astro';
+import { requireEntry } from '@/lib/require';
+
+const featuredPapers = await getFeaturedPapers(4);
+const publicationsEntry = requireEntry(
+  await getEntry('page-publications', 'publications'),
+  'page-publications/publications',
+);
+const publicationsData = publicationsEntry.data;
+const title = publicationsData.title;
+const intro = publicationsData.intro;
+const scholarLabel = publicationsData.scholarLabel;
+const selectedHeading = publicationsData.selectedHeading;
+const note = publicationsData.note;
+const navigation = getNavigation();
+const scholarLink = navigation.external.find((link) => link.icon === 'scholar');
+if (!scholarLink) {
+  throw new Error('Scholar link is missing from navigation.');
+}
+
+const authorName = 'Eric J. South';
+const normalizeAuthor = (author: string) => {
+  const hasAsterisk = author.includes('*');
+  const name = author.replace(/\*/g, '').trim();
+  return { name, hasAsterisk };
+};
+---
+
+<Layout title={title}>
+  <div class="mx-auto w-full max-w-3xl space-y-12">
+    <header class="space-y-3">
+      <h1 class="text-4xl sm:text-5xl font-semibold">{title}</h1>
+      <p class="text-base-content/70">{intro}</p>
+      <PillLink href={scholarLink.href} variant="pastel" toneKey={scholarLabel}>
+        {scholarLabel}
+      </PillLink>
+      <p class="text-sm text-base-content/60">{note}</p>
+    </header>
+
+    {
+      featuredPapers.length > 0 && (
+        <section class="space-y-6">
+          <h2 class="text-sm uppercase tracking-[0.2em] text-base-content/60 font-sans">
+            {selectedHeading}
+          </h2>
+          <div class="space-y-6">
+            {featuredPapers.map((paper) => (
+              <article class="border-b border-base-content/15 pb-4 last:border-b-0">
+                <h3 class="text-xl font-semibold">{paper.title}</h3>
+                <p class="text-sm text-base-content/70">
+                  {paper.authors.map((author, index) => {
+                    const { name, hasAsterisk } = normalizeAuthor(author);
+                    const displayName = `${name}${hasAsterisk ? '*' : ''}`;
+                    const isSelf = name === authorName;
+                    return (
+                      <span>
+                        {isSelf ? <strong>{displayName}</strong> : displayName}
+                        {index < paper.authors.length - 1 ? ', ' : ''}
+                      </span>
+                    );
+                  })}
+                </p>
+                {paper.coFirst && (
+                  <p class="text-xs text-base-content/60">[*Co-first author]</p>
+                )}
+                <p class="text-sm text-base-content/60 uppercase tracking-[0.16em] font-sans">
+                  {paper.venue} - {paper.year}
+                </p>
+                {paper.link && (
+                  <PillLink
+                    href={paper.link}
+                    class="mt-2"
+                    variant="pastel"
+                    toneKey={paper.title}
+                  >
+                    View publication
+                  </PillLink>
+                )}
+              </article>
+            ))}
+          </div>
+        </section>
+      )
+    }
+  </div>
+</Layout>

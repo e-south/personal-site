@@ -1,89 +1,85 @@
 ---
-import Layout from '@/layouts/Layout.astro'
-import { experiences, education, skills, publications } from '../data/cv'
-import CvTimeline from '@/components/ui/CvTimeline.astro'
+import Layout from '@/layouts/Layout.astro';
+import { withBase } from '@/lib/urls';
+import { getEntry, render } from 'astro:content';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
+import PillLink from '@/components/ui/PillLink.astro';
+import Prose from '@/components/ui/Prose.astro';
+import { requireEntry } from '@/lib/require';
 
-import type { Experience, Education, Publication } from '../types/cv'
-import List from '@/components/ui/List.astro'
-import PublicationsList from '@/components/ui/PublicationsList.astro'
+const cvEntry = requireEntry(await getEntry('cv', 'cv'), 'cv/cv');
+const pageEntry = requireEntry(await getEntry('page-cv', 'cv'), 'page-cv/cv');
+const { Content } = await render(cvEntry);
+const updated =
+  cvEntry.data.updated &&
+  cvEntry.data.updated.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+const pageData = pageEntry.data;
+const title = pageData.title;
+const intro = pageData.intro;
+const downloadLabel = pageData.downloadLabel;
+const introLine = (() => {
+  if (!updated) return intro;
+  const trimmed = intro.trim();
+  const endsWithPunctuation = /[.!?]$/.test(trimmed);
+  const base = endsWithPunctuation ? trimmed : `${trimmed}.`;
+  return `${base} Updated ${updated}.`;
+})();
 
-let orderedExperiences: Experience[] = []
-let orderedEducations: Education[] = []
-let orderedPublications: Publication[] = []
+const normalizeCvPath = (value: string) => {
+  if (!value || typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  const normalized = trimmed.startsWith('/') ? trimmed : `/cv/${trimmed}`;
+  const fsPath = path.join(process.cwd(), 'public', normalized.slice(1));
+  return {
+    url: withBase(normalized),
+    fsPath,
+  };
+};
 
-const orderElement = <T extends { time: string }>(a: T, b: T) => {
-  const presentValues = ['present', 'now', 'current', 'today']
-  if (
-			presentValues.includes(
-				(a['time'] as string)?.split(' - ')[1]?.toLowerCase()
-			)
-		) {
-			// If the date is 'present', it should be the first element
-			return -1
-		}
-		const dateA = new Date((a['time'] as string)?.split(' - ')[1])
-		const dateB = new Date((b['time'] as string)?.split(' - ')[1])
-		return dateB.getTime() - dateA.getTime()
+const configuredPdf = normalizeCvPath(pageData?.cvPdf);
+if (!configuredPdf) {
+  throw new Error('[cv] cvPdf is required in page-cv content.');
 }
-
-if (experiences.length > 0) {
-	orderedExperiences = experiences.sort((a, b) => {
-		return orderElement(a, b)
-	})
+if (!existsSync(configuredPdf.fsPath)) {
+  throw new Error(`[cv] Configured PDF not found at ${configuredPdf.fsPath}`);
 }
-
-if (education.length > 0) {
-	orderedEducations = education.sort((a, b) => {
-		return orderElement(a, b)
-	})
-}
-
-if (publications.length > 0) {
-	orderedPublications = publications.sort((a, b) => {
-		return orderElement(a, b)
-	})
-}
+const cvPath = configuredPdf.url;
 ---
 
-<Layout>
-	{
-		orderedEducations.length > 0 && (
-			<section class='mb-12'>
-				<h2 class='text-2xl font-bold mb-6 border-b pb-2'>
-					Education
-				</h2>
-				<CvTimeline elements={orderedEducations} colored={true} />
-			</section>
-		)
-	}
+<Layout title={title}>
+  <div class="mx-auto w-full max-w-4xl space-y-10">
+    <header class="space-y-3">
+      <h1 class="text-4xl sm:text-5xl font-semibold">{title}</h1>
+      <p class="text-base-content/70">{introLine}</p>
+    </header>
 
-	{
-		orderedExperiences.length > 0 && (
-			<section class='mb-12'>
-				<h2 class='text-2xl font-bold mb-6 border-b pb-2'>
-					Experiences
-				</h2>
-				<CvTimeline elements={orderedExperiences} colored={true} />
-			</section>
-		)
-	}
+    <div class="space-y-4">
+      <div class="rounded-2xl border border-base-content/15 bg-base-200/20 p-4">
+        <iframe src={cvPath} title="CV PDF" class="h-[70vh] w-full rounded-xl"
+        ></iframe>
+      </div>
+      <div class="flex justify-center">
+        <PillLink
+          href={cvPath}
+          variant="pastel"
+          class="rounded-full px-6 py-2 text-[0.7rem] uppercase tracking-[0.2em]"
+        >
+          {downloadLabel}
+        </PillLink>
+      </div>
+    </div>
 
-	{
-		orderedPublications.length > 0 && (
-			<section class='mb-12'>
-				<h2 class='text-2xl font-bold mb-6 border-b pb-2'>
-					Last publications
-				</h2>
-				<PublicationsList elements={orderedPublications}/>
-			</section>
-		)
-	}
-
-	{
-		skills.length > 0 && (
-			<section class='mb-12'>
-				<List listTitle='Skills' listItems={skills}/>
-			</section>
-		)
-	}
+    <section class="space-y-4">
+      <h2 class="text-2xl font-semibold">Text version</h2>
+      <Prose>
+        <Content />
+      </Prose>
+    </section>
+  </div>
 </Layout>

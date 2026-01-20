@@ -1,0 +1,48 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { getCollection, getEntry } from 'astro:content';
+import TagChip from '@/components/ui/TagChip.astro';
+import { requireEntry } from '@/lib/require';
+import ProjectCarousel from '@/components/projects/ProjectCarousel.astro';
+import { buildProjectPanels } from '@/lib/projects';
+
+const projectsEntry = requireEntry(
+  await getEntry('page-projects', 'projects'),
+  'page-projects/projects',
+);
+const projectsData = projectsEntry.data;
+const title = projectsData.title;
+const intro = projectsData.intro;
+const interests = projectsData.interests;
+
+const projectEntries = await getCollection('projects');
+const projects = await buildProjectPanels({ entries: projectEntries });
+---
+
+<Layout title={title}>
+  <div class="flex flex-col gap-10">
+    <header class="space-y-4">
+      <h1 class="text-4xl sm:text-5xl font-semibold">{title}</h1>
+      <p class="text-base-content/70">{intro}</p>
+      {
+        interests.length > 0 && (
+          <div class="flex flex-wrap gap-2">
+            {interests.map((interest) => (
+              <TagChip label={interest} size="xs" uppercase />
+            ))}
+          </div>
+        )
+      }
+    </header>
+
+    {
+      projects.length > 0 ? (
+        <ProjectCarousel projects={projects} />
+      ) : (
+        <p class="text-base-content/60">
+          Projects are being curated. Check back soon.
+        </p>
+      )
+    }
+  </div>
+</Layout>

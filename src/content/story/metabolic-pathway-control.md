@@ -1,0 +1,5 @@
+---
+title: 'Early PhD Work in Metabolic Engineering'
+---
+
+My first PhD project focused on metabolic engineering for limonene production in _E. coli_. Limonene biosynthesis through the mevalonate (MVA) pathway involves multiple enzymes and intermediates, and productivity can drop when gene expression is imbalanced, allowing toxic intermediates to accumulate. To explore this design space, we built a four-input transcriptional circuit based on the Voigt lab’s Marionette chassis, using small-molecule inducers to independently tune different parts of the MVA pathway. In parallel, I served on the Engineering Biology Research Consortium Student and Postdoc Association (EBRC-SPA) board and helped organize panels connecting trainees with industry scientists. That work led to a summer internship at LanzaTech in Chicago, where I contributed to genetic tool development for gas-fermenting strains and helped establish experimental and computational workflows for pooled DNA library design, high-throughput screening, next-generation sequencing, and biosensor development.

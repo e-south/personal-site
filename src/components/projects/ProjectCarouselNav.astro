@@ -1,0 +1,79 @@
+---
+type ProjectMeta = {
+  id: string;
+  title: string;
+};
+
+type Props = {
+  projects: ProjectMeta[];
+  position: 'top' | 'bottom';
+};
+
+const { projects, position } = Astro.props as Props;
+
+if (!Array.isArray(projects) || projects.length === 0) {
+  throw new Error('Project carousel navigation is missing projects.');
+}
+---
+
+<nav
+  class="flex items-center justify-center gap-3 rounded-full bg-base-100/90 px-4 py-2 text-sm text-base-content/70 shadow-sm backdrop-blur"
+  aria-label={`Project carousel navigation (${position})`}
+  data-carousel-nav={position}
+>
+  <div class="flex items-center gap-3" aria-label="Project slides">
+    {
+      projects.map((project, index) => (
+        <button
+          type="button"
+          class="project-carousel-dot"
+          data-carousel-dot
+          data-index={index}
+          data-active={index === 0 ? 'true' : 'false'}
+          aria-current={index === 0 ? 'true' : 'false'}
+          aria-controls={project.id}
+          aria-label={`Project ${index + 1} of ${projects.length}: ${project.title}`}
+        >
+          <span class="project-carousel-dot__inner" aria-hidden="true" />
+        </button>
+      ))
+    }
+  </div>
+</nav>
+
+<style>
+  .project-carousel-dot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 999px;
+    border: 0;
+    background: transparent;
+    transition: transform 0.2s ease;
+  }
+
+  .project-carousel-dot__inner {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, currentColor 35%, transparent);
+    background: transparent;
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  .project-carousel-dot[data-active='true'] .project-carousel-dot__inner {
+    border-color: currentColor;
+    background: currentColor;
+    transform: scale(1.1);
+  }
+
+  .project-carousel-dot:focus-visible {
+    outline: 2px solid color-mix(in oklab, hsl(var(--p)) 70%, transparent);
+    outline-offset: 4px;
+  }
+</style>

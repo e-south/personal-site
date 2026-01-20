@@ -1,52 +1,49 @@
 ---
-import { Image } from 'astro:assets'
-import {profile} from '../../settings'
-import SocialIcons from './SocialIcons.astro'
-import ProfilePictures from '@/assets/profile_pictures.jpg'
-import { getCollection } from 'astro:content'
-import { template } from '@/settings'
+import { profile } from '@/settings';
+import type { ExternalNavItem, InternalNavItem } from '@/data/navigation';
+import NavLink from './NavLink.astro';
 
-const isBlogPopulated = await getCollection('blog').then(collection => collection.length > 0)
+const { items, externalLinks } = Astro.props as {
+  items: InternalNavItem[];
+  externalLinks: ExternalNavItem[];
+};
 
-const {fullName, title} = profile
+const { fullName } = profile;
+const hasExternalLinks = externalLinks.length > 0;
+const currentPath = Astro.url.pathname;
 ---
-<aside
-	class='px-4 pt-4 h-screen w-[20rem] bg-base-200 text-base-content flex flex-col'
->
-	<div class='flex flex-col my-8 justify-between h-full'>
-		<div>
-			<div class='flex justify-center items-center flex-col'>
-				<Image
-					class='mask mask-circle size-44'
-					src={ProfilePictures}
-					alt={`Profile picture of ${fullName}`}
-				/>
-				<h1 class="text-lg font-black mt-8 hidden lg:block">{title} <span>{fullName}</span></h1>
-			</div>
-			<div class='mx-4 mt-16'>
-				<ul class='space-y-4 menu grow shrink menu-md overflow-y-auto'>
-					<li>
-                        <a href={`${template.base}/`} class='text-lg'>Home</a>
-					</li>
-					<li>
-                        <a href={`${template.base}/research`} class='text-lg'>Research</a>
-					</li>
-					<li>
-                        <a href={`${template.base}/papers`} class='text-lg'>Papers</a>
-					</li>
-					<li>
-                        <a href={`${template.base}/cv`} class='text-lg'>CV</a>
-                    </li>
-                    {isBlogPopulated &&
-					<li>
-                        <a href={`${template.base}/blog/1`} class='text-lg'>Blog</a>
-</li>
-                    }
-				</ul>
-			</div>
-		</div>
-		<div class='mx-4'>
-			<SocialIcons/>
-		</div>
-	</div>
-</aside>
+
+<header class="border-b border-base-content/10 bg-base-100/80 backdrop-blur">
+  <div
+    class="mx-auto flex w-full max-w-5xl flex-col gap-4 px-6 py-4 md:flex-row md:items-center md:justify-between"
+  >
+    <div class="flex items-center justify-between gap-4">
+      <NavLink
+        item={{ label: fullName, href: '/', kind: 'internal' }}
+        currentPath={currentPath}
+        class="font-display text-lg tracking-tight text-base-content px-2.5 py-1.5"
+      />
+    </div>
+
+    <div
+      class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-6"
+    >
+      <nav class="flex flex-wrap gap-2" aria-label="Primary">
+        {items.map((item) => <NavLink item={item} currentPath={currentPath} />)}
+      </nav>
+
+      {
+        hasExternalLinks && (
+          <div
+            class="flex flex-wrap items-center gap-2 border-t border-base-content/10 pt-3 md:border-t-0 md:border-l md:pl-4 md:pt-0"
+            aria-label="External profiles"
+          >
+            {externalLinks.map((link) => (
+              <NavLink item={link} currentPath={currentPath} />
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </div>
+</header>

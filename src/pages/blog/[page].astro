@@ -1,73 +1,95 @@
 ---
-import Pagination from '@/components/ui/Pagination.astro'
-import Layout from '@/layouts/Layout.astro'
-import { trimExcerpt } from '@/lib/utils'
-import { template } from '@/settings'
-import { getCollection } from 'astro:content'
+import Pagination from '@/components/ui/Pagination.astro';
+import Layout from '@/layouts/Layout.astro';
+import { Image } from 'astro:assets';
+import { template } from '@/settings';
+import { getBlogListItems } from '@/lib/content';
+import { getEntry } from 'astro:content';
+import type { BlogListItem } from '@/lib/content';
+import PillLink from '@/components/ui/PillLink.astro';
+import SubscribeCta from '@/components/ui/SubscribeCta.astro';
+import { requireEntry, requireValue } from '@/lib/require';
+import { formatLongDate } from '@/lib/dates';
 
-export async function getStaticPaths({ paginate }): Promise<Astro.getStaticPathsResult> {
-    const blogEntries = await getCollection("blog");
+type PageData = {
+  data: BlogListItem[];
+  url: {
+    prev?: string;
+    next?: string;
+  };
+};
 
-    const posts = blogEntries
-        .map(post => ({
-            title: post.data.title,
-            date: post.data.date,
-            badge: post.data.tags[0],
-            excerpt: trimExcerpt(post.data.excerpt),
-            slug: `${template.base}/blog/${post.id}`,
-        }))
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+type Paginate = (
+  data: BlogListItem[],
+  options: { pageSize: number },
+) => Array<{ params: { page?: string }; props: { page: PageData } }>;
 
-    return paginate(posts, {
-        pageSize: template.postPerPage,
-    });
+export async function getStaticPaths({ paginate }: { paginate: Paginate }) {
+  const posts: BlogListItem[] = await getBlogListItems();
+
+  return paginate(posts, {
+    pageSize: template.postPerPage,
+  });
 }
-const { page } = Astro.props
+const { page } = Astro.props as { page: PageData };
+const blogEntry = requireEntry(
+  await getEntry('page-blog', 'blog'),
+  'page-blog/blog',
+);
+const blogData = blogEntry.data;
+const title = blogData.title;
+const intro = blogData.intro;
 ---
 
-<Layout title='Blog'>
-    <div>
-		<h1 class='text-3xl font-bold mb-8'>Blog Posts</h1>
-		<div class='grid gap-8'>
-			{
-				page.data.map(post => (
-					<article class='card bg-base-200 transition-all'>
-						<div class='card-body'>
-							<div class='flex justify-between items-start'>
-								<h2 class='card-title text-xl'>
-                            <a href={post.slug} class='hover:text-accent'>
-										{post.title}
-									</a>
-								</h2>
-								<div class='badge badge-accent badge-outline p-4'>
-									{post.badge}
-								</div>
-							</div>
-							<time datetime={post.date} class='text-sm text-base-content/71'>
-								{new Date(post.date).toLocaleDateString('en-US', {
-									year: 'numeric',
-									month: 'long',
-									day: 'numeric',
-								})}
-							</time>
-							<p class='mt-4'>{post.excerpt}</p>
-							<div class='card-actions justify-end'>
-								<a
-                            href={post.slug}
-									class='btn btn-sm btn-secondary text-secondary-content'
-								>
-									Read More
-								</a>
-							</div>
-						</div>
-					</article>
-				))
-			}
-		</div>
+<Layout title={title}>
+  <div class="mx-auto max-w-3xl space-y-12">
+    <header class="space-y-3">
+      <h1 class="text-4xl sm:text-5xl font-semibold">{title}</h1>
+      <p class="text-base-content/70">{intro}</p>
+    </header>
 
-		<div class='flex justify-center mt-8'>
-			<Pagination page={page} />
-		</div>
+    <SubscribeCta />
+
+    <div class="space-y-10">
+      {
+        page.data.map((post) => (
+          <article class="border-b border-base-content/15 pb-10 last:border-b-0 last:pb-0">
+            {post.cover && (
+              <figure class="aspect-video mb-6 overflow-hidden rounded-xl border border-base-content/10">
+                <Image
+                  src={post.cover}
+                  alt={requireValue(
+                    post.coverAlt,
+                    `blog/${post.slug} coverAlt`,
+                  )}
+                  class="w-full h-full object-cover"
+                />
+              </figure>
+            )}
+            <div class="space-y-3">
+              <div class="flex flex-wrap items-center gap-3 text-sm text-base-content/70 uppercase tracking-[0.12em]">
+                <time datetime={post.date.toISOString()}>
+                  {formatLongDate(post.date)}
+                </time>
+                {post.badge && (
+                  <span class="text-base-content/60">{post.badge}</span>
+                )}
+              </div>
+              <h2 class="text-2xl font-semibold">
+                <a href={post.slug} class="hover:text-accent">
+                  {post.title}
+                </a>
+              </h2>
+              <p class="text-base-content/80 leading-relaxed">{post.excerpt}</p>
+              <PillLink href={post.slug}>Read more</PillLink>
+            </div>
+          </article>
+        ))
+      }
     </div>
 
+    <div class="flex justify-center">
+      <Pagination page={page} />
+    </div>
+  </div>
 </Layout>

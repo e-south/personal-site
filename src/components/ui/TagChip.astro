@@ -1,0 +1,39 @@
+---
+import { hashToHue } from '@/lib/colors';
+
+const {
+  label,
+  uppercase = false,
+  size = 'sm',
+  class: className = '',
+} = Astro.props as {
+  label: string;
+  uppercase?: boolean;
+  size?: 'xs' | 'sm';
+  class?: string;
+};
+
+const hash = hashToHue(label);
+const sizeClasses =
+  size === 'xs' ? 'px-2.5 py-1 text-[0.6rem]' : 'px-3 py-1 text-[0.65rem]';
+---
+
+<span
+  class:list={[
+    'tag-chip inline-flex items-center rounded-full border font-sans',
+    sizeClasses,
+    uppercase ? 'uppercase tracking-[0.18em]' : 'tracking-[0.06em]',
+    className,
+  ]}
+  style={`--tag-hue:${hash};`}
+>
+  {label}
+</span>
+
+<style>
+  .tag-chip {
+    background-color: hsl(var(--tag-hue) 65% 60% / 0.18);
+    border-color: hsl(var(--tag-hue) 65% 60% / 0.35);
+    color: hsl(var(--tag-hue) 70% 82%);
+  }
+</style>

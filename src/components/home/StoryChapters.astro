@@ -1,0 +1,388 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Prose from '@/components/ui/Prose.astro';
+import StoryMediaLeaf from '@/components/home/StoryMediaLeaf.astro';
+import type { StoryRegistry } from '@/data/storyMedia';
+import { buildStoryChapters } from '@/lib/story';
+
+type Props = {
+  chapters: CollectionEntry<'story'>[];
+  registry: StoryRegistry;
+};
+
+const { chapters, registry } = Astro.props as Props;
+
+const chapterItems = await buildStoryChapters({ chapters, registry });
+
+const chapterCount = chapterItems.length;
+---
+
+<section id="about" class="space-y-16" data-story-snap>
+  {
+    chapterItems.map((chapter, chapterIndex) => {
+      const prevChapter = chapterItems[chapterIndex - 1];
+      const prevHref = prevChapter ? `#${prevChapter.id}` : '#page-top';
+      const prevLabel = prevChapter ? 'Previous chapter' : 'Back to top';
+      const prevNavLabel = prevChapter
+        ? `Go to ${prevChapter.title}`
+        : 'Back to top';
+      const nextChapter = chapterItems[chapterIndex + 1];
+      const nextHref = nextChapter ? `#${nextChapter.id}` : '#page-top';
+      const nextLabel = nextChapter ? 'Next chapter' : 'Back to top';
+      const navLabel = nextChapter
+        ? `Go to ${nextChapter.title}`
+        : 'Back to top';
+      const chapterLabel = `${String(chapterIndex + 1).padStart(2, '0')} / ${String(chapterCount).padStart(2, '0')}`;
+
+      return (
+        <section
+          id={chapter.id}
+          class="story-chapter border-b border-base-200/70 py-12 last:border-b-0 sm:py-14 lg:py-16"
+          data-story-chapter
+        >
+          <div
+            class:list={[
+              'grid gap-10 lg:items-start',
+              chapter.media.length > 0
+                ? 'lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]'
+                : 'lg:grid-cols-1',
+            ]}
+          >
+            <div class="space-y-6">
+              <div class="space-y-3">
+                <p class="text-[0.65rem] uppercase tracking-[0.35em] text-base-content/50">
+                  Chapter {chapterLabel}
+                </p>
+                <h2 class="text-3xl font-semibold tracking-tight sm:text-4xl">
+                  {chapter.title}
+                </h2>
+              </div>
+              <Prose class="prose-p:text-base-content/80 text-justify">
+                <chapter.Content />
+              </Prose>
+              {chapter.ctaLabel && chapter.ctaHref && (
+                <div>
+                  <a
+                    class="inline-flex items-center gap-2 rounded-full border border-base-300 px-4 py-2 text-xs uppercase tracking-[0.25em] text-base-content/80 transition hover:border-base-content/40 hover:text-base-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                    href={chapter.ctaHref}
+                  >
+                    {chapter.ctaLabel}
+                  </a>
+                </div>
+              )}
+            </div>
+            {chapter.media.length > 0 && (
+              <div class="space-y-4">
+                {chapter.media.length === 1 ? (
+                  <div class="story-media-single">
+                    {chapter.media.map((item, mediaIndex) => {
+                      const eagerBase = chapterIndex === 0 && mediaIndex === 0;
+                      return item.kind === 'stack' ? (
+                        <div
+                          class="story-media-stack-frame"
+                          data-frame={item.frame}
+                        >
+                          <div class="story-media-stack">
+                            {item.items.map((leaf, leafIndex) => (
+                              <StoryMediaLeaf
+                                item={leaf}
+                                eager={eagerBase && leafIndex === 0}
+                                frameOverride={item.frame}
+                              />
+                            ))}
+                          </div>
+                          {item.caption && (
+                            <p class="story-media-caption story-media-stack-caption">
+                              {item.caption}
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <StoryMediaLeaf item={item} eager={eagerBase} />
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div class="story-carousel-wrapper" data-carousel-wrapper>
+                    <div
+                      class="story-carousel"
+                      data-carousel
+                      id={`carousel-${chapter.id}`}
+                      aria-label={`${chapter.title} media carousel`}
+                    >
+                      {chapter.media.map((item, mediaIndex) => {
+                        const eagerBase =
+                          chapterIndex === 0 && mediaIndex === 0;
+                        return (
+                          <div class="story-carousel-item" data-carousel-item>
+                            {item.kind === 'stack' ? (
+                              <div
+                                class="story-media-stack-frame"
+                                data-frame={item.frame}
+                              >
+                                <div class="story-media-stack">
+                                  {item.items.map((leaf, leafIndex) => (
+                                    <StoryMediaLeaf
+                                      item={leaf}
+                                      eager={eagerBase && leafIndex === 0}
+                                      frameOverride={item.frame}
+                                    />
+                                  ))}
+                                </div>
+                                {item.caption && (
+                                  <p class="story-media-caption story-media-stack-caption">
+                                    {item.caption}
+                                  </p>
+                                )}
+                              </div>
+                            ) : (
+                              <StoryMediaLeaf item={item} eager={eagerBase} />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div class="story-carousel-controls">
+                      <button
+                        type="button"
+                        class="story-carousel-button"
+                        data-carousel-prev
+                        aria-label={`Previous media for ${chapter.title}`}
+                      >
+                        Prev
+                      </button>
+                      <button
+                        type="button"
+                        class="story-carousel-button"
+                        data-carousel-next
+                        aria-label={`Next media for ${chapter.title}`}
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          <div class="mt-10 flex items-center justify-center">
+            <div class="story-chapter-nav">
+              <a
+                href={prevHref}
+                class="story-nav-link"
+                data-story-nav
+                aria-label={prevNavLabel}
+              >
+                <svg
+                  class="h-4 w-4 -rotate-90 transition-transform"
+                  viewBox="0 0 24 24"
+                  role="img"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M12 5l7 7-7 7-1.4-1.4 4.6-4.6H5v-2h10.2l-4.6-4.6L12 5z"
+                    fill="currentColor"
+                  />
+                </svg>
+                <span>{prevLabel}</span>
+              </a>
+              <a
+                href={nextHref}
+                class="story-nav-link"
+                data-story-nav
+                aria-label={navLabel}
+              >
+                <span>{nextLabel}</span>
+                <svg
+                  class:list={[
+                    'h-4 w-4 transition-transform',
+                    { '-rotate-90': !nextChapter, 'rotate-90': nextChapter },
+                  ]}
+                  viewBox="0 0 24 24"
+                  role="img"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M12 5l7 7-7 7-1.4-1.4 4.6-4.6H5v-2h10.2l-4.6-4.6L12 5z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </section>
+      );
+    })
+  }
+</section>
+
+<style>
+  :global(html) {
+    scroll-behavior: smooth;
+  }
+
+  :global(html.story-snap) {
+    scroll-snap-type: y mandatory;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html) {
+      scroll-behavior: auto;
+    }
+
+    :global(html.story-snap) {
+      scroll-snap-type: none;
+    }
+  }
+
+  .story-chapter {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    scroll-margin-top: 0;
+  }
+
+  .story-media-stack {
+    display: grid;
+    gap: 1.25rem;
+    justify-items: center;
+  }
+
+  .story-media-stack-frame {
+    position: relative;
+    display: inline-grid;
+    justify-items: center;
+    width: fit-content;
+    max-width: min(100%, var(--story-media-cap, 100%));
+    margin: 0 auto;
+    --story-media-cap: 100%;
+  }
+
+  .story-media-stack-frame[data-frame='xs'] {
+    --story-media-cap: 22rem;
+  }
+
+  .story-media-stack-caption {
+    position: absolute;
+    inset: auto auto 0.75rem auto;
+    max-width: calc(100% - 1.5rem);
+    width: min(80%, 26rem);
+    box-sizing: border-box;
+    padding: 0.55rem 0.75rem;
+    border-radius: 0.65rem;
+    text-align: center;
+    font-size: 0.7rem;
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    color: #f8fafc;
+    background: color-mix(in oklab, #0b0b0c 72%, transparent);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+  }
+
+  .story-carousel-wrapper {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .story-carousel {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 100%;
+    gap: 1.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 1rem;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
+  }
+
+  .story-carousel::-webkit-scrollbar {
+    display: none;
+  }
+
+  .story-carousel-item {
+    scroll-snap-align: start;
+  }
+
+  .story-carousel-controls {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+  }
+
+  #phd-at-boston-university .story-carousel-wrapper {
+    gap: 0.5rem;
+  }
+
+  #phd-at-boston-university .story-carousel {
+    padding-bottom: 0.25rem;
+    height: var(--carousel-lock-height, auto);
+  }
+
+  #phd-at-boston-university .story-carousel-item {
+    height: var(--carousel-lock-height, auto);
+    display: flex;
+    align-items: center;
+  }
+
+  .story-carousel-button,
+  .story-nav-link {
+    min-height: 2.75rem;
+    border: none;
+    background: color-mix(in oklab, currentColor 14%, transparent);
+    color: color-mix(in oklab, currentColor 85%, transparent);
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+  }
+
+  .story-carousel-button:hover,
+  .story-nav-link:hover {
+    background: color-mix(in oklab, currentColor 22%, transparent);
+    color: currentColor;
+  }
+
+  .story-carousel-button {
+    border-radius: 999px;
+    padding: 0.6rem 1.4rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+  }
+
+  .story-carousel-button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .story-carousel-button:focus-visible,
+  .story-nav-link:focus-visible {
+    outline: 2px solid var(--fallback-a, #6d28d9);
+    outline-offset: 3px;
+  }
+
+  .story-chapter-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.9rem;
+    flex-wrap: wrap;
+  }
+
+  .story-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    border-radius: 999px;
+    padding: 0.6rem 1.4rem;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.24em;
+  }
+</style>

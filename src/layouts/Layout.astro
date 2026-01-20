@@ -1,105 +1,139 @@
 ---
 import { ClientRouter } from 'astro:transitions';
 
-import BetterIcon from '../components/ui/BetterIcon.astro'
-import DarkLightController from '../components/ui/DarkLightController.astro'
-import ThemeSelector from '../components/ui/ThemeSelector.astro'
-import Navbar from '../components/ui/Navbar.astro'
-import Head from '../components/Head.astro'
+import Navbar from '../components/ui/Navbar.astro';
+import Head from '../components/Head.astro';
 
-import { seo, profile, template } from '../settings'
-import Footer from '../components/ui/Footer.astro'
+import { getNavigation, features } from '@/data/navigation';
+import { hasPublishedBlogPosts } from '@/lib/content';
+import { seo, template, analytics } from '../settings';
+import Footer from '../components/ui/Footer.astro';
+
+import '@fontsource-variable/manrope';
+import '@fontsource-variable/fraunces';
+import '@fontsource-variable/jetbrains-mono';
+import '@fontsource-variable/source-serif-4';
 
 type Props = {
-	title?: string
-	description?: string
-	image?: string
-}
+  title?: string;
+  description?: string;
+  image?: string;
+  showFooter?: boolean;
+};
 
 const {
-	title = seo.default_title,
-	description = seo.default_description,
-	image = seo.default_image,
-} = Astro.props
+  title = seo.default_title,
+  description = seo.default_description,
+  image = seo.default_image,
+  showFooter = true,
+} = Astro.props;
+
+const blogAvailable = await hasPublishedBlogPosts();
+const navigation = getNavigation({
+  blogAvailable,
+  blogNavMode: features.blogNav,
+});
+const { internal: navItems, external: externalLinks } = navigation;
 ---
 
 <!doctype html>
-<html lang='en'>
-	<head>
-		{template.transitions && <ClientRouter /> }
+<html lang="en" data-theme={template.darkTheme}>
+  <head>
+    {template.transitions && <ClientRouter />}
 
-		<Head title={title} description={description} image={image} />
+    <Head title={title} description={description} image={image} />
+    {
+      analytics.goatcounterEndpoint && (
+        <script
+          is:inline
+          data-goatcounter={analytics.goatcounterEndpoint}
+          async
+          src="https://gc.zgo.at/count.js"
+        />
+      )
+    }
+  </head>
+  <body
+    class:list={{
+      'font-sans antialiased': template.bodyFont === 'sans',
+      'font-serif antialiased': template.bodyFont === 'serif',
+    }}
+  >
+    <div class="bg-base-100 min-h-screen">
+      <div id="page-top" aria-hidden="true"></div>
+      <Navbar items={navItems} externalLinks={externalLinks} />
+      <main
+        class:list={[
+          'mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-5xl flex-col gap-16 px-6 py-12 text-[1.05rem] leading-relaxed text-base-content/90',
+          {
+            '[&_h1]:font-display': template.displayFont === 'display',
+            '[&_h2]:font-display': template.displayFont === 'display',
+            '[&_h3]:font-display': template.displayFont === 'display',
+            '[&_h4]:font-display': template.displayFont === 'display',
+            '[&_h1]:font-serif': template.displayFont === 'serif',
+            '[&_h2]:font-serif': template.displayFont === 'serif',
+            '[&_h3]:font-serif': template.displayFont === 'serif',
+            '[&_h4]:font-serif': template.displayFont === 'serif',
+            '[&_h1]:font-sans': template.displayFont === 'sans',
+            '[&_h2]:font-sans': template.displayFont === 'sans',
+            '[&_h3]:font-sans': template.displayFont === 'sans',
+            '[&_h4]:font-sans': template.displayFont === 'sans',
+            '[&_h1]:text-base-content': true,
+            '[&_h2]:text-base-content': true,
+            '[&_h3]:text-base-content': true,
+            '[&_h4]:text-base-content': true,
+            '[&_h1]:leading-tight': true,
+            '[&_h2]:leading-tight': true,
+            '[&_h3]:leading-tight': true,
+            '[&_h4]:leading-tight': true,
+            '[&_h1]:tracking-tight': true,
+            '[&_h2]:tracking-tight': true,
+            '[&_h3]:tracking-tight': true,
+            '[&_h4]:tracking-tight': true,
+          },
+        ]}
+      >
+        <slot />
+        {showFooter && <Footer />}
+      </main>
+    </div>
 
+    <script type="module" is:inline>
+      const setExternalTargets = () => {
+        const anchors = document.querySelectorAll('a[href]');
+        anchors.forEach((anchor) => {
+          const href = anchor.getAttribute('href');
+          if (!href) return;
+          if (
+            href.startsWith('#') ||
+            href.startsWith('mailto:') ||
+            href.startsWith('tel:')
+          ) {
+            return;
+          }
+          try {
+            const url = new URL(href, window.location.href);
+            if (url.origin === window.location.origin) return;
+          } catch {
+            console.warn('[external-links] Invalid href:', href);
+            return;
+          }
+          anchor.setAttribute('target', '_blank');
+          anchor.setAttribute('rel', 'noopener noreferrer');
+        });
+      };
 
-
-	</head>
-	<body>
-		<div class={`bg-base-100 drawer lg:drawer-open ${template.menu_left ? 'drawer-end' : ''}`}>
-			<input id='my-drawer' type='checkbox' class='drawer-toggle' />
-			<!-- Drawer content -->
-            <div class='drawer-content bg-base-100'>
-				<div class='bg-base-100 z-50 text-base-content shadow-sm'>
-					<nav class='navbar'>
-						<div class='navbar-start'>
-							{template.menu_left &&
-								<DarkLightController/>
-								/* <ThemeSelector transition:persist /> */
-							}
-							<label for='my-drawer' class='btn btn-square btn-ghost lg:hidden'>
-								<BetterIcon>
-									<svg
-										xmlns='http://www.w3.org/2000/svg'
-										fill='none'
-										viewBox='0 0 24 24'
-										stroke-width='1.5'
-										class='size-6 stroke-current'
-									>
-										<path
-											stroke-linecap='round'
-											stroke-linejoin='round'
-											d='M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5'></path>
-									</svg>
-								</BetterIcon>
-							</label>
-						</div>
-						<div class='navbar-center lg:hidden text-lg font-black'>
-							{profile.title}
-							{profile.fullName}
-						</div>
-						<div class='navbar-end'>
-							{!template.menu_left &&
-								<DarkLightController/>
-								/* <ThemeSelector transition:persist /> */
-							}
-						</div>
-					</nav>
-				</div>
-                <main class='p-8 pt-10 lg:pt-16 lg:max-w-5xl max-w-full mx-auto min-h-screen flex flex-col justify-between'>
-					<!-- Page content -->
-					<slot />
-				<Footer />
-				</main>
-			</div>
-			<!-- Drawer side -->
-			<div class='drawer-side z-40'>
-				<label for='my-drawer' aria-label='close sidebar' class='drawer-overlay'
-				></label>
-				<Navbar />
-			</div>
-		</div>
-	</body>
+      setExternalTargets();
+      document.addEventListener('astro:page-load', setExternalTargets);
+    </script>
+  </body>
 </html>
 
 <style>
-	@media (prefers-color-scheme: dark) {
-		:root {
-			--my-color: #252b30;
-		}
-	}
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
+  html,
+  body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+  }
 </style>

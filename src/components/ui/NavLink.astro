@@ -1,0 +1,84 @@
+---
+import { withBase } from '@/lib/urls';
+import type { NavItem } from '@/data/navigation';
+import ExternalIcon from '@/components/ui/ExternalIcon.astro';
+import { hashToHue } from '@/lib/colors';
+
+const {
+  item,
+  currentPath = '',
+  class: className = '',
+} = Astro.props as {
+  item: NavItem;
+  currentPath?: string;
+  class?: string;
+};
+
+const isExternal = item.kind === 'external';
+const href = isExternal ? item.href : withBase(item.href);
+const normalizePath = (path: string) => {
+  const cleaned = path.split('#')[0]?.split('?')[0] ?? '';
+  const normalized = cleaned.replace(/\/+$/, '');
+  return normalized === '' ? '/' : normalized;
+};
+const normalizedCurrent = normalizePath(currentPath);
+const normalizedHref = normalizePath(href);
+const isActive =
+  !isExternal &&
+  (normalizedCurrent === normalizedHref ||
+    (normalizedHref !== '/' &&
+      normalizedCurrent.startsWith(`${normalizedHref}/`)));
+const baseClass =
+  'inline-flex items-center gap-1 rounded-lg px-3 py-1 text-[0.95rem] font-normal font-display transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-base-content/40';
+const internalClasses =
+  'text-base-content/70 hover:text-base-content hover:bg-base-content/5';
+const activeClasses = 'nav-active text-base-content font-semibold';
+const navHue = hashToHue(item.label);
+---
+
+{
+  isActive ? (
+    <span
+      aria-current="page"
+      class:list={[baseClass, internalClasses, activeClasses, className]}
+      style={`--nav-hue:${navHue};`}
+    >
+      {item.label}
+    </span>
+  ) : (
+    <a
+      href={href}
+      target={isExternal ? '_blank' : undefined}
+      rel={isExternal ? 'noreferrer noopener' : undefined}
+      class:list={[
+        baseClass,
+        isExternal ? 'nav-icon' : internalClasses,
+        className,
+      ]}
+      aria-label={isExternal ? item.label : undefined}
+      style={`--nav-hue:${navHue};`}
+    >
+      {item.kind === 'external' && item.icon ? (
+        <>
+          <ExternalIcon name={item.icon} class="h-4 w-4" />
+          <span class="sr-only">{item.label}</span>
+        </>
+      ) : (
+        <span>{item.label}</span>
+      )}
+    </a>
+  )
+}
+
+<style>
+  .nav-active {
+    background-color: hsl(var(--nav-hue) 65% 65% / 0.22);
+  }
+  .nav-icon {
+    padding: 0.5rem;
+    background-color: transparent;
+  }
+  .nav-icon:hover {
+    background-color: hsl(var(--nav-hue, 210) 55% 60% / 0.18);
+  }
+</style>

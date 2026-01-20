@@ -1,0 +1,212 @@
+---
+import TagChip from '@/components/ui/TagChip.astro';
+import PillLink from '@/components/ui/PillLink.astro';
+import ProjectBanner from '@/components/projects/ProjectBanner.astro';
+import Prose from '@/components/ui/Prose.astro';
+import type { ProjectPanel as ProjectPanelType } from '@/lib/projects';
+import { withBase } from '@/lib/urls';
+
+type Props = {
+  project: ProjectPanelType;
+  index: number;
+  total: number;
+};
+
+const { project, index, total } = Astro.props as Props;
+const { entry, Content } = project;
+const { data } = entry;
+
+const linkLabels: Record<string, string> = {
+  repo: 'Code',
+  live: 'Live',
+  paper: 'Paper',
+};
+
+const banners = data.banners ?? [];
+const bannersAbove = banners.filter((banner) => banner.placement === 'above');
+const bannersBelow = banners.filter((banner) => banner.placement === 'below');
+const publication = data.publication;
+
+const panelId = `project-${entry.slug}`;
+const titleId = `${panelId}-title`;
+
+const normalizeHref = (href: string) =>
+  href.startsWith('/') ? withBase(href) : href;
+
+const parseEmphasis = (text: string) =>
+  text
+    .split(/(\*[^*]+\*)/g)
+    .filter(Boolean)
+    .map((segment) => {
+      const isEmphasis =
+        segment.startsWith('*') && segment.endsWith('*') && segment.length > 2;
+      return {
+        content: isEmphasis ? segment.slice(1, -1) : segment,
+        emphasis: isEmphasis,
+      };
+    });
+---
+
+<section
+  id={panelId}
+  class="h-full w-full shrink-0 snap-start"
+  role="group"
+  aria-roledescription="slide"
+  aria-label={`Project ${index + 1} of ${total}: ${data.title}`}
+  aria-labelledby={titleId}
+  data-project={entry.slug}
+  data-carousel-panel
+  data-index={index}
+>
+  <div class="project-panel-scroll">
+    <div
+      class="mx-auto flex min-h-full w-full max-w-3xl flex-col gap-8 px-6 py-8"
+    >
+      <header class="space-y-4">
+        <div
+          class="text-xs font-semibold uppercase tracking-[0.3em] text-base-content/50"
+        >
+          Project {index + 1} / {total}
+        </div>
+        <div class="space-y-3">
+          <h2 id={titleId} class="text-3xl font-semibold">
+            {data.title}
+          </h2>
+          <p class="text-base-content/80 leading-relaxed">
+            {
+              parseEmphasis(data.description).map((part) =>
+                part.emphasis ? (
+                  <em>{part.content}</em>
+                ) : (
+                  <span>{part.content}</span>
+                ),
+              )
+            }
+          </p>
+          {
+            data.summary && (
+              <p class="text-sm text-base-content/60">{data.summary}</p>
+            )
+          }
+        </div>
+      </header>
+
+      {
+        data.tech.length > 0 && (
+          <ul class="flex flex-wrap gap-2">
+            {data.tech.map((tag) => (
+              <li>
+                <TagChip label={tag} size="xs" uppercase />
+              </li>
+            ))}
+          </ul>
+        )
+      }
+
+      {
+        data.links && (
+          <div class="flex flex-wrap gap-4 text-sm text-base-content/70 font-sans">
+            {Object.entries(data.links).map(([key, href]) =>
+              href ? (
+                <PillLink href={href}>{linkLabels[key] ?? key}</PillLink>
+              ) : null,
+            )}
+          </div>
+        )
+      }
+
+      <Prose class="prose-p:text-base-content/80">
+        {
+          bannersAbove.length > 0 && (
+            <div class="not-prose my-8 space-y-6">
+              {bannersAbove.map((banner) => (
+                <ProjectBanner banner={banner} />
+              ))}
+            </div>
+          )
+        }
+        <Content />
+        {
+          bannersBelow.length > 0 && (
+            <div class="not-prose my-8 space-y-6">
+              {bannersBelow.map((banner) => (
+                <ProjectBanner banner={banner} />
+              ))}
+            </div>
+          )
+        }
+        {
+          publication && (
+            <p class="text-sm text-base-content/60">
+              {publication.label}{' '}
+              {publication.links.map((link, linkIndex) => (
+                <span>
+                  <a
+                    class="text-accent/80 transition hover:text-accent"
+                    href={normalizeHref(link.href)}
+                  >
+                    {parseEmphasis(link.label).map((part) =>
+                      part.emphasis ? (
+                        <em>{part.content}</em>
+                      ) : (
+                        <span>{part.content}</span>
+                      ),
+                    )}
+                  </a>
+                  {linkIndex < publication.links.length - 1 && (
+                    <span class="mx-2 text-base-content/30" aria-hidden="true">
+                      ·
+                    </span>
+                  )}
+                </span>
+              ))}
+            </p>
+          )
+        }
+      </Prose>
+    </div>
+  </div>
+</section>
+
+<style>
+  .project-panel-scroll {
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  :global([data-project='synthetic-microbial-communities'] .prose img) {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    margin: 2rem auto;
+    padding: 1rem;
+    border-radius: 1.25rem;
+    border: 1px solid color-mix(in oklab, currentColor 10%, transparent);
+    background: #ffffff;
+    box-sizing: border-box;
+  }
+
+  :global([data-project='molecular-sequence-design'] .prose img) {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    margin: 2rem auto;
+    padding: 1rem;
+    border-radius: 1.25rem;
+    border: 1px solid color-mix(in oklab, currentColor 10%, transparent);
+    background: #ffffff;
+    box-sizing: border-box;
+  }
+
+  @media (max-width: 767px) {
+    .project-panel-scroll {
+      height: auto;
+      overflow: visible;
+      overscroll-behavior: auto;
+    }
+  }
+</style>

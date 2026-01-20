@@ -1,28 +1,77 @@
 {
-  "name": "astro-academia",
+  "name": "personal-site",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "typecheck": "astro check",
+    "test": "vitest run",
+    "verify": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run build",
+    "clean": "rm -rf .astro node_modules/.astro dist",
+    "audit": "npm audit",
+    "audit:prod": "npm audit --omit=dev",
+    "secrets:scan": "node -r ./scripts/force-cpus.cjs ./node_modules/secretlint/bin/secretlint.js \"**/*\"",
+    "prepare": "node scripts/prepare.mjs",
+    "newsletter:send": "tsx scripts/newsletter/send.ts",
+    "newsletter:stats": "tsx scripts/newsletter/stats.ts",
+    "content:new:blog": "tsx scripts/content/new-blog.ts",
+    "content:cv:update": "tsx scripts/content/update-cv.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "npm@10.8.2",
+  "lint-staged": {
+    "*.{js,ts,mjs,astro,json,md,mdx,css,yml,yaml}": [
+      "prettier --write",
+      "node -r ./scripts/force-cpus.cjs ./node_modules/secretlint/bin/secretlint.js"
+    ],
+    "*.{js,ts,mjs,astro}": [
+      "eslint --fix"
+    ]
   },
   "dependencies": {
-    "@astrojs/react": "^4.1.4",
-    "@astrojs/rss": "^4.0.11",
-    "@astrojs/sitemap": "^3.2.1",
-    "@astrojs/tailwind": "^5.1.4",
-    "@types/react": "^19.0.7",
-    "@types/react-dom": "^19.0.3",
-    "astro": "^5.14.5",
+    "@astrojs/react": "^4.4.2",
+    "@astrojs/rss": "^4.0.15",
+    "@astrojs/sitemap": "^3.7.0",
+    "@astrojs/tailwind": "^6.0.2",
+    "@fontsource-variable/fraunces": "^5.2.9",
+    "@fontsource-variable/jetbrains-mono": "^5.2.8",
+    "@fontsource-variable/manrope": "^5.2.8",
+    "@fontsource-variable/source-serif-4": "^5.2.9",
+    "astro": "^5.16.11",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwindcss": "^3.4.17",
-    "theme-change": "^2.5.0"
+    "tailwindcss": "^3.4.19"
   },
   "devDependencies": {
-    "@tailwindcss/typography": "^0.5.16",
-    "daisyui": "^4.12.23"
+    "@astrojs/check": "^0.9.6",
+    "@eslint/js": "^9.39.2",
+    "@tailwindcss/typography": "^0.5.19",
+    "@types/react": "^19.2.8",
+    "@types/react-dom": "^19.2.3",
+    "@typescript-eslint/eslint-plugin": "^8.53.0",
+    "@typescript-eslint/parser": "^8.53.0",
+    "cheerio": "^1.0.0-rc.12",
+    "daisyui": "^5.5.14",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-astro": "^1.5.0",
+    "globals": "^17.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.8.0",
+    "prettier-plugin-astro": "^0.14.1",
+    "secretlint": "^11.3.0",
+    "@secretlint/secretlint-rule-preset-recommend": "^11.3.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.17"
   }
 }

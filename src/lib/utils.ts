@@ -1,15 +1,12 @@
-import { profile } from '../settings'
-import { template } from '../settings'
+const normalizeAuthor = (author: string) => author.replace(/\*+$/, '').trim();
 
-export function highlightAuthor(authors: string): string{
-	const author = authors.split(', ')
-	if (author.includes(profile.author_name)){
-		return authors.replace(profile.author_name, `<span class='font-medium underline'>${profile.author_name}</span>`)
-	}
-	return authors
-}
+export const isHighlightedAuthor = (author: string, highlightName?: string) =>
+  Boolean(
+    highlightName && normalizeAuthor(author) === normalizeAuthor(highlightName),
+  );
 
-export function trimExcerpt(excerpt: string): string {
-	const excerptLength = template.excerptLength
-	return excerpt.length > excerptLength ? `${excerpt.substring(0, excerptLength)}...` : excerpt
+export function trimExcerpt(excerpt: string, maxLength: number): string {
+  return excerpt.length > maxLength
+    ? `${excerpt.substring(0, maxLength)}...`
+    : excerpt;
 }
