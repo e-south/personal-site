@@ -4,19 +4,15 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  PUBLIC_BASE_PATH = ""
 
 [context.deploy-preview]
-  command = "npm run build"
+  command = "PUBLIC_SITE_URL=$DEPLOY_PRIME_URL PUBLIC_BASE_PATH= npm run build"
+  publish = "dist"
+[context.branch-deploy]
+  command = "PUBLIC_SITE_URL=$DEPLOY_PRIME_URL PUBLIC_BASE_PATH= npm run build"
   publish = "dist"
 
-[context.deploy-preview.environment]
-  PUBLIC_SITE_URL = "$DEPLOY_PRIME_URL"
-  PUBLIC_BASE_PATH = ""
-
-[context.branch-deploy.environment]
-  PUBLIC_SITE_URL = "$DEPLOY_PRIME_URL"
-  PUBLIC_BASE_PATH = ""
-
-[context.production.environment]
-  PUBLIC_SITE_URL = "$URL"
-  PUBLIC_BASE_PATH = ""
+[context.production]
+  command = "PUBLIC_SITE_URL=$URL PUBLIC_BASE_PATH= npm run build"
+  publish = "dist"
