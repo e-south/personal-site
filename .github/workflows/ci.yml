@@ -12,7 +12,7 @@ jobs:
       PUBLIC_SITE_URL: 'https://example.com'
       PUBLIC_BASE_PATH: ''
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v4
         with:
