@@ -44,3 +44,10 @@ Personal site built with Astro. Goals:
 
 - If URL structure changes, add redirects (Netlify) or preserve old slugs.
 - Do not add secrets to the repo; use .env locally and Netlify env vars in production.
+
+## Local dev + deploy tips
+
+- `PUBLIC_SITE_URL` is required for builds. For local dev, set it in `.env` (e.g., `PUBLIC_SITE_URL=http://localhost:4321`); keep `PUBLIC_BASE_PATH` empty unless you need a subpath deploy.
+- Netlify deploy previews inject `DEPLOY_PRIME_URL`; the build command sets `PUBLIC_SITE_URL` from it so previews work without manual env setup.
+- `git push` runs `npm run verify` via a pre-push hook, so expect a full format/lint/typecheck/test/build pass before pushing.
+- For previews that need to mimic production, run `npm run build` then `npm run preview` locally.
