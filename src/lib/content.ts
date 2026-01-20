@@ -19,14 +19,24 @@ export type BlogListItem = {
   coverAlt?: string;
 };
 
+type ProjectBanners = ProjectEntry['data']['banners'];
+export type ProjectBanner = NonNullable<ProjectBanners>[number];
+type ProjectPublication = ProjectEntry['data']['publication'];
+export type ProjectPublicationLink = NonNullable<
+  NonNullable<ProjectPublication>['links']
+>[number];
+
 export type ProjectCard = {
   title: string;
   description: string;
   summary?: string;
+  order: number;
   tech: string[];
   links?: ProjectEntry['data']['links'];
   image?: ProjectEntry['data']['image'];
   imageAlt?: string;
+  banners?: ProjectBanner[];
+  publication?: ProjectPublication;
 };
 
 type ProjectRecord = ProjectCard & {
@@ -39,6 +49,7 @@ export type PaperItem = {
   authors: string[];
   venue: string;
   year: number;
+  coFirst?: boolean;
   link?: string;
   abstract?: string;
   featured?: boolean;
@@ -54,10 +65,13 @@ const mapProjectRecord = (project: ProjectEntry): ProjectRecord => ({
   title: project.data.title,
   description: project.data.description,
   summary: project.data.summary,
+  order: project.data.order,
   tech: project.data.tech,
   links: project.data.links,
   image: project.data.image,
   imageAlt: project.data.imageAlt,
+  banners: project.data.banners,
+  publication: project.data.publication,
   featured: project.data.featured,
   status: project.data.status,
 });
@@ -66,18 +80,24 @@ const toProjectCard = ({
   title,
   description,
   summary,
+  order,
   tech,
   links,
   image,
   imageAlt,
+  banners,
+  publication,
 }: ProjectRecord): ProjectCard => ({
   title,
   description,
   summary,
+  order,
   tech,
   links,
   image,
   imageAlt,
+  banners,
+  publication,
 });
 
 const getProjectRecords = async (): Promise<ProjectRecord[]> => {
@@ -85,7 +105,9 @@ const getProjectRecords = async (): Promise<ProjectRecord[]> => {
     return projectRecordsCache;
   }
 
-  const records = (await getCollection('projects')).map(mapProjectRecord);
+  const records = (await getCollection('projects'))
+    .map(mapProjectRecord)
+    .sort((a, b) => a.order - b.order);
   if (shouldUseCache) {
     projectRecordsCache = records;
   }
@@ -158,6 +180,7 @@ export async function getPapers(): Promise<PaperItem[]> {
         authors: paper.data.authors,
         venue: paper.data.venue,
         year: paper.data.year,
+        coFirst: paper.data.coFirst,
         link: link ? withBase(link) : undefined,
         abstract: paper.data.abstract,
         featured: paper.data.featured,

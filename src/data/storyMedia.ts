@@ -15,13 +15,14 @@ import crickStinger2Poster from '@/assets/story/imperial-crick-training/CrickSti
 import crickStinger2Video from '@/assets/story/imperial-crick-training/CrickStinger2.mp4';
 import londonCab from '@/assets/story/london-ecosystem/LondonCAB.jpg';
 import londonSec from '@/assets/story/london-ecosystem/LondonSEC.jpg';
-import dunlopLabSelfie from '@/assets/story/phd-at-boston-university/DunlopLabSelfie.jpg';
+import buCampus from '@/assets/story/phd-at-boston-university/CDS.jpeg';
 import belay from '@/assets/story/phd-at-boston-university/Belay.jpg';
 import dunlopJugglingPoster from '@/assets/story/phd-at-boston-university/DunlopJuggling-poster.jpg';
 import dunlopJugglingVideo from '@/assets/story/phd-at-boston-university/DunlopJuggling.mp4';
 import lanzatechGroup from '@/assets/story/lanzatech-internship/LanzaTechGroup.jpg';
 import lanzatechGasChamberPoster from '@/assets/story/lanzatech-internship/LanzaTechGasChamber-poster.jpg';
 import lanzatechGasChamberVideo from '@/assets/story/lanzatech-internship/LanzaTechGasChamber.mp4';
+import dunlopLab from '@/assets/story/computation-and-sequence-design/DunlopLab.png';
 
 const assetPath = (relativePath: string) =>
   resolve(process.cwd(), 'src', 'assets', relativePath);
@@ -29,7 +30,7 @@ const assetPath = (relativePath: string) =>
 type StoryMediaBase = {
   id: string;
   anchor?: string;
-  frame?: 'sm' | 'md' | 'lg' | 'xl';
+  frame?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   assetPaths?: string[];
 };
 
@@ -72,9 +73,8 @@ const crickStinger1 = {
   kind: 'video',
   src: crickStinger1Video,
   poster: crickStinger1Poster,
-  alt: 'Crick Institute stinger video.',
-  caption:
-    'Crick lab stinger — Biomek liquid handling + Singer ROTOR HDA colony picking for high-throughput yeast co-culture screens.',
+  alt: 'Short lab workflow video from the Francis Crick Institute.',
+  caption: '',
   frame: 'lg',
   assetPaths: [
     assetPath('story/imperial-crick-training/CrickStinger1.mp4'),
@@ -89,9 +89,8 @@ const crickStinger2 = {
   kind: 'video',
   src: crickStinger2Video,
   poster: crickStinger2Poster,
-  alt: 'Crick Institute stinger video.',
-  caption:
-    'Parallel co-culture assays helped us spot auxotroph pairs that struggled alone but grew synergistically together.',
+  alt: 'Short lab workflow video from the Francis Crick Institute.',
+  caption: '',
   frame: 'lg',
   assetPaths: [
     assetPath('story/imperial-crick-training/CrickStinger2.mp4'),
@@ -105,8 +104,39 @@ const crickStingerStack = {
   id: 'imperial-crick-training-crick-stinger-stack',
   kind: 'stack',
   items: [crickStinger1, crickStinger2],
-  alt: 'Crick Institute stinger videos.',
+  alt: 'Two short lab workflow videos from the Francis Crick Institute.',
+  caption:
+    'I got to design a physical workflow involving Biomek liquid handlers and the Singer ROTOR HDA colony picker (shown), enabling high-throughput yeast co-culturing assays.',
   assetPaths: [...crickStinger1.assetPaths, ...crickStinger2.assetPaths],
+} satisfies StoryMediaStackDefinition;
+
+const crickGroupMedia = {
+  id: 'imperial-crick-training-crick-group',
+  kind: 'image',
+  image: crickGroup,
+  alt: 'Group photo from the Ralser group at the Francis Crick Institute.',
+  caption:
+    'The Ralser group at the Francis Crick Institute was my systems biology home base, and I learned a lot from Lucia and Simran (thanks to them both!).',
+  assetPaths: [assetPath('story/imperial-crick-training/CrickGroup.jpg')],
+} satisfies StoryMediaLeafDefinition;
+
+const imperialGroupMedia = {
+  id: 'imperial-crick-training-imperial-group',
+  kind: 'image',
+  image: imperialGroup,
+  alt: 'Training photo from Imperial College London.',
+  caption:
+    'At Imperial, PCR machines were in hot demand! Special thanks to Rodrigo and Huadong for their mentorship in DNA assembly and genetic circuit design.',
+  assetPaths: [assetPath('story/imperial-crick-training/ImperialGroup.jpg')],
+} satisfies StoryMediaLeafDefinition;
+
+const crickImperialGroupStack = {
+  id: 'imperial-crick-training-group-stack',
+  kind: 'stack',
+  items: [crickGroupMedia, imperialGroupMedia],
+  alt: 'Group photos from the Francis Crick Institute and Imperial College London.',
+  frame: 'xs',
+  assetPaths: [...crickGroupMedia.assetPaths, ...imperialGroupMedia.assetPaths],
 } satisfies StoryMediaStackDefinition;
 
 const storyMediaById = {
@@ -114,27 +144,27 @@ const storyMediaById = {
     id: 'early-research-jmu-brunei',
     kind: 'image',
     image: jmuBrunei,
-    alt: 'JMU Brunei photo.',
-    caption:
-      'Temburong Jungle, Brunei — long days of gibbon surveys and microhylid frog fieldwork with University of Brunei Darussalam students.',
+    alt: 'Field research photo from Temburong Jungle, Brunei.',
+    caption: "In Brunei's Temburong Jungle.",
     assetPaths: [assetPath('story/early-research/JMUBrunei.jpg')],
   },
   'early-research-jmu-sri': {
     id: 'early-research-jmu-sri',
     kind: 'image',
     image: jmuSri,
-    alt: 'SRI International photo.',
+    alt: 'Photo from SRI International laboratory work.',
     caption:
-      'SRI Center for Macromolecular Bioscience — NSCLC tissue culture (H2009, H358, HBEC) plus peptide uptake assays read out by flow cytometry and Western blots.',
+      'At SRI, I supported NSCLC cell culture (H2009, H358, HBEC) and ran peptide uptake assays.',
     assetPaths: [assetPath('story/early-research/JMUSRI.jpg')],
   },
   'discovering-synthetic-biology-jmu-graduation': {
     id: 'discovering-synthetic-biology-jmu-graduation',
     kind: 'image',
     image: jmuGraduation,
-    alt: 'JMU graduation photo.',
+    alt: 'Graduation photo from James Madison University.',
     caption:
-      'JMU graduation — launched an iGEM-inspired synbio course, led a mercury-sequestration E. coli design project, and earned the Excellence in Biotechnology Leadership award.',
+      'Pictured: Dr. Chris Berndsen (left) and me (right) (thanks for helping me take my first wet-lab steps, Chris!).',
+    frame: 'sm',
     assetPaths: [
       assetPath(
         '../assets/story/discovering-synthetic-biology/JMUGraduation.jpg',
@@ -145,9 +175,9 @@ const storyMediaById = {
     id: 'discovering-synthetic-biology-mres-cohort',
     kind: 'image',
     image: mresCohort,
-    alt: 'MRes cohort photo.',
+    alt: 'MRes cohort photo at Imperial College London.',
     caption:
-      'MRes cohort — Systems & Synthetic Biology at Imperial College London; so many great people here.',
+      'My MRes cohort in Systems and Synthetic Biology at Imperial College London.',
     assetPaths: [
       assetPath('story/discovering-synthetic-biology/MResCohort.jpg'),
     ],
@@ -155,68 +185,50 @@ const storyMediaById = {
   'imperial-crick-training-crick-stinger-1': crickStinger1,
   'imperial-crick-training-crick-stinger-2': crickStinger2,
   'imperial-crick-training-crick-stinger-stack': crickStingerStack,
-  'imperial-crick-training-crick-group': {
-    id: 'imperial-crick-training-crick-group',
-    kind: 'image',
-    image: crickGroup,
-    alt: 'Crick Institute group photo.',
-    caption:
-      'Ralser group at the Crick — a systems biology home base, with shoutouts to Lucia, Huadong, and Simran (my R mentor).',
-    assetPaths: [assetPath('story/imperial-crick-training/CrickGroup.jpg')],
-  },
+  'imperial-crick-training-crick-group': crickGroupMedia,
   'imperial-crick-training-crick-building': {
     id: 'imperial-crick-training-crick-building',
     kind: 'image',
     image: crickBuilding,
-    alt: 'Francis Crick Institute building exterior.',
-    caption:
-      'MRes Systems & Synthetic Biology: modeling + systems/synbio modules, then a year-long project — graduated with Distinction, ranked 1st, and an Outstanding Student award.',
+    alt: 'Exterior of the Francis Crick Institute building.',
+    caption: 'Working at the Crick was such a fun experience.',
+    frame: 'sm',
     assetPaths: [assetPath('story/imperial-crick-training/CrickBuilding.jpg')],
   },
-  'imperial-crick-training-imperial-group': {
-    id: 'imperial-crick-training-imperial-group',
-    kind: 'image',
-    image: imperialGroup,
-    alt: 'Imperial College group photo.',
-    caption:
-      'Imperial bioengineering training — DNA assembly, PCR, cloning, primer design; huge thanks to Huadong for bench mentorship.',
-    assetPaths: [assetPath('story/imperial-crick-training/ImperialGroup.jpg')],
-  },
+  'imperial-crick-training-imperial-group': imperialGroupMedia,
+  'imperial-crick-training-group-stack': crickImperialGroupStack,
   'london-ecosystem-london-cab': {
     id: 'london-ecosystem-london-cab',
     kind: 'image',
     image: londonCab,
-    alt: 'London CAB event photo.',
-    caption:
-      'London CAB nights — founders, students, and researchers mapping the local bioecosystem over good conversation.',
+    alt: 'Photo from a London CAB community event.',
+    caption: '',
     assetPaths: [assetPath('story/london-ecosystem/LondonCAB.jpg')],
   },
   'london-ecosystem-london-sec': {
     id: 'london-ecosystem-london-sec',
     kind: 'image',
     image: londonSec,
-    alt: 'Science Entrepreneur Club event photo.',
+    alt: 'Photo from a Science Entrepreneur Club event in London.',
     caption:
-      "Science Entrepreneur Club — outreach, events, and startup showcases across London's life-science scene.",
+      'Shout out to the Science Entrepreneur Club. Dr. Fane Mensah (left) and I at a startup pitch competition.',
     assetPaths: [assetPath('story/london-ecosystem/LondonSEC.jpg')],
   },
-  'phd-at-boston-university-dunlop-lab-selfie': {
-    id: 'phd-at-boston-university-dunlop-lab-selfie',
+  'phd-at-boston-university-campus': {
+    id: 'phd-at-boston-university-campus',
     kind: 'image',
-    image: dunlopLabSelfie,
-    alt: 'Dunlop lab selfie.',
-    caption: 'Dunlop lab crew — a quick lab selfie between experiments.',
-    assetPaths: [
-      assetPath('story/phd-at-boston-university/DunlopLabSelfie.jpg'),
-    ],
+    image: buCampus,
+    alt: 'Boston University campus photo.',
+    caption: '',
+    assetPaths: [assetPath('story/phd-at-boston-university/CDS.jpeg')],
   },
   'phd-at-boston-university-dunlop-juggling': {
     id: 'phd-at-boston-university-dunlop-juggling',
     kind: 'video',
     src: dunlopJugglingVideo,
     poster: dunlopJugglingPoster,
-    alt: 'Dunlop lab juggling video.',
-    caption: 'Dunlop lab juggling — because labs need levity too.',
+    alt: 'Short video from the Dunlop Lab.',
+    caption: 'Learning how to juggle multiple research projects.',
     assetPaths: [
       assetPath('story/phd-at-boston-university/DunlopJuggling.mp4'),
       assetPath(
@@ -228,17 +240,18 @@ const storyMediaById = {
     id: 'phd-at-boston-university-belay',
     kind: 'image',
     image: belay,
-    alt: 'Belay photo.',
-    caption: 'Belay day — finding balance outside the lab.',
+    alt: 'Climbing belay photo.',
+    caption: 'We had a solid climbing crew in the Dunlop lab!',
+    frame: 'sm',
     assetPaths: [assetPath('story/phd-at-boston-university/Belay.jpg')],
   },
   'lanzatech-internship-group': {
     id: 'lanzatech-internship-group',
     kind: 'image',
     image: lanzatechGroup,
-    alt: 'LanzaTech group photo.',
+    alt: 'Group photo from a LanzaTech internship in Chicago.',
     caption:
-      'LanzaTech summer in Chicago — synthetic biology and host strain engineering.',
+      'Shout out to the NGS team at LanzaTech and a special thanks to Nick Fackler (center) for all his mentorship that summer.',
     assetPaths: [assetPath('story/lanzatech-internship/LanzaTechGroup.jpg')],
   },
   'lanzatech-internship-gas-chamber': {
@@ -246,13 +259,23 @@ const storyMediaById = {
     kind: 'video',
     src: lanzatechGasChamberVideo,
     poster: lanzatechGasChamberPoster,
-    alt: 'LanzaTech gas fermentation chamber video.',
-    caption:
-      'Gas fermentation in action - Clostridium converting industrial gases into fuels and chemicals.',
+    alt: 'Video of a gas fermentation setup at LanzaTech.',
+    caption: 'Everything is a little bit harder in a glovebox.',
     frame: 'lg',
     assetPaths: [
       assetPath('story/lanzatech-internship/LanzaTechGasChamber.mp4'),
       assetPath('story/lanzatech-internship/LanzaTechGasChamber-poster.jpg'),
+    ],
+  },
+  'computation-and-sequence-design-dunlop-lab': {
+    id: 'computation-and-sequence-design-dunlop-lab',
+    kind: 'image',
+    image: dunlopLab,
+    alt: 'Photo from the Dunlop Lab.',
+    caption: '',
+    frame: 'lg',
+    assetPaths: [
+      assetPath('story/computation-and-sequence-design/DunlopLab.png'),
     ],
   },
 } satisfies Record<string, StoryMediaDefinition>;
@@ -266,7 +289,6 @@ export const storyChapterOrder = [
   'london-ecosystem',
   'phd-at-boston-university',
   'metabolic-pathway-control',
-  'dynamic-control-systems',
   'computation-and-sequence-design',
 ] as const;
 
@@ -280,25 +302,25 @@ export const storyChapterMedia = {
   ],
   'imperial-crick-training': [
     'imperial-crick-training-crick-stinger-stack',
-    'imperial-crick-training-crick-group',
+    'imperial-crick-training-group-stack',
     'imperial-crick-training-crick-building',
-    'imperial-crick-training-imperial-group',
   ],
   'london-ecosystem': [
-    'london-ecosystem-london-cab',
     'london-ecosystem-london-sec',
+    'london-ecosystem-london-cab',
   ],
   'phd-at-boston-university': [
-    'phd-at-boston-university-dunlop-lab-selfie',
+    'phd-at-boston-university-campus',
     'phd-at-boston-university-dunlop-juggling',
     'phd-at-boston-university-belay',
   ],
-  'dynamic-control-systems': [],
   'metabolic-pathway-control': [
     'lanzatech-internship-gas-chamber',
     'lanzatech-internship-group',
   ],
-  'computation-and-sequence-design': [],
+  'computation-and-sequence-design': [
+    'computation-and-sequence-design-dunlop-lab',
+  ],
 } satisfies Record<StoryChapterSlug, readonly StoryMediaId[]>;
 
 export type StoryRegistry = {

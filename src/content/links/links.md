@@ -1,5 +1,5 @@
 ---
 title: 'Links'
-email: 'ericjsouth@gmail.com'
+email: 'ericjohnsouth@gmail.com'
 location: 'Cambridge, MA'
 ---

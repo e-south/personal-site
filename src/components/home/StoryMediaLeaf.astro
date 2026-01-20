@@ -10,10 +10,11 @@ type Props = {
 const { item, eager = false, frameOverride } = Astro.props as Props;
 
 const frameHeights = {
-  sm: '56vh',
-  md: '66vh',
-  lg: '76vh',
-  xl: '84vh',
+  xs: 40,
+  sm: 56,
+  md: 66,
+  lg: 76,
+  xl: 84,
 } as const;
 
 const getFrameHeight = (frame?: StoryMediaItem['frame']) =>
@@ -42,7 +43,7 @@ const maxHeight = getFrameHeight(effectiveFrame);
 
 <figure
   class="story-media-frame"
-  style={`--story-media-max: ${maxWidth}px; --story-media-height: ${maxHeight}; aspect-ratio: ${ratio};`}
+  style={`--story-media-max: ${maxWidth}px; --story-media-height: ${maxHeight}vh; --story-media-height-svh: ${maxHeight}svh; --story-media-height-dvh: ${maxHeight}dvh; aspect-ratio: ${ratio};`}
 >
   <div class="story-media-surface">
     {
@@ -83,9 +84,14 @@ const maxHeight = getFrameHeight(effectiveFrame);
 <style>
   .story-media-frame {
     position: relative;
-    width: 100%;
-    max-width: var(--story-media-max, 720px);
+    width: fit-content;
+    max-width: min(var(--story-media-max, 720px), var(--story-media-cap, 100%));
     max-height: var(--story-media-height, 70vh);
+    max-height: var(--story-media-height-svh, var(--story-media-height, 70vh));
+    max-height: var(
+      --story-media-height-dvh,
+      var(--story-media-height-svh, var(--story-media-height, 70vh))
+    );
     margin: 0 auto;
     display: flex;
     justify-content: center;
@@ -106,8 +112,13 @@ const maxHeight = getFrameHeight(effectiveFrame);
   .story-media-asset {
     width: auto;
     height: auto;
-    max-width: 100%;
+    max-width: min(100%, var(--story-media-cap, 100%));
     max-height: var(--story-media-height, 70vh);
+    max-height: var(--story-media-height-svh, var(--story-media-height, 70vh));
+    max-height: var(
+      --story-media-height-dvh,
+      var(--story-media-height-svh, var(--story-media-height, 70vh))
+    );
     border-radius: 0;
     object-fit: contain;
     display: block;
@@ -115,12 +126,13 @@ const maxHeight = getFrameHeight(effectiveFrame);
 
   .story-media-caption {
     position: absolute;
-    inset: auto 0.75rem 0.75rem 0.75rem;
+    inset: auto auto 0.75rem auto;
     max-width: calc(100% - 1.5rem);
+    width: min(80%, 26rem);
     box-sizing: border-box;
     padding: 0.55rem 0.75rem;
     border-radius: 0.65rem;
-    text-align: left;
+    text-align: center;
     font-size: 0.7rem;
     line-height: 1.35;
     letter-spacing: 0.02em;
@@ -129,6 +141,8 @@ const maxHeight = getFrameHeight(effectiveFrame);
     background: color-mix(in oklab, #0b0b0c 72%, transparent);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 1;
   }
 </style>

@@ -24,6 +24,7 @@ Fields:
 - title (string)
 - description (string)
 - summary (string, optional)
+- order (number, required)
 - status (active | completed | archived)
 - tech (string[], optional)
 - links (object, optional)
@@ -32,7 +33,20 @@ Fields:
   - paper (url, optional)
 - image (image, optional)
 - imageAlt (string, required when image is set)
+- banners (array, optional)
+  - placement (above | below)
+  - image (image)
+  - alt (string)
+  - caption (string, optional)
+- publication (object, optional)
+  - label (string)
+  - links (array)
+    - label (string)
+    - href (url or /path)
 - featured (boolean, optional)
+
+Projects render in ascending `order`.
+The Markdown body is rendered inside each project panel for narrative copy.
 
 ## Publications (papers)
 

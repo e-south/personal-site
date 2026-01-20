@@ -35,3 +35,7 @@ test-results/
 .DS_Store
 .idea/
 .vscode/
+
+# local design drafts
+artwork-drafts/
+!artwork-drafts/README.md

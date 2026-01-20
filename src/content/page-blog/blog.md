@@ -1,6 +1,6 @@
 ---
 title: 'Blog'
-intro: 'Occasional thoughts on research, software, and biology.'
+intro: "Stay tuned. I'm working on turning parts of my thesis into posts that are more accessible than papers."
 ---
 
 Posts coming soon.

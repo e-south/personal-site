@@ -41,10 +41,11 @@ const normalizeHref = (href: string) =>
   aria-roledescription="slide"
   aria-label={`Project ${index + 1} of ${total}: ${data.title}`}
   aria-labelledby={titleId}
+  data-project={entry.slug}
   data-carousel-panel
   data-index={index}
 >
-  <div class="h-full overflow-y-auto overscroll-y-contain">
+  <div class="project-panel-scroll">
     <div
       class="mx-auto flex min-h-full w-full max-w-3xl flex-col gap-8 px-6 py-8"
     >
@@ -58,9 +59,10 @@ const normalizeHref = (href: string) =>
           <h2 id={titleId} class="text-3xl font-semibold">
             {data.title}
           </h2>
-          <p class="text-base-content/80 leading-relaxed">
-            {data.description}
-          </p>
+          <p
+            class="text-base-content/80 leading-relaxed"
+            set:html={data.description}
+          />
           {
             data.summary && (
               <p class="text-sm text-base-content/60">{data.summary}</p>
@@ -123,7 +125,7 @@ const normalizeHref = (href: string) =>
                     class="text-accent/80 transition hover:text-accent"
                     href={normalizeHref(link.href)}
                   >
-                    {link.label}
+                    <span set:html={link.label} />
                   </a>
                   {linkIndex < publication.links.length - 1 && (
                     <span class="mx-2 text-base-content/30" aria-hidden="true">
@@ -139,3 +141,46 @@ const normalizeHref = (href: string) =>
     </div>
   </div>
 </section>
+
+<style>
+  .project-panel-scroll {
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  :global([data-project='synthetic-microbial-communities'] .prose img) {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    margin: 2rem auto;
+    padding: 1rem;
+    border-radius: 1.25rem;
+    border: 1px solid color-mix(in oklab, currentColor 10%, transparent);
+    background: #ffffff;
+    box-sizing: border-box;
+  }
+
+  :global([data-project='molecular-sequence-design'] .prose img) {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    margin: 2rem auto;
+    padding: 1rem;
+    border-radius: 1.25rem;
+    border: 1px solid color-mix(in oklab, currentColor 10%, transparent);
+    background: #ffffff;
+    box-sizing: border-box;
+  }
+
+  @media (max-width: 767px) {
+    .project-panel-scroll {
+      height: auto;
+      overflow: visible;
+      overscroll-behavior: auto;
+    }
+  }
+</style>

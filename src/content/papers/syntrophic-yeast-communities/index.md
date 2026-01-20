@@ -11,9 +11,10 @@ authors:
   - 'Rodrigo Ledesma-Amaro'
 venue: 'Nature Chemical Biology'
 year: 2023
+coFirst: true
 link: 'https://doi.org/10.1038/s41589-023-01341-2'
 abstract: 'High-throughput workflows reveal synergistic yeast communities that enhance bioproduction through spontaneous cross-feeding.'
 featured: true
 ---
 
-High-throughput community screening reveals syntrophic pairings that boost bioproduction.
+This work used high-throughput community screening to identify syntrophic pairings that increased bioproduction.

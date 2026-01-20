@@ -14,4 +14,4 @@ abstract: 'Engineers auxotrophic and overexpression yeast strains to enable cont
 featured: true
 ---
 
-A toolkit of engineered strains that enables controlled cross-feeding and synthetic community design.
+This toolkit of engineered strains enabled controlled cross-feeding and synthetic community design.

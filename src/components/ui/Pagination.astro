@@ -6,20 +6,42 @@ const prevDisabled = !prevUrl;
 const nextDisabled = !nextUrl;
 ---
 
-<div class="join flex justify-center mt-8">
+<div class="flex justify-center mt-8 gap-3">
   {/* Previous button */}
   {
     prevDisabled ? (
       <span
-        class="join-item btn btn-sm btn-disabled"
+        class="pagination-pill"
         aria-disabled="true"
         aria-label="Previous page"
       >
-        «
+        <svg
+          class="h-3.5 w-3.5"
+          viewBox="0 0 24 24"
+          role="img"
+          aria-hidden="true"
+        >
+          <path
+            d="M15.5 5.5L9 12l6.5 6.5-1.4 1.4L6.2 12l7.9-7.9 1.4 1.4z"
+            fill="currentColor"
+          />
+        </svg>
+        <span class="pagination-pill__label">Prev</span>
       </span>
     ) : (
-      <a href={prevUrl} class="join-item btn btn-sm" aria-label="Previous page">
-        «
+      <a href={prevUrl} class="pagination-pill" aria-label="Previous page">
+        <svg
+          class="h-3.5 w-3.5"
+          viewBox="0 0 24 24"
+          role="img"
+          aria-hidden="true"
+        >
+          <path
+            d="M15.5 5.5L9 12l6.5 6.5-1.4 1.4L6.2 12l7.9-7.9 1.4 1.4z"
+            fill="currentColor"
+          />
+        </svg>
+        <span class="pagination-pill__label">Prev</span>
       </a>
     )
   }
@@ -27,17 +49,75 @@ const nextDisabled = !nextUrl;
   {/* Next button */}
   {
     nextDisabled ? (
-      <span
-        class="join-item btn btn-sm btn-disabled"
-        aria-disabled="true"
-        aria-label="Next page"
-      >
-        »
+      <span class="pagination-pill" aria-disabled="true" aria-label="Next page">
+        <span class="pagination-pill__label">Next</span>
+        <svg
+          class="h-3.5 w-3.5"
+          viewBox="0 0 24 24"
+          role="img"
+          aria-hidden="true"
+        >
+          <path
+            d="M8.5 5.5 16.4 12l-7.9 7.9-1.4-1.4L13.8 12 7.1 5.5 8.5 4.1z"
+            fill="currentColor"
+          />
+        </svg>
       </span>
     ) : (
-      <a href={nextUrl} class="join-item btn btn-sm" aria-label="Next page">
-        »
+      <a href={nextUrl} class="pagination-pill" aria-label="Next page">
+        <span class="pagination-pill__label">Next</span>
+        <svg
+          class="h-3.5 w-3.5"
+          viewBox="0 0 24 24"
+          role="img"
+          aria-hidden="true"
+        >
+          <path
+            d="M8.5 5.5 16.4 12l-7.9 7.9-1.4-1.4L13.8 12 7.1 5.5 8.5 4.1z"
+            fill="currentColor"
+          />
+        </svg>
       </a>
     )
   }
 </div>
+
+<style>
+  .pagination-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    border-radius: 999px;
+    padding: 0.5rem 1.1rem;
+    border: 0;
+    background-color: color-mix(in oklab, hsl(var(--p)) 18%, transparent);
+    color: color-mix(in oklab, hsl(var(--p)) 70%, currentColor 30%);
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .pagination-pill:hover {
+    background-color: color-mix(in oklab, hsl(var(--p)) 28%, transparent);
+    color: color-mix(in oklab, hsl(var(--p)) 80%, currentColor 20%);
+    transform: translateY(-1px);
+  }
+
+  .pagination-pill[aria-disabled='true'] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .pagination-pill__label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+  }
+
+  .pagination-pill:focus-visible {
+    outline: 2px solid color-mix(in oklab, hsl(var(--p)) 70%, transparent);
+    outline-offset: 3px;
+  }
+</style>

@@ -6,9 +6,10 @@ authors:
   - 'Mary J. Dunlop'
 venue: 'ACS Omega'
 year: 2022
+coFirst: true
 link: 'https://doi.org/10.1021/acsomega.2c00483'
 abstract: 'Systematic transcriptional tuning of pathway enzymes to quantify effects on limonene production in E. coli.'
 featured: true
 ---
 
-Systematically tunes pathway expression to quantify effects on limonene production.
+This work systematically tuned pathway expression to quantify effects on limonene production.

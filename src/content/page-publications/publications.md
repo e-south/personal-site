@@ -1,7 +1,7 @@
 ---
 title: 'Publications'
-intro: 'Publications are maintained on Google Scholar.'
+intro: 'Publications can also be found on Google Scholar.'
 scholarLabel: 'Google Scholar'
-selectedHeading: 'Selected publications'
-note: 'Full list and citation metrics live on Google Scholar.'
+selectedHeading: 'Select publications'
+note: ''
 ---

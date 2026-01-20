@@ -1,10 +1,29 @@
 ---
-title: 'Sequence-to-expression modeling'
-description: 'Developing models that learn relationships between DNA sequence features and expression outcomes to guide design.'
-summary: 'Predictive modeling to connect sequence → expression in engineered regulatory systems.'
+title: 'Active learning links DNA sequence to condition-specific expression'
+description: 'Closed-loop sequence-to-expression modeling to accelerate promoter engineering with fewer experiments.'
 status: 'active'
-tech: ['CNNs', 'PyTorch', 'Feature learning', 'Predictive modeling']
+tech:
+  [
+    'Machine learning',
+    'Sequence-to-function',
+    'Active learning',
+    'Genomic language models',
+    'Predictive modeling',
+    'Promoter engineering',
+  ]
+order: 4
 featured: true
+banners:
+  - placement: below
+    image: ./StressPromotersActiveLearning.svg
+    alt: 'Active learning workflow for stress-responsive promoters.'
 ---
 
-Models sequence features to predict expression outcomes and inform regulatory element design.
+Building on high-throughput synthetic promoter libraries, I pursued
+sequence-to-expression models that predict regulatory behavior across
+environmental contexts and propose new designs. By combining systematic
+measurements with modern ML approaches, including ideas from genomic language
+models, in an iterative active-learning loop, the workflow moves toward
+specification-driven promoter design. The goal is practical,
+condition-dependent control for genetic circuits, biomanufacturing, and emerging
+cell and gene therapy applications.

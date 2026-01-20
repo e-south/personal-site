@@ -37,6 +37,11 @@ const blog = defineCollection({
       }),
 });
 
+const internalOrExternalLink = z.union([
+  z.string().url(),
+  z.string().regex(/^\//),
+]);
+
 const projects = defineCollection({
   type: 'content',
   schema: ({ image }) =>
@@ -45,6 +50,7 @@ const projects = defineCollection({
         title: z.string(),
         description: z.string(),
         summary: z.string().optional(),
+        order: z.number().int().min(1),
         status: z.enum(['active', 'completed', 'archived']).default('active'),
         tech: z.array(z.string()).default([]),
         links: z
@@ -56,6 +62,30 @@ const projects = defineCollection({
           .optional(),
         image: image().optional(),
         imageAlt: z.string().optional(),
+        banners: z
+          .array(
+            z.object({
+              placement: z.enum(['above', 'below']),
+              image: image(),
+              alt: z.string(),
+              caption: z.string().optional(),
+              captionPlacement: z.enum(['above', 'below']).optional(),
+            }),
+          )
+          .optional(),
+        publication: z
+          .object({
+            label: z.string(),
+            links: z
+              .array(
+                z.object({
+                  label: z.string(),
+                  href: internalOrExternalLink,
+                }),
+              )
+              .min(1),
+          })
+          .optional(),
         featured: z.boolean().default(false),
       })
       .refine((data) => !data.image || data.imageAlt, {
@@ -72,6 +102,7 @@ const papers = defineCollection({
       authors: z.array(z.string()).min(1),
       venue: z.string(),
       year: z.number().int(),
+      coFirst: z.boolean().optional(),
       link: z.string().url().optional(),
       pdf: z.union([z.string().url(), z.string().regex(/^\//)]).optional(),
       abstract: z.string().optional(),

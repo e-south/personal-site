@@ -26,15 +26,54 @@ if (!Array.isArray(projects) || projects.length === 0) {
       projects.map((project, index) => (
         <button
           type="button"
-          class="h-2.5 w-2.5 rounded-full border border-base-content/30 bg-transparent transition data-[active=true]:border-base-content data-[active=true]:bg-base-content data-[active=true]:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+          class="project-carousel-dot"
           data-carousel-dot
           data-index={index}
           data-active={index === 0 ? 'true' : 'false'}
           aria-current={index === 0 ? 'true' : 'false'}
           aria-controls={project.id}
           aria-label={`Project ${index + 1} of ${projects.length}: ${project.title}`}
-        />
+        >
+          <span class="project-carousel-dot__inner" aria-hidden="true" />
+        </button>
       ))
     }
   </div>
 </nav>
+
+<style>
+  .project-carousel-dot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 999px;
+    border: 0;
+    background: transparent;
+    transition: transform 0.2s ease;
+  }
+
+  .project-carousel-dot__inner {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, currentColor 35%, transparent);
+    background: transparent;
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  .project-carousel-dot[data-active='true'] .project-carousel-dot__inner {
+    border-color: currentColor;
+    background: currentColor;
+    transform: scale(1.1);
+  }
+
+  .project-carousel-dot:focus-visible {
+    outline: 2px solid color-mix(in oklab, hsl(var(--p)) 70%, transparent);
+    outline-offset: 4px;
+  }
+</style>

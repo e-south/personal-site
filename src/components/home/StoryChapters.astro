@@ -57,7 +57,7 @@ const chapterCount = chapterItems.length;
                   {chapter.title}
                 </h2>
               </div>
-              <Prose class="prose-p:text-base-content/80">
+              <Prose class="prose-p:text-base-content/80 text-justify">
                 <chapter.Content />
               </Prose>
               {chapter.ctaLabel && chapter.ctaHref && (
@@ -78,14 +78,24 @@ const chapterCount = chapterItems.length;
                     {chapter.media.map((item, mediaIndex) => {
                       const eagerBase = chapterIndex === 0 && mediaIndex === 0;
                       return item.kind === 'stack' ? (
-                        <div class="story-media-stack">
-                          {item.items.map((leaf, leafIndex) => (
-                            <StoryMediaLeaf
-                              item={leaf}
-                              eager={eagerBase && leafIndex === 0}
-                              frameOverride={item.frame}
-                            />
-                          ))}
+                        <div
+                          class="story-media-stack-frame"
+                          data-frame={item.frame}
+                        >
+                          <div class="story-media-stack">
+                            {item.items.map((leaf, leafIndex) => (
+                              <StoryMediaLeaf
+                                item={leaf}
+                                eager={eagerBase && leafIndex === 0}
+                                frameOverride={item.frame}
+                              />
+                            ))}
+                          </div>
+                          {item.caption && (
+                            <p class="story-media-caption story-media-stack-caption">
+                              {item.caption}
+                            </p>
+                          )}
                         </div>
                       ) : (
                         <StoryMediaLeaf item={item} eager={eagerBase} />
@@ -106,14 +116,24 @@ const chapterCount = chapterItems.length;
                         return (
                           <div class="story-carousel-item" data-carousel-item>
                             {item.kind === 'stack' ? (
-                              <div class="story-media-stack">
-                                {item.items.map((leaf, leafIndex) => (
-                                  <StoryMediaLeaf
-                                    item={leaf}
-                                    eager={eagerBase && leafIndex === 0}
-                                    frameOverride={item.frame}
-                                  />
-                                ))}
+                              <div
+                                class="story-media-stack-frame"
+                                data-frame={item.frame}
+                              >
+                                <div class="story-media-stack">
+                                  {item.items.map((leaf, leafIndex) => (
+                                    <StoryMediaLeaf
+                                      item={leaf}
+                                      eager={eagerBase && leafIndex === 0}
+                                      frameOverride={item.frame}
+                                    />
+                                  ))}
+                                </div>
+                                {item.caption && (
+                                  <p class="story-media-caption story-media-stack-caption">
+                                    {item.caption}
+                                  </p>
+                                )}
                               </div>
                             ) : (
                               <StoryMediaLeaf item={item} eager={eagerBase} />
@@ -227,6 +247,42 @@ const chapterCount = chapterItems.length;
     justify-items: center;
   }
 
+  .story-media-stack-frame {
+    position: relative;
+    display: inline-grid;
+    justify-items: center;
+    width: fit-content;
+    max-width: min(100%, var(--story-media-cap, 100%));
+    margin: 0 auto;
+    --story-media-cap: 100%;
+  }
+
+  .story-media-stack-frame[data-frame='xs'] {
+    --story-media-cap: 22rem;
+  }
+
+  .story-media-stack-caption {
+    position: absolute;
+    inset: auto auto 0.75rem auto;
+    max-width: calc(100% - 1.5rem);
+    width: min(80%, 26rem);
+    box-sizing: border-box;
+    padding: 0.55rem 0.75rem;
+    border-radius: 0.65rem;
+    text-align: center;
+    font-size: 0.7rem;
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    color: #f8fafc;
+    background: color-mix(in oklab, #0b0b0c 72%, transparent);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+  }
+
   .story-carousel-wrapper {
     display: grid;
     gap: 1rem;
@@ -237,12 +293,13 @@ const chapterCount = chapterItems.length;
     grid-auto-flow: column;
     grid-auto-columns: 100%;
     gap: 1.5rem;
-    overflow-x: hidden;
+    overflow-x: auto;
     padding-bottom: 0.5rem;
-    scroll-snap-type: none;
+    scroll-snap-type: x proximity;
     scroll-padding-inline: 1rem;
     scrollbar-width: none;
-    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
   }
 
   .story-carousel::-webkit-scrollbar {
@@ -259,8 +316,24 @@ const chapterCount = chapterItems.length;
     justify-content: center;
   }
 
+  #phd-at-boston-university .story-carousel-wrapper {
+    gap: 0.5rem;
+  }
+
+  #phd-at-boston-university .story-carousel {
+    padding-bottom: 0.25rem;
+    height: var(--carousel-lock-height, auto);
+  }
+
+  #phd-at-boston-university .story-carousel-item {
+    height: var(--carousel-lock-height, auto);
+    display: flex;
+    align-items: center;
+  }
+
   .story-carousel-button,
   .story-nav-link {
+    min-height: 2.75rem;
     border: none;
     background: color-mix(in oklab, currentColor 14%, transparent);
     color: color-mix(in oklab, currentColor 85%, transparent);
@@ -277,7 +350,7 @@ const chapterCount = chapterItems.length;
 
   .story-carousel-button {
     border-radius: 999px;
-    padding: 0.45rem 1.2rem;
+    padding: 0.6rem 1.4rem;
     font-size: 0.65rem;
     letter-spacing: 0.25em;
     text-transform: uppercase;
@@ -307,7 +380,7 @@ const chapterCount = chapterItems.length;
     align-items: center;
     gap: 0.6rem;
     border-radius: 999px;
-    padding: 0.45rem 1.2rem;
+    padding: 0.6rem 1.4rem;
     font-size: 0.65rem;
     text-transform: uppercase;
     letter-spacing: 0.24em;

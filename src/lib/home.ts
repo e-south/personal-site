@@ -56,22 +56,32 @@ const initHeroRotator = () => {
     throw new Error('Home hero rotator interval is invalid.');
   }
 
-  const shuffle = (array: number[]) => {
-    const copy = [...array];
-    for (let i = copy.length - 1; i > 0; i -= 1) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [copy[i], copy[j]] = [copy[j], copy[i]];
-    }
-    return copy;
+  const shell = root.closest('[data-hero-shell]');
+  const dots = Array.from(
+    shell?.querySelectorAll('[data-hero-dot]') ?? [],
+  ).filter((dot) => dot instanceof HTMLButtonElement) as HTMLButtonElement[];
+
+  if (dots.length > 0 && dots.length !== items.length) {
+    throw new Error('Home hero rotator dots do not match image count.');
+  }
+
+  const setActiveDot = (index: number) => {
+    dots.forEach((dot, dotIndex) => {
+      dot.setAttribute('aria-current', dotIndex === index ? 'true' : 'false');
+    });
   };
 
-  const apply = (item: { src: string; alt: string; caption?: string }) => {
+  const apply = (
+    item: { src: string; alt: string; caption?: string },
+    index: number,
+  ) => {
     img.src = item.src;
     img.alt = item.alt;
     caption.textContent = item.caption ?? '';
     const hasCaption = Boolean(item.caption);
     caption.dataset.empty = hasCaption ? 'false' : 'true';
     caption.setAttribute('aria-hidden', hasCaption ? 'false' : 'true');
+    setActiveDot(index);
   };
 
   items.forEach((item) => {
@@ -79,36 +89,86 @@ const initHeroRotator = () => {
     preload.src = item.src;
   });
 
-  let order = shuffle(items.map((_, index) => index));
+  const order = items.map((_, index) => index);
   let position = 0;
-  apply(items[order[position]]);
-
-  if (reduceMotion || items.length < 2) {
-    return () => {};
-  }
+  let currentIndex = order[position];
+  apply(items[currentIndex], currentIndex);
 
   let fadeTimeout: number | null = null;
-  const intervalId = window.setInterval(() => {
-    position += 1;
-    if (position >= order.length) {
-      order = shuffle(items.map((_, index) => index));
-      position = 0;
+  let intervalId: number | null = null;
+
+  const clearFade = () => {
+    if (fadeTimeout !== null) {
+      window.clearTimeout(fadeTimeout);
+      fadeTimeout = null;
+    }
+  };
+
+  const showIndex = (index: number, withFade: boolean) => {
+    if (index < 0 || index >= items.length) {
+      return;
+    }
+    currentIndex = index;
+    clearFade();
+    if (!withFade) {
+      root.classList.remove('is-fading');
+      apply(items[index], index);
+      return;
     }
     root.classList.add('is-fading');
-    if (fadeTimeout !== null) {
-      window.clearTimeout(fadeTimeout);
-    }
     fadeTimeout = window.setTimeout(() => {
-      apply(items[order[position]]);
+      apply(items[index], index);
       root.classList.remove('is-fading');
     }, HERO_FADE_MS);
-  }, intervalMs);
+  };
+
+  const setOrderFromIndex = (index: number) => {
+    position = Math.max(0, Math.min(index, order.length - 1));
+  };
+
+  const advance = () => {
+    position = (position + 1) % order.length;
+    showIndex(order[position], !reduceMotion);
+  };
+
+  const resetInterval = () => {
+    if (intervalId !== null) {
+      window.clearInterval(intervalId);
+      intervalId = null;
+    }
+    if (reduceMotion || items.length < 2) {
+      return;
+    }
+    intervalId = window.setInterval(advance, intervalMs);
+  };
+
+  const dotCleanup: Array<() => void> = [];
+
+  dots.forEach((dot) => {
+    const indexValue = Number(dot.dataset.heroIndex);
+    if (!Number.isFinite(indexValue)) {
+      return;
+    }
+    const onClick = () => {
+      if (indexValue === currentIndex) {
+        return;
+      }
+      setOrderFromIndex(indexValue);
+      showIndex(indexValue, !reduceMotion);
+      resetInterval();
+    };
+    dot.addEventListener('click', onClick);
+    dotCleanup.push(() => dot.removeEventListener('click', onClick));
+  });
+
+  resetInterval();
 
   return () => {
-    window.clearInterval(intervalId);
-    if (fadeTimeout !== null) {
-      window.clearTimeout(fadeTimeout);
+    if (intervalId !== null) {
+      window.clearInterval(intervalId);
     }
+    clearFade();
+    dotCleanup.forEach((cleanup) => cleanup());
   };
 };
 
@@ -144,6 +204,9 @@ const initStoryNavigation = () => {
   let activeScrollFrame: number | null = null;
 
   const applySnapState = (enabled: boolean) => {
+    if (enabled && !activeScrollTarget) {
+      return;
+    }
     if (enabled) {
       html.classList.add(snapClass);
     } else {
@@ -183,6 +246,7 @@ const initStoryNavigation = () => {
       activeScrollFrame = null;
     }
     activeScrollTarget = null;
+    applySnapState(false);
   };
 
   const getScrollOffset = (target: HTMLElement) => {
@@ -250,13 +314,13 @@ const initStoryNavigation = () => {
     clearActiveScroll();
     activeScrollTarget = target;
     suppressSnap = true;
-    applySnapState(false);
+    applySnapState(true);
     if (snapTimer !== null) {
       window.clearTimeout(snapTimer);
       snapTimer = null;
     }
     const behavior = getScrollBehavior();
-    const offset = getScrollOffset(target);
+    const offset = href === '#top' ? 0 : getScrollOffset(target);
     const performScroll = () => {
       window.scrollTo({
         top: getTargetScrollTop(target, offset),
@@ -432,6 +496,34 @@ const initStoryCarousels = () => {
     const items = getCarouselItems(carousel);
     const maxIndex = items.length - 1;
 
+    const chapterRoot = wrapper.closest('[data-story-chapter]');
+    const isPhdCarousel =
+      chapterRoot instanceof HTMLElement &&
+      chapterRoot.id === 'phd-at-boston-university';
+
+    const updateLockHeight = () => {
+      if (!isPhdCarousel) {
+        return;
+      }
+      const heights = items.map((item) =>
+        Math.round(item.getBoundingClientRect().height),
+      );
+      const maxHeight = Math.max(...heights, 0);
+      if (maxHeight > 0) {
+        carousel.style.setProperty('--carousel-lock-height', `${maxHeight}px`);
+      }
+    };
+
+    let resizeObserver: ResizeObserver | null = null;
+    if (isPhdCarousel && 'ResizeObserver' in window) {
+      resizeObserver = new ResizeObserver(() => {
+        window.requestAnimationFrame(updateLockHeight);
+      });
+      items.forEach((item) => resizeObserver?.observe(item));
+    }
+
+    updateLockHeight();
+
     const scrollToIndex = (nextIndex: number) => {
       const clampedIndex = Math.max(0, Math.min(nextIndex, maxIndex));
       const target = items[clampedIndex];
@@ -481,6 +573,9 @@ const initStoryCarousels = () => {
         window.cancelAnimationFrame(scrollFrame);
         scrollFrame = null;
       }
+    });
+    addCleanup(() => {
+      resizeObserver?.disconnect();
     });
 
     updateControls(
