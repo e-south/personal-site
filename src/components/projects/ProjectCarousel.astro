@@ -70,7 +70,7 @@ const projectMeta = projects.map((project) => {
       </div>
       <div class="col-start-1 row-start-1">
         <div
-          class="flex h-full snap-x snap-mandatory overflow-x-auto overflow-y-hidden overscroll-x-contain rounded-3xl bg-base-200/20"
+          class="project-carousel-track h-full overflow-x-auto overflow-y-hidden overscroll-x-contain rounded-3xl bg-base-200/20"
           data-carousel-track
           tabindex="0"
           aria-label="Projects"
@@ -88,6 +88,8 @@ const projectMeta = projects.map((project) => {
       </div>
     </div>
   </div>
+
+  <p class="project-carousel-hint" aria-hidden="true">Swipe to explore</p>
 
   <ProjectCarouselNav projects={projectMeta} position="bottom" />
 </section>
@@ -251,10 +253,35 @@ const projectMeta = projects.map((project) => {
   .project-carousel-frame {
     flex: 1 1 auto;
     min-height: 0;
+    width: 100%;
+    min-width: 0;
   }
 
   .project-carousel-grid {
     height: 100%;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .project-carousel-track {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 100%;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: clamp(1rem, 4vw, 1.5rem);
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
+  }
+
+  .project-carousel-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    .project-carousel-track {
+      scroll-snap-type: x mandatory;
+    }
   }
 
   @media (min-width: 768px) {
@@ -302,12 +329,28 @@ const projectMeta = projects.map((project) => {
 
   @media (max-width: 767px) {
     .story-carousel-side {
-      padding: 0 0.4rem;
+      display: none;
     }
 
     .project-carousel-button {
       padding: 0.5rem 0.75rem;
       font-size: 0.75rem;
+    }
+  }
+
+  .project-carousel-hint {
+    display: none;
+    text-align: center;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: color-mix(in oklab, currentColor 55%, transparent);
+  }
+
+  @media (max-width: 767px) {
+    .project-carousel-hint {
+      display: block;
+      margin-top: 0.25rem;
     }
   }
 </style>
