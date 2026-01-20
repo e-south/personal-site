@@ -1,6 +1,6 @@
 ---
 title: 'Four-input transcriptional control of the MVA pathway for limonene production'
-description: 'A multi-inducer circuit for systematic pathway tuning in <em>E. coli</em>.'
+description: 'A multi-inducer circuit for systematic pathway tuning in *E. coli*.'
 status: 'completed'
 tech:
   [
@@ -18,7 +18,7 @@ banners:
 publication:
   label: 'Related work:'
   links:
-    - label: 'Shin <em>et al.</em> 2022'
+    - label: 'Shin *et al.* 2022'
       href: 'https://doi.org/10.1021/acsomega.2c00483'
 ---
 

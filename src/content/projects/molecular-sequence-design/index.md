@@ -1,6 +1,6 @@
 ---
 title: 'Designing information-dense promoters by packing overlapping binding sites'
-description: '<em>De novo</em> promoter sequence design via nucleotide string packing and integer linear programming.'
+description: '*De novo* promoter sequence design via nucleotide string packing and integer linear programming.'
 status: 'active'
 tech:
   [
@@ -14,7 +14,7 @@ featured: true
 publication:
   label: 'Related work:'
   links:
-    - label: 'Andreani <em>et al.</em> 2024'
+    - label: 'Andreani *et al.* 2024'
       href: 'https://doi.org/10.1371/journal.pcbi.1012276'
 ---
 

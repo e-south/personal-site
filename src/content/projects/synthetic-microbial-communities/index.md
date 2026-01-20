@@ -16,9 +16,9 @@ featured: true
 publication:
   label: 'Related works:'
   links:
-    - label: 'Aulakh <em>et al.</em> 2023'
+    - label: 'Aulakh *et al.* 2023'
       href: 'https://doi.org/10.1038/s41589-023-01341-2'
-    - label: 'Peng <em>et al.</em> 2024'
+    - label: 'Peng *et al.* 2024'
       href: 'https://doi.org/10.1038/s41564-023-01596-4'
 ---
 

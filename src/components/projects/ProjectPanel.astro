@@ -32,6 +32,19 @@ const titleId = `${panelId}-title`;
 
 const normalizeHref = (href: string) =>
   href.startsWith('/') ? withBase(href) : href;
+
+const parseEmphasis = (text: string) =>
+  text
+    .split(/(\*[^*]+\*)/g)
+    .filter(Boolean)
+    .map((segment) => {
+      const isEmphasis =
+        segment.startsWith('*') && segment.endsWith('*') && segment.length > 2;
+      return {
+        content: isEmphasis ? segment.slice(1, -1) : segment,
+        emphasis: isEmphasis,
+      };
+    });
 ---
 
 <section
@@ -59,10 +72,17 @@ const normalizeHref = (href: string) =>
           <h2 id={titleId} class="text-3xl font-semibold">
             {data.title}
           </h2>
-          <p
-            class="text-base-content/80 leading-relaxed"
-            set:html={data.description}
-          />
+          <p class="text-base-content/80 leading-relaxed">
+            {
+              parseEmphasis(data.description).map((part) =>
+                part.emphasis ? (
+                  <em>{part.content}</em>
+                ) : (
+                  <span>{part.content}</span>
+                ),
+              )
+            }
+          </p>
           {
             data.summary && (
               <p class="text-sm text-base-content/60">{data.summary}</p>
@@ -125,7 +145,13 @@ const normalizeHref = (href: string) =>
                     class="text-accent/80 transition hover:text-accent"
                     href={normalizeHref(link.href)}
                   >
-                    <span set:html={link.label} />
+                    {parseEmphasis(link.label).map((part) =>
+                      part.emphasis ? (
+                        <em>{part.content}</em>
+                      ) : (
+                        <span>{part.content}</span>
+                      ),
+                    )}
                   </a>
                   {linkIndex < publication.links.length - 1 && (
                     <span class="mx-2 text-base-content/30" aria-hidden="true">

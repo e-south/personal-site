@@ -19,6 +19,19 @@ const linkLabels: Record<string, string> = {
 const banners = project.banners ?? [];
 const bannersAbove = banners.filter((banner) => banner.placement === 'above');
 const bannersBelow = banners.filter((banner) => banner.placement === 'below');
+
+const parseEmphasis = (text: string) =>
+  text
+    .split(/(\*[^*]+\*)/g)
+    .filter(Boolean)
+    .map((segment) => {
+      const isEmphasis =
+        segment.startsWith('*') && segment.endsWith('*') && segment.length > 2;
+      return {
+        content: isEmphasis ? segment.slice(1, -1) : segment,
+        emphasis: isEmphasis,
+      };
+    });
 ---
 
 <article
@@ -28,7 +41,13 @@ const bannersBelow = banners.filter((banner) => banner.placement === 'below');
 
   <div class="space-y-2">
     <h2 class="text-2xl font-semibold">{project.title}</h2>
-    <p class="text-base-content/80 leading-relaxed">{project.description}</p>
+    <p class="text-base-content/80 leading-relaxed">
+      {
+        parseEmphasis(project.description).map((part) =>
+          part.emphasis ? <em>{part.content}</em> : <span>{part.content}</span>,
+        )
+      }
+    </p>
     {
       project.summary && (
         <p class="text-sm text-base-content/60">{project.summary}</p>
