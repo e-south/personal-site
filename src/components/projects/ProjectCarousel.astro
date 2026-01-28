@@ -1,4 +1,15 @@
 ---
+/*
+--------------------------------------------------------------------------------
+personal-site
+src/components/projects/ProjectCarousel.astro
+
+Renders the projects carousel with navigation controls.
+
+Module Author(s): Eric J. South
+--------------------------------------------------------------------------------
+*/
+
 import ProjectCarouselNav from '@/components/projects/ProjectCarouselNav.astro';
 import ProjectPanel from '@/components/projects/ProjectPanel.astro';
 import type { ProjectPanel as ProjectPanelType } from '@/lib/projects';
@@ -48,11 +59,27 @@ const projectMeta = projects.map((project) => {
         <div class="story-carousel-side">
           <button
             type="button"
-            class="pointer-events-auto project-carousel-button rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-wide text-base-content/70 shadow-sm backdrop-blur transition hover:text-base-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            class="pointer-events-auto project-carousel-button shadow-sm backdrop-blur focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             data-carousel-prev
             aria-label="Previous project"
           >
-            Prev
+            <span class="project-carousel-button__cap" aria-hidden="true">
+              <svg
+                class="project-carousel-button__icon project-carousel-button__icon--prev"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                  d="M14.5 6.5 9 12l5.5 5.5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"></path>
+              </svg>
+            </span>
+            <span class="project-carousel-button__label">Prev</span>
           </button>
         </div>
       </div>
@@ -60,11 +87,27 @@ const projectMeta = projects.map((project) => {
         <div class="story-carousel-side story-carousel-side--right">
           <button
             type="button"
-            class="pointer-events-auto project-carousel-button rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-wide text-base-content/70 shadow-sm backdrop-blur transition hover:text-base-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            class="pointer-events-auto project-carousel-button project-carousel-button--next shadow-sm backdrop-blur focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             data-carousel-next
             aria-label="Next project"
           >
-            Next
+            <span class="project-carousel-button__cap" aria-hidden="true">
+              <svg
+                class="project-carousel-button__icon project-carousel-button__icon--next"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                  d="M9.5 6.5 15 12l-5.5 5.5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"></path>
+              </svg>
+            </span>
+            <span class="project-carousel-button__label">Next</span>
           </button>
         </div>
       </div>
@@ -304,14 +347,70 @@ const projectMeta = projects.map((project) => {
   }
 
   .project-carousel-button {
-    background-color: hsl(var(--pill-hue) 65% 60% / 0.2);
-    border: 1px solid transparent;
+    --control-height: 2.6rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    padding: 0;
+    min-height: var(--control-height);
+    border-radius: 999px;
+    border: 1px solid hsl(var(--pill-hue) 65% 60% / 0.35);
+    background-color: hsl(var(--pill-hue) 65% 60% / 0.18);
     color: hsl(var(--pill-hue) 70% 82%);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: none;
+    overflow: hidden;
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease;
+  }
+
+  .project-carousel-button__cap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--control-height);
+    min-width: var(--control-height);
+    height: var(--control-height);
+    background-color: hsl(var(--pill-hue) 65% 60% / 0.32);
+    border-inline-end: 1px solid hsl(var(--pill-hue) 65% 60% / 0.45);
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .project-carousel-button--next {
+    flex-direction: row-reverse;
+  }
+
+  .project-carousel-button--next .project-carousel-button__cap {
+    border-inline-end: 0;
+    border-inline-start: 1px solid hsl(var(--pill-hue) 65% 60% / 0.45);
+  }
+
+  .project-carousel-button__label {
+    padding: 0 0.95rem;
+    line-height: 1;
+  }
+
+  .project-carousel-button__icon {
+    width: 1.05rem;
+    height: 1.05rem;
+    display: block;
   }
 
   .project-carousel-button:hover {
-    background-color: hsl(var(--pill-hue) 65% 60% / 0.3);
+    background-color: hsl(var(--pill-hue) 65% 60% / 0.26);
+    border-color: hsl(var(--pill-hue) 65% 60% / 0.55);
     color: hsl(var(--pill-hue) 75% 90%);
+  }
+
+  .project-carousel-button:hover .project-carousel-button__cap {
+    background-color: hsl(var(--pill-hue) 65% 60% / 0.4);
+    border-color: hsl(var(--pill-hue) 65% 60% / 0.6);
   }
 
   .story-carousel-side {
@@ -333,8 +432,13 @@ const projectMeta = projects.map((project) => {
     }
 
     .project-carousel-button {
-      padding: 0.5rem 0.75rem;
-      font-size: 0.75rem;
+      --control-height: 2.2rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+    }
+
+    .project-carousel-button__label {
+      padding: 0 0.7rem;
     }
   }
 
