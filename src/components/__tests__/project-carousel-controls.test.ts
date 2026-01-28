@@ -24,5 +24,9 @@ describe('ProjectCarousel controls', () => {
     expect(contents).toContain('project-carousel-button__cap');
     expect(contents).toContain('project-carousel-button__label');
     expect(contents).toContain('project-carousel-button--next');
+    expect(contents).toContain('--control-height: 2.1rem;');
+    expect(contents).toContain(
+      'background-color: hsl(var(--pill-hue) 65% 60% / 0.08);',
+    );
   });
 });

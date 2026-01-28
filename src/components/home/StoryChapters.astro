@@ -1,4 +1,15 @@
 ---
+/*
+--------------------------------------------------------------------------------
+personal-site
+src/components/home/StoryChapters.astro
+
+Renders the narrative chapter sections and their media carousels.
+
+Module Author(s): Eric J. South
+--------------------------------------------------------------------------------
+*/
+
 import type { CollectionEntry } from 'astro:content';
 import Prose from '@/components/ui/Prose.astro';
 import StoryMediaLeaf from '@/components/home/StoryMediaLeaf.astro';
@@ -333,9 +344,9 @@ const chapterCount = chapterItems.length;
 
   .story-carousel-button,
   .story-nav-link {
-    min-height: 2.75rem;
+    min-height: 2.1rem;
     border: none;
-    background: color-mix(in oklab, currentColor 14%, transparent);
+    background: color-mix(in oklab, currentColor 6%, transparent);
     color: color-mix(in oklab, currentColor 85%, transparent);
     transition:
       background-color 0.2s ease,
@@ -344,15 +355,15 @@ const chapterCount = chapterItems.length;
 
   .story-carousel-button:hover,
   .story-nav-link:hover {
-    background: color-mix(in oklab, currentColor 22%, transparent);
+    background: color-mix(in oklab, currentColor 14%, transparent);
     color: currentColor;
   }
 
   .story-carousel-button {
     border-radius: 999px;
-    padding: 0.6rem 1.4rem;
-    font-size: 0.65rem;
-    letter-spacing: 0.25em;
+    padding: 0.4rem 1.1rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
   }
 
@@ -378,11 +389,11 @@ const chapterCount = chapterItems.length;
   .story-nav-link {
     display: inline-flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.45rem;
     border-radius: 999px;
-    padding: 0.6rem 1.4rem;
-    font-size: 0.65rem;
+    padding: 0.4rem 1.1rem;
+    font-size: 0.6rem;
     text-transform: uppercase;
-    letter-spacing: 0.24em;
+    letter-spacing: 0.18em;
   }
 </style>

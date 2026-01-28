@@ -347,24 +347,23 @@ const projectMeta = projects.map((project) => {
   }
 
   .project-carousel-button {
-    --control-height: 2.6rem;
+    --control-height: 2.1rem;
     display: inline-flex;
     align-items: center;
     gap: 0;
     padding: 0;
     min-height: var(--control-height);
     border-radius: 999px;
-    border: 1px solid hsl(var(--pill-hue) 65% 60% / 0.35);
-    background-color: hsl(var(--pill-hue) 65% 60% / 0.18);
+    border: none;
+    background-color: hsl(var(--pill-hue) 65% 60% / 0.08);
     color: hsl(var(--pill-hue) 70% 82%);
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.05em;
     text-transform: none;
     overflow: hidden;
     transition:
       background-color 0.2s ease,
-      border-color 0.2s ease,
       color 0.2s ease;
   }
 
@@ -375,11 +374,8 @@ const projectMeta = projects.map((project) => {
     width: var(--control-height);
     min-width: var(--control-height);
     height: var(--control-height);
-    background-color: hsl(var(--pill-hue) 65% 60% / 0.32);
-    border-inline-end: 1px solid hsl(var(--pill-hue) 65% 60% / 0.45);
-    transition:
-      background-color 0.2s ease,
-      border-color 0.2s ease;
+    background-color: hsl(var(--pill-hue) 65% 60% / 0.12);
+    transition: background-color 0.2s ease;
   }
 
   .project-carousel-button--next {
@@ -387,30 +383,27 @@ const projectMeta = projects.map((project) => {
   }
 
   .project-carousel-button--next .project-carousel-button__cap {
-    border-inline-end: 0;
-    border-inline-start: 1px solid hsl(var(--pill-hue) 65% 60% / 0.45);
+    border-inline-start: 0;
   }
 
   .project-carousel-button__label {
-    padding: 0 0.95rem;
+    padding: 0 0.7rem;
     line-height: 1;
   }
 
   .project-carousel-button__icon {
-    width: 1.05rem;
-    height: 1.05rem;
+    width: 0.9rem;
+    height: 0.9rem;
     display: block;
   }
 
   .project-carousel-button:hover {
-    background-color: hsl(var(--pill-hue) 65% 60% / 0.26);
-    border-color: hsl(var(--pill-hue) 65% 60% / 0.55);
+    background-color: hsl(var(--pill-hue) 65% 60% / 0.16);
     color: hsl(var(--pill-hue) 75% 90%);
   }
 
   .project-carousel-button:hover .project-carousel-button__cap {
-    background-color: hsl(var(--pill-hue) 65% 60% / 0.4);
-    border-color: hsl(var(--pill-hue) 65% 60% / 0.6);
+    background-color: hsl(var(--pill-hue) 65% 60% / 0.2);
   }
 
   .story-carousel-side {
@@ -432,13 +425,13 @@ const projectMeta = projects.map((project) => {
     }
 
     .project-carousel-button {
-      --control-height: 2.2rem;
-      font-size: 0.7rem;
-      letter-spacing: 0.06em;
+      --control-height: 1.85rem;
+      font-size: 0.65rem;
+      letter-spacing: 0.04em;
     }
 
     .project-carousel-button__label {
-      padding: 0 0.7rem;
+      padding: 0 0.55rem;
     }
   }
 
