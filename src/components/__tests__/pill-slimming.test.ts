@@ -25,6 +25,8 @@ describe('Pill slimming styles', () => {
     expect(contents).toContain(
       'background: color-mix(in oklab, currentColor 6%, transparent);',
     );
+    expect(contents).toContain('#imperial-crick-training .story-carousel');
+    expect(contents).toContain('height: var(--carousel-lock-height, auto);');
   });
 
   it('uses slimmer pagination pills', async () => {

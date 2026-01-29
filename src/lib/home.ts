@@ -1,3 +1,14 @@
+/*
+--------------------------------------------------------------------------------
+personal-site
+src/lib/home.ts
+
+Handles interactive behavior for the home page.
+
+Module Author(s): Eric J. South
+--------------------------------------------------------------------------------
+*/
+
 const HERO_INTERVAL_MS = 6500;
 const HERO_FADE_MS = 450;
 const VIDEO_CHECK_EVENT = 'story:video-check';
@@ -195,7 +206,6 @@ const initStoryNavigation = () => {
 
   const cleanup: Array<() => void> = [];
   const addCleanup = (fn: () => void) => cleanup.push(fn);
-
   const html = document.documentElement;
   const snapClass = 'story-snap';
   let suppressSnap = false;
@@ -430,6 +440,10 @@ const initStoryCarousels = () => {
 
   const cleanup: Array<() => void> = [];
   const addCleanup = (fn: () => void) => cleanup.push(fn);
+  const fixedHeightChapters = new Set([
+    'phd-at-boston-university',
+    'imperial-crick-training',
+  ]);
 
   const getCarouselItems = (carousel: HTMLElement) => {
     const items = Array.from(
@@ -497,12 +511,12 @@ const initStoryCarousels = () => {
     const maxIndex = items.length - 1;
 
     const chapterRoot = wrapper.closest('[data-story-chapter]');
-    const isPhdCarousel =
+    const shouldFixHeight =
       chapterRoot instanceof HTMLElement &&
-      chapterRoot.id === 'phd-at-boston-university';
+      fixedHeightChapters.has(chapterRoot.id);
 
     const updateLockHeight = () => {
-      if (!isPhdCarousel) {
+      if (!shouldFixHeight) {
         return;
       }
       const heights = items.map((item) =>
@@ -515,7 +529,7 @@ const initStoryCarousels = () => {
     };
 
     let resizeObserver: ResizeObserver | null = null;
-    if (isPhdCarousel && 'ResizeObserver' in window) {
+    if (shouldFixHeight && 'ResizeObserver' in window) {
       resizeObserver = new ResizeObserver(() => {
         window.requestAnimationFrame(updateLockHeight);
       });
