@@ -22,4 +22,12 @@ describe('hero images', () => {
     expect(contents).toContain('srcset');
     expect(contents).toContain('sizes');
   });
+
+  it('accounts for cover width when sizing hero images', async () => {
+    const filePath = path.resolve(process.cwd(), 'src/pages/index.astro');
+    const contents = await readFile(filePath, 'utf-8');
+
+    expect(contents).toContain('heroContainerAspect');
+    expect(contents).toContain('getHeroCoverWidth');
+  });
 });

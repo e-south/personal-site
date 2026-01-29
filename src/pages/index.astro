@@ -12,6 +12,7 @@ Module Author(s): Eric J. South
 
 import Layout from '../layouts/Layout.astro';
 
+import type { ImageMetadata } from 'astro';
 import { heroImages } from '@/data/heroImages';
 import { storyRegistry } from '@/data/storyMedia';
 import PillLink from '@/components/ui/PillLink.astro';
@@ -33,19 +34,29 @@ const headline = homeData.headline ?? '';
 const locationLine = homeData.locationLine;
 const overview = homeData.overview;
 
-const heroSizes = '(max-width: 480px) 80vw, 320px';
-const heroWidths = [320, 480, 640, 800, 960];
+const heroBaseWidth = 320;
+const heroContainerAspect = 4 / 5;
+const heroWidths = [320, 480, 640, 800, 960, 1280];
+const getHeroCoverWidth = (image: ImageMetadata) => {
+  const imageAspect = image.width / image.height;
+  const coverScale =
+    imageAspect > heroContainerAspect ? imageAspect / heroContainerAspect : 1;
+  return Math.round(heroBaseWidth * coverScale);
+};
 const heroImageVariants = await Promise.all(
   heroImages.map(async (item) => {
+    const coverWidth = getHeroCoverWidth(item.image);
+    const sizes = `${coverWidth}px`;
     const optimized = await getImage({
       src: item.image,
       widths: heroWidths,
-      sizes: heroSizes,
+      sizes,
     });
     return {
       image: optimized,
       alt: item.alt,
       caption: item.caption,
+      sizes,
     };
   }),
 );
@@ -53,7 +64,7 @@ const heroImageVariants = await Promise.all(
 const heroItems = heroImageVariants.map((item) => ({
   src: item.image.src,
   srcset: item.image.srcSet.attribute,
-  sizes: item.image.attributes.sizes ?? heroSizes,
+  sizes: item.image.attributes.sizes ?? item.sizes,
   width: item.image.attributes.width,
   height: item.image.attributes.height,
   alt: item.alt,
@@ -108,7 +119,7 @@ const heroFirst = heroImageVariants[0];
                 <img
                   src={heroFirst.image.src}
                   srcset={heroFirst.image.srcSet.attribute}
-                  sizes={heroFirst.image.attributes.sizes ?? heroSizes}
+                  sizes={heroFirst.image.attributes.sizes ?? heroFirst.sizes}
                   alt={heroFirst.alt}
                   width={heroFirst.image.attributes.width}
                   height={heroFirst.image.attributes.height}
