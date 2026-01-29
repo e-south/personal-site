@@ -36,7 +36,15 @@ const initHeroRotator = () => {
   if (!imagesRaw) {
     throw new Error('Home hero rotator images are missing.');
   }
-  let items: Array<{ src: string; alt: string; caption?: string }> = [];
+  let items: Array<{
+    src: string;
+    srcset: string;
+    sizes: string;
+    alt: string;
+    caption?: string;
+    width?: number;
+    height?: number;
+  }> = [];
   try {
     items = JSON.parse(imagesRaw);
   } catch (error) {
@@ -53,6 +61,12 @@ const initHeroRotator = () => {
     }
     if (!item.src) {
       throw new Error(`Hero image ${index + 1} is missing a src.`);
+    }
+    if (typeof item.srcset !== 'string' || item.srcset.length === 0) {
+      throw new Error(`Hero image ${index + 1} is missing a srcset.`);
+    }
+    if (typeof item.sizes !== 'string' || item.sizes.length === 0) {
+      throw new Error(`Hero image ${index + 1} is missing sizes.`);
     }
     if (typeof item.alt !== 'string') {
       throw new Error(`Hero image ${index + 1} is missing alt text.`);
@@ -83,10 +97,28 @@ const initHeroRotator = () => {
   };
 
   const apply = (
-    item: { src: string; alt: string; caption?: string },
+    item: {
+      src: string;
+      srcset: string;
+      sizes: string;
+      alt: string;
+      caption?: string;
+      width?: number;
+      height?: number;
+    },
     index: number,
   ) => {
     img.src = item.src;
+    img.srcset = item.srcset;
+    img.sizes = item.sizes;
+    const widthValue = Number(item.width);
+    const heightValue = Number(item.height);
+    if (Number.isFinite(widthValue) && widthValue > 0) {
+      img.width = widthValue;
+    }
+    if (Number.isFinite(heightValue) && heightValue > 0) {
+      img.height = heightValue;
+    }
     img.alt = item.alt;
     caption.textContent = item.caption ?? '';
     const hasCaption = Boolean(item.caption);
@@ -97,6 +129,8 @@ const initHeroRotator = () => {
 
   items.forEach((item) => {
     const preload = new Image();
+    preload.srcset = item.srcset;
+    preload.sizes = item.sizes;
     preload.src = item.src;
   });
 

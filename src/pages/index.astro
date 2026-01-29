@@ -1,4 +1,15 @@
 ---
+/*
+--------------------------------------------------------------------------------
+personal-site
+src/pages/index.astro
+
+Renders the home page layout and hero rotator.
+
+Module Author(s): Eric J. South
+--------------------------------------------------------------------------------
+*/
+
 import Layout from '../layouts/Layout.astro';
 
 import { heroImages } from '@/data/heroImages';
@@ -6,6 +17,7 @@ import { storyRegistry } from '@/data/storyMedia';
 import PillLink from '@/components/ui/PillLink.astro';
 import HomeController from '@/components/home/HomeController';
 import StoryChapters from '@/components/home/StoryChapters.astro';
+import { getImage } from 'astro:assets';
 import { getCollection, getEntry } from 'astro:content';
 import { requireEntry } from '@/lib/require';
 
@@ -21,12 +33,33 @@ const headline = homeData.headline ?? '';
 const locationLine = homeData.locationLine;
 const overview = homeData.overview;
 
-const heroItems = heroImages.map((item) => ({
+const heroSizes = '(max-width: 480px) 80vw, 320px';
+const heroWidths = [320, 480, 640, 800, 960];
+const heroImageVariants = await Promise.all(
+  heroImages.map(async (item) => {
+    const optimized = await getImage({
+      src: item.image,
+      widths: heroWidths,
+      sizes: heroSizes,
+    });
+    return {
+      image: optimized,
+      alt: item.alt,
+      caption: item.caption,
+    };
+  }),
+);
+
+const heroItems = heroImageVariants.map((item) => ({
   src: item.image.src,
+  srcset: item.image.srcSet.attribute,
+  sizes: item.image.attributes.sizes ?? heroSizes,
+  width: item.image.attributes.width,
+  height: item.image.attributes.height,
   alt: item.alt,
   caption: item.caption,
 }));
-const heroFirst = heroImages[0];
+const heroFirst = heroImageVariants[0];
 ---
 
 <Layout showFooter={false}>
@@ -74,9 +107,11 @@ const heroFirst = heroImages[0];
               >
                 <img
                   src={heroFirst.image.src}
+                  srcset={heroFirst.image.srcSet.attribute}
+                  sizes={heroFirst.image.attributes.sizes ?? heroSizes}
                   alt={heroFirst.alt}
-                  width={heroFirst.image.width}
-                  height={heroFirst.image.height}
+                  width={heroFirst.image.attributes.width}
+                  height={heroFirst.image.attributes.height}
                   class="aspect-[4/5] w-full object-cover transition-opacity duration-500 ease-out"
                   loading="eager"
                   decoding="async"
