@@ -11,6 +11,7 @@ Module Author(s): Eric J. South
 */
 
 import ProjectCarouselNav from '@/components/projects/ProjectCarouselNav.astro';
+import ProjectCarouselSideControl from '@/components/projects/ProjectCarouselSideControl.astro';
 import ProjectPanel from '@/components/projects/ProjectPanel.astro';
 import type { ProjectPanel as ProjectPanelType } from '@/lib/projects';
 
@@ -56,56 +57,14 @@ const projectMeta = projects.map((project) => {
         class="pointer-events-none project-carousel-nav-layer col-start-1 row-start-1 z-10"
       >
         <div class="story-carousel-side">
-          <button
-            type="button"
-            class="focus-ring pointer-events-auto project-carousel-button"
-            data-carousel-prev
-            aria-label="Previous project"
-          >
-            <svg
-              class="project-carousel-button__icon project-carousel-button__icon--prev"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path
-                d="M14.5 6.5 9 12l5.5 5.5"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-                stroke-linejoin="round"></path>
-            </svg>
-            <span class="project-carousel-button__label">Prev</span>
-          </button>
+          <ProjectCarouselSideControl direction="prev" />
         </div>
       </div>
       <div
         class="pointer-events-none project-carousel-nav-layer col-start-1 row-start-1 z-10"
       >
         <div class="story-carousel-side story-carousel-side--right">
-          <button
-            type="button"
-            class="focus-ring pointer-events-auto project-carousel-button project-carousel-button--next"
-            data-carousel-next
-            aria-label="Next project"
-          >
-            <svg
-              class="project-carousel-button__icon project-carousel-button__icon--next"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path
-                d="M9.5 6.5 15 12l-5.5 5.5"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-                stroke-linejoin="round"></path>
-            </svg>
-            <span class="project-carousel-button__label">Next</span>
-          </button>
+          <ProjectCarouselSideControl direction="next" />
         </div>
       </div>
       <div class="col-start-1 row-start-1">

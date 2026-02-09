@@ -39,6 +39,19 @@ describe('home runtime modularization', () => {
     expect(home).toContain('initStoryCarousels({ getScrollBehavior })');
   });
 
+  it('delegates story navigation runtime from home orchestrator', async () => {
+    const home = await read('src/lib/home.ts');
+    const storyNavigation = await read('src/lib/home/storyNavigation.ts');
+
+    expect(home).toContain(
+      "import { initStoryNavigation } from '@/lib/home/storyNavigation';",
+    );
+    expect(home).toContain('initStoryNavigation({');
+    expect(storyNavigation).toContain('export const initStoryNavigation = (');
+    expect(storyNavigation).toContain('data-story-nav');
+    expect(storyNavigation).toContain('Story navigation controls are missing.');
+  });
+
   it('extracts hero rotator and story video modules', async () => {
     const heroRotator = await read('src/lib/home/heroRotator.ts');
     const storyVideos = await read('src/lib/home/storyVideos.ts');
@@ -80,6 +93,21 @@ describe('layout enhancement modularization', () => {
       'export const bindLayoutEnhancements = () =>',
     );
   });
+
+  it('uses a dedicated helper for layout heading typography classes', async () => {
+    const layout = await read('src/layouts/Layout.astro');
+    const headingTypography = await read('src/lib/layout/headingTypography.ts');
+
+    expect(layout).toContain(
+      "import { headingTypographyClasses } from '@/lib/layout/headingTypography';",
+    );
+    expect(layout).toContain('headingTypographyClasses');
+    expect(headingTypography).toContain(
+      'export const headingTypographyClasses',
+    );
+    expect(headingTypography).toContain('[&_h1]:font-inter');
+    expect(headingTypography).toContain('[&_h6]:tracking-tight');
+  });
 });
 
 describe('project carousel helper extraction', () => {
@@ -92,6 +120,22 @@ describe('project carousel helper extraction', () => {
       "import { bindProjectCarousel } from '@/lib/projectCarouselRuntime';",
     );
     expect(carousel).toContain('bindProjectCarousel();');
+  });
+
+  it('extracts project carousel side controls into a dedicated component', async () => {
+    const carousel = await read(
+      'src/components/projects/ProjectCarousel.astro',
+    );
+    const sideControl = await read(
+      'src/components/projects/ProjectCarouselSideControl.astro',
+    );
+
+    expect(carousel).toContain(
+      "import ProjectCarouselSideControl from '@/components/projects/ProjectCarouselSideControl.astro';",
+    );
+    expect(carousel).toContain('<ProjectCarouselSideControl');
+    expect(sideControl).toContain('data-carousel-prev');
+    expect(sideControl).toContain('data-carousel-next');
   });
 
   it('uses shared project carousel geometry helpers from component script', async () => {

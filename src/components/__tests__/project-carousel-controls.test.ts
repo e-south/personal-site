@@ -18,18 +18,21 @@ const read = async (relativePath: string) =>
 
 describe('ProjectCarousel controls', () => {
   it('renders minimal prev/next pills with hover lift and border accent', async () => {
-    const contents = await read(
+    const carousel = await read(
       'src/components/projects/ProjectCarousel.astro',
     );
+    const sideControl = await read(
+      'src/components/projects/ProjectCarouselSideControl.astro',
+    );
 
-    expect(contents).not.toContain('project-carousel-button__cap');
-    expect(contents).toContain('project-carousel-button__icon');
-    expect(contents).toContain('project-carousel-button__label');
-    expect(contents).toContain('project-carousel-button--next');
-    expect(contents).toContain('--control-height: 1.95rem;');
-    expect(contents).toContain('border: 0;');
-    expect(contents).toContain('transform: translateY(-1px);');
-    expect(contents).toContain('inset 0 0 0 1px');
+    expect(sideControl).not.toContain('project-carousel-button__cap');
+    expect(sideControl).toContain('project-carousel-button__icon');
+    expect(sideControl).toContain('project-carousel-button__label');
+    expect(sideControl).toContain('project-carousel-button--next');
+    expect(carousel).toContain('--control-height: 1.95rem;');
+    expect(carousel).toContain('border: 0;');
+    expect(carousel).toContain('transform: translateY(-1px);');
+    expect(carousel).toContain('inset 0 0 0 1px');
   });
 
   it('offsets the initial nav control onset lower while keeping sticky centering', async () => {

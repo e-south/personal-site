@@ -51,18 +51,20 @@ describe('Typography policy contract', () => {
 
   it('uses heavy Inter for top banner controls and headers throughout the site', async () => {
     const layout = await read('src/layouts/Layout.astro');
+    const headingTypography = await read('src/lib/layout/headingTypography.ts');
     const navLink = await read('src/components/ui/NavLink.astro');
     const navbar = await read('src/components/ui/Navbar.astro');
     const prose = await read('src/components/ui/Prose.astro');
 
-    expect(layout).toContain('[&_h1]:font-inter');
-    expect(layout).toContain('[&_h2]:font-inter');
-    expect(layout).toContain('[&_h3]:font-inter');
-    expect(layout).toContain('[&_h4]:font-inter');
-    expect(layout).toContain('[&_h1]:font-black');
-    expect(layout).toContain('[&_h2]:font-black');
-    expect(layout).toContain('[&_h3]:font-black');
-    expect(layout).toContain('[&_h4]:font-black');
+    expect(layout).toContain('headingTypographyClasses');
+    expect(headingTypography).toContain('[&_h1]:font-inter');
+    expect(headingTypography).toContain('[&_h2]:font-inter');
+    expect(headingTypography).toContain('[&_h3]:font-inter');
+    expect(headingTypography).toContain('[&_h4]:font-inter');
+    expect(headingTypography).toContain('[&_h1]:font-black');
+    expect(headingTypography).toContain('[&_h2]:font-black');
+    expect(headingTypography).toContain('[&_h3]:font-black');
+    expect(headingTypography).toContain('[&_h4]:font-black');
 
     expect(prose).toContain('prose-headings:font-inter');
     expect(prose).toContain('prose-headings:font-black');

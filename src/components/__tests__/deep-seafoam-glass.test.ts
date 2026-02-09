@@ -314,12 +314,12 @@ describe('Requested polish adjustments', () => {
   });
 
   it('accounts for sticky header offset in story and project hash scrolling', async () => {
-    const homeLib = await read('src/lib/home.ts');
+    const storyNavigation = await read('src/lib/home/storyNavigation.ts');
     const projectCarouselRuntime = await read(
       'src/lib/projectCarouselRuntime.ts',
     );
 
-    expect(homeLib).toContain('getHeaderHeight() + 24 + marginTop');
+    expect(storyNavigation).toContain('getHeaderHeight() + 24 + marginTop');
     expect(projectCarouselRuntime).toContain('scrollCarouselIntoView');
     expect(projectCarouselRuntime).toContain('siteHeader.offsetHeight');
   });
@@ -337,19 +337,19 @@ describe('Smart scroll offset hardening', () => {
   });
 
   it('applies a final corrective alignment pass after home smooth-scroll jumps', async () => {
-    const homeLib = await read('src/lib/home.ts');
+    const storyNavigation = await read('src/lib/home/storyNavigation.ts');
 
-    expect(homeLib).toContain('finalizeScrollAlignment');
-    expect(homeLib).toContain("behavior: 'auto'");
+    expect(storyNavigation).toContain('finalizeScrollAlignment');
+    expect(storyNavigation).toContain("behavior: 'auto'");
   });
 
   it('cancels jump-lock alignment immediately on manual scroll intent', async () => {
-    const homeLib = await read('src/lib/home.ts');
+    const storyNavigation = await read('src/lib/home/storyNavigation.ts');
 
-    expect(homeLib).toContain('cancelActiveScrollLock');
-    expect(homeLib).toContain("window.addEventListener('wheel'");
-    expect(homeLib).toContain("window.addEventListener('touchmove'");
-    expect(homeLib).toContain("window.addEventListener('keydown'");
+    expect(storyNavigation).toContain('cancelActiveScrollLock');
+    expect(storyNavigation).toContain("window.addEventListener('wheel'");
+    expect(storyNavigation).toContain("window.addEventListener('touchmove'");
+    expect(storyNavigation).toContain("window.addEventListener('keydown'");
   });
 
   it('applies a final corrective alignment pass after project hash jumps', async () => {
