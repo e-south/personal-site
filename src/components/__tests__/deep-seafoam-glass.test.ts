@@ -318,10 +318,17 @@ describe('Requested polish adjustments', () => {
     const projectCarouselRuntime = await read(
       'src/lib/projectCarouselRuntime.ts',
     );
+    const stickyHeaderOffset = await read(
+      'src/lib/layout/stickyHeaderOffset.ts',
+    );
 
-    expect(storyNavigation).toContain('getHeaderHeight() + 24 + marginTop');
+    expect(storyNavigation).toContain('getStickyHeaderOffset({');
+    expect(storyNavigation).toContain('baseOffsetPx: 24 + marginTop');
     expect(projectCarouselRuntime).toContain('scrollCarouselIntoView');
-    expect(projectCarouselRuntime).toContain('siteHeader.offsetHeight');
+    expect(projectCarouselRuntime).toContain('getStickyHeaderOffset({');
+    expect(stickyHeaderOffset).toContain(
+      'export const getStickyHeaderOffset =',
+    );
   });
 });
 

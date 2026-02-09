@@ -10,12 +10,12 @@ Module Author(s): Eric J. South
 */
 
 export const headingTypographyClasses = {
-  '[&_h1]:font-inter': true,
-  '[&_h2]:font-inter': true,
-  '[&_h3]:font-inter': true,
-  '[&_h4]:font-inter': true,
-  '[&_h5]:font-inter': true,
-  '[&_h6]:font-inter': true,
+  '[&_h1]:font-sans': true,
+  '[&_h2]:font-sans': true,
+  '[&_h3]:font-sans': true,
+  '[&_h4]:font-sans': true,
+  '[&_h5]:font-sans': true,
+  '[&_h6]:font-sans': true,
   '[&_h1]:font-black': true,
   '[&_h2]:font-black': true,
   '[&_h3]:font-black': true,

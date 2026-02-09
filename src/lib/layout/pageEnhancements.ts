@@ -9,6 +9,11 @@ Module Author(s): Eric J. South
 --------------------------------------------------------------------------------
 */
 
+import {
+  getStickyHeader,
+  getStickyHeaderOffset,
+} from '@/lib/layout/stickyHeaderOffset';
+
 type LayoutWindow = Window & {
   __layoutEnhancementsBound?: boolean;
 };
@@ -33,10 +38,11 @@ export const bindLayoutEnhancements = () => {
   };
 
   const setScrollOffsetToken = () => {
-    const header = document.querySelector('header');
-    const headerHeight =
-      header instanceof HTMLElement ? header.offsetHeight : 0;
-    const offset = Math.max(56, Math.round(headerHeight + 24));
+    const offset = getStickyHeaderOffset({
+      header: getStickyHeader(),
+      baseOffsetPx: 24,
+      minOffsetPx: 56,
+    });
     document.documentElement.style.setProperty(
       '--site-scroll-offset',
       `${offset}px`,
@@ -68,7 +74,7 @@ export const bindLayoutEnhancements = () => {
       return;
     }
 
-    const header = document.querySelector('header');
+    const header = getStickyHeader();
     if (!(header instanceof HTMLElement)) {
       return;
     }

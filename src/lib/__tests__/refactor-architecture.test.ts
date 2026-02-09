@@ -94,6 +94,42 @@ describe('layout enhancement modularization', () => {
     );
   });
 
+  it('shares sticky-header offset helpers across layout and scroll runtimes', async () => {
+    const enhancements = await read('src/lib/layout/pageEnhancements.ts');
+    const storyNavigation = await read('src/lib/home/storyNavigation.ts');
+    const projectCarouselRuntime = await read(
+      'src/lib/projectCarouselRuntime.ts',
+    );
+    const stickyHeaderOffset = await read(
+      'src/lib/layout/stickyHeaderOffset.ts',
+    );
+
+    expect(stickyHeaderOffset).toContain(
+      'export const getStickyHeader = () =>',
+    );
+    expect(stickyHeaderOffset).toContain(
+      'export const getStickyHeaderOffset = (',
+    );
+    expect(stickyHeaderOffset).toContain('export const getScrollMarginTop = (');
+
+    expect(enhancements).toContain("from '@/lib/layout/stickyHeaderOffset';");
+    expect(enhancements).toContain('getStickyHeader');
+    expect(enhancements).toContain('getStickyHeaderOffset');
+
+    expect(storyNavigation).toContain(
+      "from '@/lib/layout/stickyHeaderOffset';",
+    );
+    expect(storyNavigation).toContain('getScrollMarginTop');
+    expect(storyNavigation).toContain('getStickyHeader');
+    expect(storyNavigation).toContain('getStickyHeaderOffset');
+
+    expect(projectCarouselRuntime).toContain(
+      "from '@/lib/layout/stickyHeaderOffset';",
+    );
+    expect(projectCarouselRuntime).toContain('getStickyHeader');
+    expect(projectCarouselRuntime).toContain('getStickyHeaderOffset');
+  });
+
   it('uses a dedicated helper for layout heading typography classes', async () => {
     const layout = await read('src/layouts/Layout.astro');
     const headingTypography = await read('src/lib/layout/headingTypography.ts');
@@ -105,7 +141,7 @@ describe('layout enhancement modularization', () => {
     expect(headingTypography).toContain(
       'export const headingTypographyClasses',
     );
-    expect(headingTypography).toContain('[&_h1]:font-inter');
+    expect(headingTypography).toContain('[&_h1]:font-sans');
     expect(headingTypography).toContain('[&_h6]:tracking-tight');
   });
 });

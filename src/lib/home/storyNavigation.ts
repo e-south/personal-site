@@ -9,6 +9,12 @@ Module Author(s): Eric J. South
 --------------------------------------------------------------------------------
 */
 
+import {
+  getScrollMarginTop,
+  getStickyHeader,
+  getStickyHeaderOffset,
+} from '@/lib/layout/stickyHeaderOffset';
+
 type StoryNavigationOptions = {
   prefersReducedMotion: () => boolean;
   getScrollBehavior: () => 'auto' | 'smooth';
@@ -38,7 +44,7 @@ export const initStoryNavigation = ({
     throw new Error('Story chapter id is missing.');
   }
 
-  const header = document.querySelector('header');
+  const header = getStickyHeader();
 
   const cleanup: Array<() => void> = [];
   const addCleanup = (fn: () => void) => cleanup.push(fn);
@@ -60,14 +66,11 @@ export const initStoryNavigation = ({
     }
   };
 
-  const getHeaderHeight = () => {
-    if (!(header instanceof HTMLElement)) {
-      return 0;
-    }
-    return header.offsetHeight;
-  };
-
-  const getSnapOffset = () => getHeaderHeight() + 24;
+  const getSnapOffset = () =>
+    getStickyHeaderOffset({
+      header,
+      baseOffsetPx: 24,
+    });
 
   const isHeroVisible = () => {
     const topGuard = getSnapOffset();
@@ -96,12 +99,11 @@ export const initStoryNavigation = ({
   };
 
   const getScrollOffset = (target: HTMLElement) => {
-    const style = window.getComputedStyle(target);
-    const marginTop = Number.parseFloat(style.scrollMarginTop || '0');
-    if (!Number.isFinite(marginTop)) {
-      return getHeaderHeight() + 24;
-    }
-    return getHeaderHeight() + 24 + marginTop;
+    const marginTop = getScrollMarginTop(target);
+    return getStickyHeaderOffset({
+      header,
+      baseOffsetPx: 24 + marginTop,
+    });
   };
 
   const getTargetScrollTop = (target: HTMLElement, offset: number) => {

@@ -21,6 +21,10 @@ import {
   wrapCarouselIndex,
   type CarouselIndexTransitionResult,
 } from '@/lib/projectCarouselTransitions';
+import {
+  getStickyHeader,
+  getStickyHeaderOffset,
+} from '@/lib/layout/stickyHeaderOffset';
 
 const initProjectCarousel = () => {
   const carousel = document.querySelector('[data-project-carousel]');
@@ -616,9 +620,10 @@ const initProjectCarousel = () => {
   };
 
   const getCarouselTargetTop = () => {
-    const siteHeader = document.querySelector('header');
-    const headerOffset =
-      siteHeader instanceof HTMLElement ? siteHeader.offsetHeight + 20 : 20;
+    const headerOffset = getStickyHeaderOffset({
+      header: getStickyHeader(),
+      baseOffsetPx: 20,
+    });
     return Math.max(
       0,
       Math.round(
