@@ -25,17 +25,22 @@ describe('Typography policy contract', () => {
     expect(layout).toContain("import '@fontsource-variable/manrope';");
     expect(layout).toContain("import '@fontsource-variable/source-serif-4';");
     expect(layout).toContain("import '@fontsource-variable/inter';");
+    expect(layout).toContain("import '@fontsource-variable/geist';");
     expect(layout).not.toContain("import '@fontsource-variable/fraunces';");
     expect(layout).not.toContain(
       "import '@fontsource-variable/jetbrains-mono';",
     );
 
     expect(packageJson).toContain('"@fontsource-variable/inter"');
+    expect(packageJson).toContain('"@fontsource-variable/geist"');
     expect(packageJson).not.toContain('"@fontsource-variable/fraunces"');
     expect(packageJson).not.toContain('"@fontsource-variable/jetbrains-mono"');
 
     expect(tailwind).toContain(
       "sans: ['Manrope Variable', 'system-ui', 'sans-serif']",
+    );
+    expect(tailwind).toContain(
+      "header: ['Geist Variable', 'system-ui', 'sans-serif']",
     );
     expect(tailwind).toContain(
       "inter: ['Inter Variable', 'system-ui', 'sans-serif']",
@@ -57,20 +62,20 @@ describe('Typography policy contract', () => {
     const prose = await read('src/components/ui/Prose.astro');
 
     expect(layout).toContain('headingTypographyClasses');
-    expect(headingTypography).toContain('[&_h1]:font-sans');
-    expect(headingTypography).toContain('[&_h2]:font-sans');
-    expect(headingTypography).toContain('[&_h3]:font-sans');
-    expect(headingTypography).toContain('[&_h4]:font-sans');
+    expect(headingTypography).toContain('[&_h1]:font-header');
+    expect(headingTypography).toContain('[&_h2]:font-header');
+    expect(headingTypography).toContain('[&_h3]:font-header');
+    expect(headingTypography).toContain('[&_h4]:font-header');
     expect(headingTypography).toContain('[&_h1]:font-black');
     expect(headingTypography).toContain('[&_h2]:font-black');
     expect(headingTypography).toContain('[&_h3]:font-black');
     expect(headingTypography).toContain('[&_h4]:font-black');
 
-    expect(prose).toContain('prose-headings:font-sans');
+    expect(prose).toContain('prose-headings:font-header');
     expect(prose).toContain('prose-headings:font-black');
 
-    expect(navLink).toContain('font-sans');
+    expect(navLink).toContain('font-header');
     expect(navLink).toContain('font-black');
-    expect(navbar).toContain('font-sans text-lg');
+    expect(navbar).toContain('font-header text-lg');
   });
 });

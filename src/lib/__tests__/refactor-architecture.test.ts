@@ -141,7 +141,7 @@ describe('layout enhancement modularization', () => {
     expect(headingTypography).toContain(
       'export const headingTypographyClasses',
     );
-    expect(headingTypography).toContain('[&_h1]:font-sans');
+    expect(headingTypography).toContain('[&_h1]:font-header');
     expect(headingTypography).toContain('[&_h6]:tracking-tight');
   });
 });
@@ -207,6 +207,34 @@ describe('project carousel helper extraction', () => {
     expect(runtime).toContain(
       "import { parseRequiredCarouselIndex } from '@/lib/projectCarouselTransitions';",
     );
+  });
+
+  it('uses extracted quick-scroll motion helpers for carousel and window movement', async () => {
+    const runtime = await read('src/lib/projectCarouselRuntime.ts');
+    const motion = await read('src/lib/projectCarouselMotion.ts');
+
+    expect(runtime).toContain("from '@/lib/projectCarouselMotion';");
+    expect(runtime).toContain('runQuickTrackScroll');
+    expect(runtime).toContain('runQuickWindowScroll');
+    expect(runtime).toContain('runQuickTrackScroll({');
+    expect(runtime).toContain('runQuickWindowScroll({');
+
+    expect(motion).toContain('export const runQuickTrackScroll = (');
+    expect(motion).toContain('export const runQuickWindowScroll = (');
+  });
+
+  it('uses extracted hash helpers for project panel hash parsing and updates', async () => {
+    const runtime = await read('src/lib/projectCarouselRuntime.ts');
+    const hashHelpers = await read('src/lib/projectCarouselHash.ts');
+
+    expect(runtime).toContain("from '@/lib/projectCarouselHash';");
+    expect(runtime).toContain('getPanelIdFromHash');
+    expect(runtime).toContain('getPanelIdFromHref');
+    expect(runtime).toContain('updateHashForPanelId');
+
+    expect(hashHelpers).toContain('export const getPanelIdFromHash = (');
+    expect(hashHelpers).toContain('export const getPanelIdFromHref = (');
+    expect(hashHelpers).toContain('export const updateHashForPanelId = (');
   });
 
   it('extracts project carousel runtime module', async () => {

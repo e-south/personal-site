@@ -22,9 +22,18 @@ import {
   type CarouselIndexTransitionResult,
 } from '@/lib/projectCarouselTransitions';
 import {
+  getPanelIdFromHash,
+  getPanelIdFromHref,
+  updateHashForPanelId,
+} from '@/lib/projectCarouselHash';
+import {
   getStickyHeader,
   getStickyHeaderOffset,
 } from '@/lib/layout/stickyHeaderOffset';
+import {
+  runQuickTrackScroll,
+  runQuickWindowScroll,
+} from '@/lib/projectCarouselMotion';
 
 const initProjectCarousel = () => {
   const carousel = document.querySelector('[data-project-carousel]');
@@ -269,65 +278,33 @@ const initProjectCarousel = () => {
     targetLeft: number,
     onComplete: (() => void) | null = null,
   ) => {
-    stopTrackQuickScroll();
-    const startLeft = track.scrollLeft;
-    const distance = targetLeft - startLeft;
-    if (Math.abs(distance) < 1) {
-      track.scrollLeft = targetLeft;
-      if (typeof onComplete === 'function') {
-        onComplete();
-      }
-      return;
-    }
-    const startedAt = performance.now();
-    const step = (now: number) => {
-      const progress = Math.min(
-        1,
-        (now - startedAt) / QUICK_SCROLL_DURATION_MS,
-      );
-      const eased = easeOutCubic(progress);
-      track.scrollLeft = startLeft + distance * eased;
-      if (progress < 1) {
-        trackQuickScrollFrame = window.requestAnimationFrame(step);
-        return;
-      }
-      trackQuickScrollFrame = null;
-      if (typeof onComplete === 'function') {
-        onComplete();
-      }
-    };
-    trackQuickScrollFrame = window.requestAnimationFrame(step);
+    runQuickTrackScroll({
+      track,
+      targetLeft,
+      durationMs: QUICK_SCROLL_DURATION_MS,
+      ease: easeOutCubic,
+      frameStore: {
+        read: () => trackQuickScrollFrame,
+        write: (frameId) => {
+          trackQuickScrollFrame = frameId;
+        },
+      },
+      onComplete,
+    });
   };
 
   const quickScrollWindowTo = (targetTop: number) => {
-    stopWindowQuickScroll();
-    const startTop = window.scrollY;
-    const distance = targetTop - startTop;
-    if (Math.abs(distance) < 1) {
-      window.scrollTo({
-        top: targetTop,
-        behavior: 'auto',
-      });
-      return;
-    }
-    const startedAt = performance.now();
-    const step = (now: number) => {
-      const progress = Math.min(
-        1,
-        (now - startedAt) / QUICK_SCROLL_DURATION_MS,
-      );
-      const eased = easeOutCubic(progress);
-      window.scrollTo({
-        top: startTop + distance * eased,
-        behavior: 'auto',
-      });
-      if (progress < 1) {
-        windowQuickScrollFrame = window.requestAnimationFrame(step);
-        return;
-      }
-      windowQuickScrollFrame = null;
-    };
-    windowQuickScrollFrame = window.requestAnimationFrame(step);
+    runQuickWindowScroll({
+      targetTop,
+      durationMs: QUICK_SCROLL_DURATION_MS,
+      ease: easeOutCubic,
+      frameStore: {
+        read: () => windowQuickScrollFrame,
+        write: (frameId) => {
+          windowQuickScrollFrame = frameId;
+        },
+      },
+    });
   };
   const setActiveIndex = (
     nextIndex: number,
@@ -694,11 +671,10 @@ const initProjectCarousel = () => {
   };
 
   const handleHashNavigation = (useQuickMotion = true) => {
-    const hash = window.location.hash;
-    if (!hash || hash.length < 2) {
+    const panelId = getPanelIdFromHash(window.location.hash);
+    if (!panelId) {
       return;
     }
-    const panelId = decodeURIComponent(hash.slice(1));
     navigateToPanelId(panelId, useQuickMotion);
   };
 
@@ -738,10 +714,7 @@ const initProjectCarousel = () => {
   cardJumpLinks.forEach((link) => {
     const handleCardJump = (event: MouseEvent) => {
       const href = link.getAttribute('href') ?? '';
-      if (!href.startsWith('#')) {
-        return;
-      }
-      const panelId = decodeURIComponent(href.slice(1));
+      const panelId = getPanelIdFromHref(href);
       if (!panelId) {
         return;
       }
@@ -749,12 +722,16 @@ const initProjectCarousel = () => {
       if (!navigateToPanelId(panelId, true)) {
         return;
       }
-      const nextHash = `#${panelId}`;
-      if (window.location.hash === nextHash) {
-        history.replaceState(null, '', nextHash);
-        return;
-      }
-      history.pushState(null, '', nextHash);
+      updateHashForPanelId({
+        panelId,
+        currentHash: window.location.hash,
+        replaceHash: (nextHash) => {
+          history.replaceState(null, '', nextHash);
+        },
+        pushHash: (nextHash) => {
+          history.pushState(null, '', nextHash);
+        },
+      });
     };
     link.addEventListener('click', handleCardJump);
     cardJumpCleanup.push(() => {
