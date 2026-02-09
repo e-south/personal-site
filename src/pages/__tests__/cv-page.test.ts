@@ -23,4 +23,12 @@ describe('cv page', () => {
     expect(contents).not.toContain('Text version');
     expect(contents).not.toContain('<Content />');
   });
+
+  it('uses shared date formatting helper for updated-date copy', async () => {
+    const filePath = path.resolve(process.cwd(), 'src/pages/cv.astro');
+    const contents = await readFile(filePath, 'utf-8');
+
+    expect(contents).toContain('formatLongDate(');
+    expect(contents).not.toContain("toLocaleDateString('en-US'");
+  });
 });

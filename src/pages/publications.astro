@@ -5,6 +5,8 @@ import { getEntry } from 'astro:content';
 import { getNavigation } from '@/data/navigation';
 import PillLink from '@/components/ui/PillLink.astro';
 import { requireEntry } from '@/lib/require';
+import { profile } from '@/settings';
+import { isHighlightedAuthor, parseAuthor } from '@/lib/utils';
 
 const featuredPapers = await getFeaturedPapers(4);
 const publicationsEntry = requireEntry(
@@ -22,13 +24,6 @@ const scholarLink = navigation.external.find((link) => link.icon === 'scholar');
 if (!scholarLink) {
   throw new Error('Scholar link is missing from navigation.');
 }
-
-const authorName = 'Eric J. South';
-const normalizeAuthor = (author: string) => {
-  const hasAsterisk = author.includes('*');
-  const name = author.replace(/\*/g, '').trim();
-  return { name, hasAsterisk };
-};
 ---
 
 <Layout title={title}>
@@ -54,9 +49,12 @@ const normalizeAuthor = (author: string) => {
                 <h3 class="text-xl font-semibold">{paper.title}</h3>
                 <p class="text-sm text-base-content/70">
                   {paper.authors.map((author, index) => {
-                    const { name, hasAsterisk } = normalizeAuthor(author);
+                    const { name, hasAsterisk } = parseAuthor(author);
                     const displayName = `${name}${hasAsterisk ? '*' : ''}`;
-                    const isSelf = name === authorName;
+                    const isSelf = isHighlightedAuthor(
+                      author,
+                      profile.authorName,
+                    );
                     return (
                       <span>
                         {isSelf ? <strong>{displayName}</strong> : displayName}

@@ -6,16 +6,11 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import PillLink from '@/components/ui/PillLink.astro';
 import { requireEntry } from '@/lib/require';
+import { formatLongDate } from '@/lib/dates';
 
 const cvEntry = requireEntry(await getEntry('cv', 'cv'), 'cv/cv');
 const pageEntry = requireEntry(await getEntry('page-cv', 'cv'), 'page-cv/cv');
-const updated =
-  cvEntry.data.updated &&
-  cvEntry.data.updated.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+const updated = cvEntry.data.updated && formatLongDate(cvEntry.data.updated);
 const pageData = pageEntry.data;
 const title = pageData.title;
 const intro = pageData.intro;
