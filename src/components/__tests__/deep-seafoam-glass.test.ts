@@ -19,6 +19,7 @@ const read = async (relativePath: string) =>
 describe('Deep Seafoam Glass theme contract', () => {
   it('defines global seafoam tokens, glass utilities, focus rings, and progressive reveals', async () => {
     const contents = await read('src/layouts/Layout.astro');
+    const enhancements = await read('src/lib/layout/pageEnhancements.ts');
 
     expect(contents).toContain('--site-radius-control: 14px;');
     expect(contents).toContain('--site-glass-blur: 10px;');
@@ -27,8 +28,9 @@ describe('Deep Seafoam Glass theme contract', () => {
     expect(contents).toContain('[data-reveal]');
     expect(contents).toContain('js-enhanced');
     expect(contents).toContain("data-reveal-ready='true'");
-    expect(contents).toContain('IntersectionObserver');
-    expect(contents).toContain('(prefers-reduced-motion: reduce)');
+    expect(contents).toContain('bindLayoutEnhancements();');
+    expect(enhancements).toContain('IntersectionObserver');
+    expect(enhancements).toContain('(prefers-reduced-motion: reduce)');
   });
 
   it('uses deterministic accent styles instead of hashed hues', async () => {
@@ -324,11 +326,12 @@ describe('Requested polish adjustments', () => {
 describe('Smart scroll offset hardening', () => {
   it('defines and updates a global scroll offset token from sticky header height', async () => {
     const layout = await read('src/layouts/Layout.astro');
+    const enhancements = await read('src/lib/layout/pageEnhancements.ts');
 
     expect(layout).toContain('--site-scroll-offset');
     expect(layout).toContain('scroll-padding-top: var(--site-scroll-offset);');
-    expect(layout).toContain('ResizeObserver');
-    expect(layout).toContain('setScrollOffsetToken');
+    expect(enhancements).toContain('ResizeObserver');
+    expect(enhancements).toContain('setScrollOffsetToken');
   });
 
   it('applies a final corrective alignment pass after home smooth-scroll jumps', async () => {

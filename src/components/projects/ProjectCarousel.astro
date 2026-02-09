@@ -134,7 +134,13 @@ const projectMeta = projects.map((project) => {
   <ProjectCarouselNav projects={projectMeta} position="bottom" />
 </section>
 
-<script type="module" is:inline data-astro-rerun>
+<script>
+  import { getTrackMaxScrollLeftFromTrack } from '@/lib/projectCarousel';
+  import {
+    getPanelTargetLeft as getPanelTargetLeftFromGeometry,
+    getTrackScrollPaddingInlineStart as getTrackScrollPaddingInlineStartFromTrack,
+  } from '@/lib/projectCarousel';
+
   const initProjectCarousel = () => {
     const carousel = document.querySelector('[data-project-carousel]');
     if (!(carousel instanceof HTMLElement)) {
@@ -153,7 +159,7 @@ const projectMeta = projects.map((project) => {
 
     const panels = Array.from(
       track.querySelectorAll('[data-carousel-panel]'),
-    ).filter((panel) => panel instanceof HTMLElement);
+    ).filter((panel): panel is HTMLElement => panel instanceof HTMLElement);
 
     if (panels.length === 0) {
       throw new Error('[projects-carousel] No panels found.');
@@ -161,7 +167,9 @@ const projectMeta = projects.map((project) => {
 
     const dots = Array.from(
       carousel.querySelectorAll('[data-carousel-dot]'),
-    ).filter((dot) => dot instanceof HTMLButtonElement);
+    ).filter(
+      (dot): dot is HTMLButtonElement => dot instanceof HTMLButtonElement,
+    );
 
     if (dots.length === 0 || dots.length % panels.length !== 0) {
       throw new Error(
@@ -171,14 +179,22 @@ const projectMeta = projects.map((project) => {
 
     const prevButtons = Array.from(
       carousel.querySelectorAll('[data-carousel-prev]'),
-    ).filter((button) => button instanceof HTMLButtonElement);
+    ).filter(
+      (button): button is HTMLButtonElement =>
+        button instanceof HTMLButtonElement,
+    );
 
     const nextButtons = Array.from(
       carousel.querySelectorAll('[data-carousel-next]'),
-    ).filter((button) => button instanceof HTMLButtonElement);
+    ).filter(
+      (button): button is HTMLButtonElement =>
+        button instanceof HTMLButtonElement,
+    );
     const cardJumpLinks = Array.from(
       document.querySelectorAll('[data-project-card-jump]'),
-    ).filter((link) => link instanceof HTMLAnchorElement);
+    ).filter(
+      (link): link is HTMLAnchorElement => link instanceof HTMLAnchorElement,
+    );
 
     const prefersReducedMotion = window.matchMedia(
       '(prefers-reduced-motion: reduce)',
@@ -187,19 +203,19 @@ const projectMeta = projects.map((project) => {
     const total = panels.length;
     const HEIGHT_SYNC_INTERSECTION_RATIO = 0.72;
     let activeIndex = -1;
-    let verticalCorrectionTimer = null;
-    let trackQuickScrollFrame = null;
-    let windowQuickScrollFrame = null;
-    let trackHeightSyncFrame = null;
-    let activePanelResizeObserver = null;
-    let pendingPreScrollTimer = null;
-    let pendingIndexFinalizeTimer = null;
-    let pendingLongJumpSwapTimer = null;
-    let pendingLongJumpReleaseTimer = null;
-    let programmaticTargetIndex = null;
+    let verticalCorrectionTimer: number | null = null;
+    let trackQuickScrollFrame: number | null = null;
+    let windowQuickScrollFrame: number | null = null;
+    let trackHeightSyncFrame: number | null = null;
+    let activePanelResizeObserver: ResizeObserver | null = null;
+    let pendingPreScrollTimer: number | null = null;
+    let pendingIndexFinalizeTimer: number | null = null;
+    let pendingLongJumpSwapTimer: number | null = null;
+    let pendingLongJumpReleaseTimer: number | null = null;
+    let programmaticTargetIndex: number | null = null;
     let isProgrammaticTransition = false;
     const panelVisibilityRatios = panels.map(() => 0);
-    const panelIndexById = new Map();
+    const panelIndexById = new Map<string, number>();
     panels.forEach((panel, index) => {
       panelIndexById.set(panel.id, index);
     });
@@ -223,11 +239,25 @@ const projectMeta = projects.map((project) => {
       'End',
       ' ',
     ]);
+    type ActiveIndexOptions = {
+      syncHeight?: boolean;
+      observeHeight?: boolean;
+      force?: boolean;
+    };
+    type TransitionMode = 'near' | 'long' | 'wrap';
+    type IndexTransitionResult = 'same' | TransitionMode;
+    type HeightTransitionPlan = {
+      wrappedTargetIndex: number;
+      targetHeight: number;
+      preExpandBeforeScroll: boolean;
+      postContractAfterScroll: boolean;
+      preExpandDurationMs: number;
+    };
 
-    const wrapIndex = (index) => ((index % total) + total) % total;
+    const wrapIndex = (index: number) => ((index % total) + total) % total;
     const getBehavior = () =>
       prefersReducedMotion.matches ? 'auto' : 'smooth';
-    const easeOutCubic = (value) => 1 - (1 - value) ** 3;
+    const easeOutCubic = (value: number) => 1 - (1 - value) ** 3;
     track.style.setProperty(
       '--project-carousel-height-transition-ms',
       `${transitionPolicy.heightTransitionMs}ms`,
@@ -236,7 +266,7 @@ const projectMeta = projects.map((project) => {
       '--project-carousel-swap-transition-ms',
       `${LONG_JUMP_FADE_IN_MS}ms`,
     );
-    const setProgrammaticTargetIndex = (nextIndex) => {
+    const setProgrammaticTargetIndex = (nextIndex: number) => {
       programmaticTargetIndex = wrapIndex(nextIndex);
     };
     const clearProgrammaticTargetIndex = () => {
@@ -309,14 +339,16 @@ const projectMeta = projects.map((project) => {
       clearPendingLongJumpSwapTimer();
       clearPendingLongJumpReleaseTimer();
     };
-    const setProgrammaticTrackState = (active) => {
+    /** @param {boolean} active */
+    const setProgrammaticTrackState = (active: boolean) => {
       track.classList.toggle('project-carousel-track--programmatic', active);
     };
     const clearLongJumpVisualState = () => {
       track.classList.remove('project-carousel-track--soft-swap');
     };
 
-    const getPanelHeight = (panel) => {
+    /** @param {HTMLElement} panel */
+    const getPanelHeight = (panel: HTMLElement) => {
       const height = panel.getBoundingClientRect().height;
       if (!Number.isFinite(height) || height <= 0) {
         return 1;
@@ -363,7 +395,14 @@ const projectMeta = projects.map((project) => {
       activePanelResizeObserver.observe(panel);
     };
 
-    const quickScrollTrackTo = (targetLeft, onComplete = null) => {
+    /**
+     * @param {number} targetLeft
+     * @param {(() => void) | null} [onComplete]
+     */
+    const quickScrollTrackTo = (
+      targetLeft: number,
+      onComplete: (() => void) | null = null,
+    ) => {
       stopTrackQuickScroll();
       const startLeft = track.scrollLeft;
       const distance = targetLeft - startLeft;
@@ -375,7 +414,8 @@ const projectMeta = projects.map((project) => {
         return;
       }
       const startedAt = performance.now();
-      const step = (now) => {
+      /** @param {number} now */
+      const step = (now: number) => {
         const progress = Math.min(
           1,
           (now - startedAt) / QUICK_SCROLL_DURATION_MS,
@@ -394,7 +434,8 @@ const projectMeta = projects.map((project) => {
       trackQuickScrollFrame = window.requestAnimationFrame(step);
     };
 
-    const quickScrollWindowTo = (targetTop) => {
+    /** @param {number} targetTop */
+    const quickScrollWindowTo = (targetTop: number) => {
       stopWindowQuickScroll();
       const startTop = window.scrollY;
       const distance = targetTop - startTop;
@@ -406,7 +447,8 @@ const projectMeta = projects.map((project) => {
         return;
       }
       const startedAt = performance.now();
-      const step = (now) => {
+      /** @param {number} now */
+      const step = (now: number) => {
         const progress = Math.min(
           1,
           (now - startedAt) / QUICK_SCROLL_DURATION_MS,
@@ -425,9 +467,17 @@ const projectMeta = projects.map((project) => {
       windowQuickScrollFrame = window.requestAnimationFrame(step);
     };
 
+    /**
+     * @param {number} nextIndex
+     * @param {{ syncHeight?: boolean; observeHeight?: boolean; force?: boolean }} [options]
+     */
     const setActiveIndex = (
-      nextIndex,
-      { syncHeight = true, observeHeight = true, force = false } = {},
+      nextIndex: number,
+      {
+        syncHeight = true,
+        observeHeight = true,
+        force = false,
+      }: ActiveIndexOptions = {},
     ) => {
       const wrappedActiveIndex = wrapIndex(nextIndex);
       if (wrappedActiveIndex === activeIndex) {
@@ -461,28 +511,24 @@ const projectMeta = projects.map((project) => {
       }
     };
 
-    const getTrackMaxScrollLeft = () =>
-      Math.max(0, track.scrollWidth - track.clientWidth);
-    const clampTrackScrollLeft = (value) =>
+    const getTrackMaxScrollLeft = () => getTrackMaxScrollLeftFromTrack(track);
+    /** @param {number} value */
+    const clampTrackScrollLeft = (value: number) =>
       Math.min(getTrackMaxScrollLeft(), Math.max(0, value));
-    const getTrackScrollPaddingInlineStart = () => {
-      const styles = window.getComputedStyle(track);
-      const rawValue =
-        styles.scrollPaddingInlineStart || styles.scrollPaddingLeft || '0';
-      const parsedValue = Number.parseFloat(rawValue);
-      return Number.isFinite(parsedValue) ? parsedValue : 0;
-    };
-    const getPanelTargetLeft = (panel) => {
-      const panelLeft = panel.offsetLeft;
-      const panelWidth = panel.offsetWidth;
+    const getTrackScrollPaddingInlineStart = () =>
+      getTrackScrollPaddingInlineStartFromTrack(track);
+    /** @param {HTMLElement} panel */
+    const getPanelTargetLeft = (panel: HTMLElement) => {
       const isDesktopViewport = window.matchMedia('(min-width: 768px)').matches;
-      if (isDesktopViewport) {
-        return clampTrackScrollLeft(
-          panelLeft - getTrackScrollPaddingInlineStart(),
-        );
-      }
-      const centeredLeft = panelLeft - (track.clientWidth - panelWidth) / 2;
-      return clampTrackScrollLeft(centeredLeft);
+      const scrollPaddingInlineStart = getTrackScrollPaddingInlineStart();
+      return clampTrackScrollLeft(
+        getPanelTargetLeftFromGeometry({
+          track,
+          panel,
+          isDesktopViewport,
+          scrollPaddingInlineStart,
+        }),
+      );
     };
     const getClosestVisiblePanelIndex = () => {
       const currentLeft = track.scrollLeft;
@@ -497,7 +543,8 @@ const projectMeta = projects.map((project) => {
       });
       return closestIndex;
     };
-    const runRelativeIndexTransition = (offset) => {
+    /** @param {number} offset */
+    const runRelativeIndexTransition = (offset: number) => {
       const originIndex = getClosestVisiblePanelIndex();
       runIndexTransition(originIndex + offset, true);
     };
@@ -513,20 +560,33 @@ const projectMeta = projects.map((project) => {
       });
       return { index, ratio };
     };
-    const getJumpDistance = (fromIndex, toIndex) => {
+    /**
+     * @param {number} fromIndex
+     * @param {number} toIndex
+     */
+    const getJumpDistance = (fromIndex: number, toIndex: number) => {
       const wrappedFrom = wrapIndex(fromIndex);
       const wrappedTo = wrapIndex(toIndex);
       const rawDistance = Math.abs(wrappedTo - wrappedFrom);
       return Math.min(rawDistance, total - rawDistance);
     };
-    const getTransitionMode = (fromIndex, toIndex) => {
+    /**
+     * @param {number} fromIndex
+     * @param {number} toIndex
+     * @returns {'near' | 'long' | 'wrap'}
+     */
+    const getTransitionMode = (
+      fromIndex: number,
+      toIndex: number,
+    ): TransitionMode => {
       if (!Number.isInteger(fromIndex) || fromIndex < 0) {
         return 'near';
       }
       const jumpDistance = getJumpDistance(fromIndex, toIndex);
       return jumpDistance >= LONG_JUMP_THRESHOLD ? 'long' : 'near';
     };
-    const settleTrackOnPanel = (index) => {
+    /** @param {number} index */
+    const settleTrackOnPanel = (index: number) => {
       const wrappedIndex = wrapIndex(index);
       const panel = panels[wrappedIndex];
       if (!(panel instanceof HTMLElement)) {
@@ -545,7 +605,14 @@ const projectMeta = projects.map((project) => {
         force: true,
       });
     };
-    const releaseProgrammaticTrackLock = (index, onComplete = null) => {
+    /**
+     * @param {number} index
+     * @param {(() => void) | null} [onComplete]
+     */
+    const releaseProgrammaticTrackLock = (
+      index: number,
+      onComplete: (() => void) | null = null,
+    ) => {
       settleTrackOnPanel(index);
       window.requestAnimationFrame(() => {
         window.requestAnimationFrame(() => {
@@ -559,10 +626,15 @@ const projectMeta = projects.map((project) => {
       });
     };
 
+    /**
+     * @param {number} nextIndex
+     * @param {boolean} [useQuickMotion]
+     * @param {(() => void) | null} [onComplete]
+     */
     const executeIndexScroll = (
-      nextIndex,
+      nextIndex: number,
       useQuickMotion = false,
-      onComplete = null,
+      onComplete: (() => void) | null = null,
     ) => {
       const wrapped = wrapIndex(nextIndex);
       const panel = panels[wrapped];
@@ -598,7 +670,14 @@ const projectMeta = projects.map((project) => {
       }, QUICK_SCROLL_DURATION_MS);
     };
 
-    const runLongJumpTransition = (targetIndex, targetHeight) => {
+    /**
+     * @param {number} targetIndex
+     * @param {number} targetHeight
+     */
+    const runLongJumpTransition = (
+      targetIndex: number,
+      targetHeight: number,
+    ) => {
       disconnectActivePanelResizeObserver();
       stopTrackHeightSync();
       stopTrackQuickScroll();
@@ -637,10 +716,14 @@ const projectMeta = projects.map((project) => {
       }, LONG_JUMP_FADE_OUT_MS);
     };
 
+    /**
+     * @param {number} targetIndex
+     * @param {number} [currentIndex]
+     */
     const createHeightTransitionPlan = (
-      targetIndex,
-      currentIndex = activeIndex,
-    ) => {
+      targetIndex: number,
+      currentIndex: number = activeIndex,
+    ): HeightTransitionPlan => {
       const wrappedTargetIndex = wrapIndex(targetIndex);
       const wrappedCurrentIndex = wrapIndex(currentIndex);
       const currentPanel = panels[wrappedCurrentIndex];
@@ -668,7 +751,15 @@ const projectMeta = projects.map((project) => {
       };
     };
 
-    const runIndexTransition = (targetIndex, useQuickMotion = false) => {
+    /**
+     * @param {number} targetIndex
+     * @param {boolean} [useQuickMotion]
+     * @returns {'same' | 'near' | 'long' | 'wrap'}
+     */
+    const runIndexTransition = (
+      targetIndex: number,
+      useQuickMotion = false,
+    ): IndexTransitionResult => {
       clearPendingTransitionTimers();
       stopQuickScrolls();
       stopNativeSmoothScroll();
@@ -719,12 +810,19 @@ const projectMeta = projects.map((project) => {
       return transitionMode;
     };
 
-    const scrollToPanelId = (panelId, useQuickMotion = false) => {
-      const index = panelIndexById.get(panelId);
-      if (!Number.isInteger(index)) {
+    /**
+     * @param {string} panelId
+     * @param {boolean} [useQuickMotion]
+     */
+    const scrollToPanelId = (
+      panelId: string,
+      useQuickMotion = false,
+    ): IndexTransitionResult | false => {
+      const mappedIndex = panelIndexById.get(panelId);
+      if (typeof mappedIndex !== 'number' || !Number.isInteger(mappedIndex)) {
         return false;
       }
-      return runIndexTransition(index, useQuickMotion);
+      return runIndexTransition(mappedIndex, useQuickMotion);
     };
 
     const getCarouselTargetTop = () => {
@@ -788,7 +886,14 @@ const projectMeta = projects.map((project) => {
       correctCarouselVerticalOffset(false);
     };
 
-    const navigateToPanelId = (panelId, useQuickMotion = false) => {
+    /**
+     * @param {string} panelId
+     * @param {boolean} [useQuickMotion]
+     */
+    const navigateToPanelId = (
+      panelId: string,
+      useQuickMotion = false,
+    ): boolean => {
       const transitionMode = scrollToPanelId(panelId, useQuickMotion);
       if (!transitionMode) {
         return false;
@@ -829,7 +934,14 @@ const projectMeta = projects.map((project) => {
       });
     });
 
-    const parseRequiredIndex = (value, errorMessage) => {
+    /**
+     * @param {string | number | undefined} value
+     * @param {string} errorMessage
+     */
+    const parseRequiredIndex = (
+      value: string | number | undefined,
+      errorMessage: string,
+    ): number => {
       const index = Number(value);
       if (!Number.isInteger(index)) {
         throw new Error(errorMessage);
@@ -846,9 +958,11 @@ const projectMeta = projects.map((project) => {
         runIndexTransition(index, true);
       });
     });
-    const cardJumpCleanup = [];
+    /** @type {Array<() => void>} */
+    const cardJumpCleanup: Array<() => void> = [];
     cardJumpLinks.forEach((link) => {
-      const handleCardJump = (event) => {
+      /** @param {MouseEvent} event */
+      const handleCardJump = (event: MouseEvent) => {
         const href = link.getAttribute('href') ?? '';
         if (!href.startsWith('#')) {
           return;
@@ -893,7 +1007,8 @@ const projectMeta = projects.map((project) => {
       }
     });
 
-    const handleCancelKeys = (event) => {
+    /** @param {KeyboardEvent} event */
+    const handleCancelKeys = (event: KeyboardEvent) => {
       if (!scrollCancelKeys.has(event.key)) {
         return;
       }
@@ -918,6 +1033,9 @@ const projectMeta = projects.map((project) => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
+          if (!(entry.target instanceof HTMLElement)) {
+            return;
+          }
           const index = parseRequiredIndex(
             entry.target.dataset.index,
             '[projects-carousel] Panel index is invalid.',
@@ -981,6 +1099,7 @@ const projectMeta = projects.map((project) => {
   };
 
   initProjectCarousel();
+  document.addEventListener('astro:page-load', initProjectCarousel);
 </script>
 
 <style>

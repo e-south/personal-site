@@ -45,7 +45,9 @@ describe('Project carousel jump behavior', () => {
       'src/components/projects/ProjectCarousel.astro',
     );
 
-    expect(projectCarousel).toContain('let programmaticTargetIndex = null;');
+    expect(projectCarousel).toContain(
+      'let programmaticTargetIndex: number | null = null;',
+    );
     expect(projectCarousel).toContain(
       'if (programmaticTargetIndex !== null) {',
     );
@@ -119,10 +121,11 @@ describe('Project carousel jump behavior', () => {
     );
 
     expect(projectCarousel).toContain(
-      'const settleTrackOnPanel = (index) => {',
+      'const settleTrackOnPanel = (index: number) => {',
     );
+    expect(projectCarousel).toContain('const releaseProgrammaticTrackLock = (');
     expect(projectCarousel).toContain(
-      'const releaseProgrammaticTrackLock = (index, onComplete = null) => {',
+      'onComplete: (() => void) | null = null,',
     );
     expect(projectCarousel).toContain('window.requestAnimationFrame(() => {');
     expect(projectCarousel).toContain('setProgrammaticTrackState(false);');
@@ -214,19 +217,23 @@ describe('Project carousel jump behavior', () => {
     const projectCarousel = await read(
       'src/components/projects/ProjectCarousel.astro',
     );
+    const carouselHelpers = await read('src/lib/projectCarousel.ts');
 
     expect(projectCarousel).toContain('const getTrackMaxScrollLeft = () =>');
+    expect(projectCarousel).toContain('getTrackMaxScrollLeftFromTrack(track)');
     expect(projectCarousel).toContain(
+      'const getTrackScrollPaddingInlineStart = () =>',
+    );
+    expect(projectCarousel).toContain(
+      'getTrackScrollPaddingInlineStartFromTrack(track)',
+    );
+    expect(projectCarousel).toContain('getPanelTargetLeftFromGeometry');
+    expect(carouselHelpers).toContain(
       'Math.max(0, track.scrollWidth - track.clientWidth);',
     );
-    expect(projectCarousel).toContain(
-      'const getTrackScrollPaddingInlineStart = () => {',
-    );
-    expect(projectCarousel).toContain('const panelLeft = panel.offsetLeft;');
-    expect(projectCarousel).toContain('const panelWidth = panel.offsetWidth;');
-    expect(projectCarousel).toContain(
-      "const isDesktopViewport = window.matchMedia('(min-width: 768px)').matches;",
-    );
+    expect(carouselHelpers).toContain('const panelLeft = panel.offsetLeft;');
+    expect(carouselHelpers).toContain('const panelWidth = panel.offsetWidth;');
+    expect(carouselHelpers).toContain('isDesktopViewport');
   });
 
   it('keeps same-target card jumps on quick vertical motion to avoid delayed secondary reposition', async () => {
@@ -260,7 +267,7 @@ describe('Project carousel jump behavior', () => {
     );
 
     expect(projectCarousel).toContain(
-      'const runRelativeIndexTransition = (offset) => {',
+      'const runRelativeIndexTransition = (offset: number) => {',
     );
     expect(projectCarousel).toContain(
       'runIndexTransition(originIndex + offset, true);',

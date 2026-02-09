@@ -56,9 +56,9 @@ describe('ProjectCarousel controls', () => {
     expect(contents).toContain('preExpandMinDeltaPx');
     expect(contents).toContain('const createHeightTransitionPlan = (');
     expect(contents).toContain('preExpandBeforeScroll');
-    expect(contents).toContain(
-      'const runIndexTransition = (targetIndex, useQuickMotion = false) => {',
-    );
+    expect(contents).toContain('const runIndexTransition = (');
+    expect(contents).toContain('targetIndex: number');
+    expect(contents).toContain('useQuickMotion = false');
     expect(contents).not.toContain("transitionIntent = 'nearest'");
     expect(contents).toContain('pendingPreScrollTimer = window.setTimeout');
   });

@@ -9,9 +9,12 @@ Module Author(s): Eric J. South
 --------------------------------------------------------------------------------
 */
 
+import { initHeroRotator } from '@/lib/home/heroRotator';
+import { initStoryVideos } from '@/lib/home/storyVideos';
+import { STORY_VIDEO_CHECK_EVENT as VIDEO_CHECK_EVENT } from '@/lib/home/storyVideos';
+
 const HERO_INTERVAL_MS = 6500;
 const HERO_FADE_MS = 450;
-const VIDEO_CHECK_EVENT = 'story:video-check';
 
 let homeCleanup: (() => void) | null = null;
 
@@ -19,203 +22,6 @@ const prefersReducedMotion = () =>
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const getScrollBehavior = () => (prefersReducedMotion() ? 'auto' : 'smooth');
-
-const initHeroRotator = () => {
-  const root = document.querySelector('[data-hero-rotator]');
-  if (!(root instanceof HTMLElement)) {
-    throw new Error('Home hero rotator root is missing.');
-  }
-
-  const img = root.querySelector('[data-hero-image]');
-  const caption = root.querySelector('[data-hero-caption]');
-  if (!(img instanceof HTMLImageElement) || !(caption instanceof HTMLElement)) {
-    throw new Error('Home hero rotator elements are missing.');
-  }
-
-  const imagesRaw = root.dataset.images;
-  if (!imagesRaw) {
-    throw new Error('Home hero rotator images are missing.');
-  }
-  let items: Array<{
-    src: string;
-    srcset: string;
-    sizes: string;
-    alt: string;
-    caption?: string;
-    width?: number;
-    height?: number;
-  }> = [];
-  try {
-    items = JSON.parse(imagesRaw);
-  } catch (error) {
-    throw new Error('Home hero rotator data is invalid.', { cause: error });
-  }
-
-  if (!Array.isArray(items) || items.length === 0) {
-    throw new Error('Home hero rotator has no images.');
-  }
-
-  items.forEach((item, index) => {
-    if (!item || typeof item !== 'object') {
-      throw new Error(`Hero image ${index + 1} is invalid.`);
-    }
-    if (!item.src) {
-      throw new Error(`Hero image ${index + 1} is missing a src.`);
-    }
-    if (typeof item.srcset !== 'string' || item.srcset.length === 0) {
-      throw new Error(`Hero image ${index + 1} is missing a srcset.`);
-    }
-    if (typeof item.sizes !== 'string' || item.sizes.length === 0) {
-      throw new Error(`Hero image ${index + 1} is missing sizes.`);
-    }
-    if (typeof item.alt !== 'string') {
-      throw new Error(`Hero image ${index + 1} is missing alt text.`);
-    }
-  });
-
-  const reduceMotion = prefersReducedMotion();
-  const intervalValue = root.dataset.interval;
-  const intervalMs =
-    intervalValue === undefined ? HERO_INTERVAL_MS : Number(intervalValue);
-  if (!Number.isFinite(intervalMs) || intervalMs <= 0) {
-    throw new Error('Home hero rotator interval is invalid.');
-  }
-
-  const shell = root.closest('[data-hero-shell]');
-  const dots = Array.from(
-    shell?.querySelectorAll('[data-hero-dot]') ?? [],
-  ).filter((dot) => dot instanceof HTMLButtonElement) as HTMLButtonElement[];
-
-  if (dots.length > 0 && dots.length !== items.length) {
-    throw new Error('Home hero rotator dots do not match image count.');
-  }
-
-  const setActiveDot = (index: number) => {
-    dots.forEach((dot, dotIndex) => {
-      dot.setAttribute('aria-current', dotIndex === index ? 'true' : 'false');
-    });
-  };
-
-  const apply = (
-    item: {
-      src: string;
-      srcset: string;
-      sizes: string;
-      alt: string;
-      caption?: string;
-      width?: number;
-      height?: number;
-    },
-    index: number,
-  ) => {
-    img.src = item.src;
-    img.srcset = item.srcset;
-    img.sizes = item.sizes;
-    const widthValue = Number(item.width);
-    const heightValue = Number(item.height);
-    if (Number.isFinite(widthValue) && widthValue > 0) {
-      img.width = widthValue;
-    }
-    if (Number.isFinite(heightValue) && heightValue > 0) {
-      img.height = heightValue;
-    }
-    img.alt = item.alt;
-    caption.textContent = item.caption ?? '';
-    const hasCaption = Boolean(item.caption);
-    caption.dataset.empty = hasCaption ? 'false' : 'true';
-    caption.setAttribute('aria-hidden', hasCaption ? 'false' : 'true');
-    setActiveDot(index);
-  };
-
-  items.forEach((item) => {
-    const preload = new Image();
-    preload.srcset = item.srcset;
-    preload.sizes = item.sizes;
-    preload.src = item.src;
-  });
-
-  const order = items.map((_, index) => index);
-  let position = 0;
-  let currentIndex = order[position];
-  apply(items[currentIndex], currentIndex);
-
-  let fadeTimeout: number | null = null;
-  let intervalId: number | null = null;
-
-  const clearFade = () => {
-    if (fadeTimeout !== null) {
-      window.clearTimeout(fadeTimeout);
-      fadeTimeout = null;
-    }
-  };
-
-  const showIndex = (index: number, withFade: boolean) => {
-    if (index < 0 || index >= items.length) {
-      return;
-    }
-    currentIndex = index;
-    clearFade();
-    if (!withFade) {
-      root.classList.remove('is-fading');
-      apply(items[index], index);
-      return;
-    }
-    root.classList.add('is-fading');
-    fadeTimeout = window.setTimeout(() => {
-      apply(items[index], index);
-      root.classList.remove('is-fading');
-    }, HERO_FADE_MS);
-  };
-
-  const setOrderFromIndex = (index: number) => {
-    position = Math.max(0, Math.min(index, order.length - 1));
-  };
-
-  const advance = () => {
-    position = (position + 1) % order.length;
-    showIndex(order[position], !reduceMotion);
-  };
-
-  const resetInterval = () => {
-    if (intervalId !== null) {
-      window.clearInterval(intervalId);
-      intervalId = null;
-    }
-    if (reduceMotion || items.length < 2) {
-      return;
-    }
-    intervalId = window.setInterval(advance, intervalMs);
-  };
-
-  const dotCleanup: Array<() => void> = [];
-
-  dots.forEach((dot) => {
-    const indexValue = Number(dot.dataset.heroIndex);
-    if (!Number.isFinite(indexValue)) {
-      return;
-    }
-    const onClick = () => {
-      if (indexValue === currentIndex) {
-        return;
-      }
-      setOrderFromIndex(indexValue);
-      showIndex(indexValue, !reduceMotion);
-      resetInterval();
-    };
-    dot.addEventListener('click', onClick);
-    dotCleanup.push(() => dot.removeEventListener('click', onClick));
-  });
-
-  resetInterval();
-
-  return () => {
-    if (intervalId !== null) {
-      window.clearInterval(intervalId);
-    }
-    clearFade();
-    dotCleanup.forEach((cleanup) => cleanup());
-  };
-};
 
 const initStoryNavigation = () => {
   const storyRoot = document.querySelector('[data-story-snap]');
@@ -697,153 +503,6 @@ const initStoryCarousels = () => {
   };
 };
 
-const initStoryVideos = () => {
-  const videos = Array.from(
-    document.querySelectorAll('[data-story-video]'),
-  ).filter(
-    (video): video is HTMLVideoElement => video instanceof HTMLVideoElement,
-  );
-  if (videos.length === 0) {
-    return () => {};
-  }
-
-  const cleanup: Array<() => void> = [];
-  const addCleanup = (fn: () => void) => cleanup.push(fn);
-
-  const playThreshold = 0.5;
-  const pauseThreshold = 0.1;
-
-  const ensurePlaybackAttributes = (video: HTMLVideoElement) => {
-    video.muted = true;
-    video.playsInline = true;
-    video.loop = true;
-    video.autoplay = true;
-    if (!video.preload || video.preload === 'none') {
-      video.preload = 'metadata';
-    }
-  };
-
-  const setPlaybackState = (video: HTMLVideoElement, shouldPlay: boolean) => {
-    const state = video.dataset.playState ?? 'idle';
-    if (shouldPlay) {
-      if (state === 'playing') {
-        return;
-      }
-      video.dataset.playState = 'playing';
-      const playPromise = video.play();
-      if (playPromise && typeof playPromise.catch === 'function') {
-        playPromise.catch(() => {
-          video.dataset.playState = 'paused';
-        });
-      }
-      return;
-    }
-    if (state === 'paused') {
-      return;
-    }
-    video.pause();
-    video.dataset.playState = 'paused';
-  };
-
-  const updateByRatio = (video: HTMLVideoElement, ratio: number) => {
-    if (ratio >= playThreshold) {
-      setPlaybackState(video, true);
-    } else if (ratio <= pauseThreshold) {
-      setPlaybackState(video, false);
-    }
-  };
-
-  const getVisibilityRatio = (video: HTMLVideoElement) => {
-    const rect = video.getBoundingClientRect();
-    const viewportHeight =
-      window.innerHeight || document.documentElement.clientHeight;
-    const viewportWidth =
-      window.innerWidth || document.documentElement.clientWidth;
-    const visibleHeight = Math.max(
-      0,
-      Math.min(rect.bottom, viewportHeight) - Math.max(rect.top, 0),
-    );
-    const visibleWidth = Math.max(
-      0,
-      Math.min(rect.right, viewportWidth) - Math.max(rect.left, 0),
-    );
-    const visibleArea = visibleHeight * visibleWidth;
-    const totalArea = rect.width * rect.height;
-    return totalArea > 0 ? visibleArea / totalArea : 0;
-  };
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (!(entry.target instanceof HTMLVideoElement)) {
-          return;
-        }
-        updateByRatio(entry.target, entry.intersectionRatio);
-      });
-    },
-    {
-      threshold: [0, pauseThreshold, playThreshold, 1],
-    },
-  );
-
-  videos.forEach((video) => {
-    ensurePlaybackAttributes(video);
-    observer.observe(video);
-    const handleLoaded = () => {
-      updateByRatio(video, getVisibilityRatio(video));
-    };
-    video.addEventListener('loadeddata', handleLoaded);
-    addCleanup(() => video.removeEventListener('loadeddata', handleLoaded));
-  });
-
-  let checkTimer: number | null = null;
-  const scheduleCheck = () => {
-    if (checkTimer !== null) {
-      window.clearTimeout(checkTimer);
-    }
-    checkTimer = window.setTimeout(() => {
-      checkTimer = null;
-      videos.forEach((video) => {
-        updateByRatio(video, getVisibilityRatio(video));
-      });
-    }, 150);
-  };
-
-  const handleVideoCheck = () => scheduleCheck();
-  window.addEventListener(VIDEO_CHECK_EVENT, handleVideoCheck);
-  addCleanup(() =>
-    window.removeEventListener(VIDEO_CHECK_EVENT, handleVideoCheck),
-  );
-
-  const handleVisibilityChange = () => {
-    if (document.hidden) {
-      videos.forEach((video) => {
-        video.pause();
-        video.dataset.playState = 'paused';
-      });
-    } else {
-      scheduleCheck();
-    }
-  };
-  document.addEventListener('visibilitychange', handleVisibilityChange);
-  addCleanup(() =>
-    document.removeEventListener('visibilitychange', handleVisibilityChange),
-  );
-
-  window.addEventListener('resize', scheduleCheck);
-  addCleanup(() => window.removeEventListener('resize', scheduleCheck));
-
-  scheduleCheck();
-
-  return () => {
-    observer.disconnect();
-    if (checkTimer !== null) {
-      window.clearTimeout(checkTimer);
-    }
-    cleanup.forEach((fn) => fn());
-  };
-};
-
 const initHome = () => {
   const cleanupFns: Array<() => void> = [];
   const registerCleanup = (cleanup: (() => void) | void) => {
@@ -852,10 +511,20 @@ const initHome = () => {
     }
   };
   try {
-    registerCleanup(initHeroRotator());
+    registerCleanup(
+      initHeroRotator({
+        defaultIntervalMs: HERO_INTERVAL_MS,
+        fadeMs: HERO_FADE_MS,
+        prefersReducedMotion,
+      }),
+    );
     registerCleanup(initStoryNavigation());
     registerCleanup(initStoryCarousels());
-    registerCleanup(initStoryVideos());
+    registerCleanup(
+      initStoryVideos({
+        checkEvent: VIDEO_CHECK_EVENT,
+      }),
+    );
   } catch (error) {
     cleanupFns.forEach((cleanup) => cleanup());
     throw error;
