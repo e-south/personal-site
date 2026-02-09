@@ -140,6 +140,13 @@ const projectMeta = projects.map((project) => {
     getPanelTargetLeft as getPanelTargetLeftFromGeometry,
     getTrackScrollPaddingInlineStart as getTrackScrollPaddingInlineStartFromTrack,
   } from '@/lib/projectCarousel';
+  import { createCarouselHeightTransitionPlan } from '@/lib/projectCarouselTransitions';
+  import { getCarouselTransitionMode } from '@/lib/projectCarouselTransitions';
+  import { parseRequiredCarouselIndex } from '@/lib/projectCarouselTransitions';
+  import {
+    wrapCarouselIndex,
+    type CarouselIndexTransitionResult,
+  } from '@/lib/projectCarouselTransitions';
 
   const initProjectCarousel = () => {
     const carousel = document.querySelector('[data-project-carousel]');
@@ -244,17 +251,7 @@ const projectMeta = projects.map((project) => {
       observeHeight?: boolean;
       force?: boolean;
     };
-    type TransitionMode = 'near' | 'long' | 'wrap';
-    type IndexTransitionResult = 'same' | TransitionMode;
-    type HeightTransitionPlan = {
-      wrappedTargetIndex: number;
-      targetHeight: number;
-      preExpandBeforeScroll: boolean;
-      postContractAfterScroll: boolean;
-      preExpandDurationMs: number;
-    };
-
-    const wrapIndex = (index: number) => ((index % total) + total) % total;
+    const wrapIndex = (index: number) => wrapCarouselIndex(index, total);
     const getBehavior = () =>
       prefersReducedMotion.matches ? 'auto' : 'smooth';
     const easeOutCubic = (value: number) => 1 - (1 - value) ** 3;
@@ -339,7 +336,6 @@ const projectMeta = projects.map((project) => {
       clearPendingLongJumpSwapTimer();
       clearPendingLongJumpReleaseTimer();
     };
-    /** @param {boolean} active */
     const setProgrammaticTrackState = (active: boolean) => {
       track.classList.toggle('project-carousel-track--programmatic', active);
     };
@@ -347,7 +343,6 @@ const projectMeta = projects.map((project) => {
       track.classList.remove('project-carousel-track--soft-swap');
     };
 
-    /** @param {HTMLElement} panel */
     const getPanelHeight = (panel: HTMLElement) => {
       const height = panel.getBoundingClientRect().height;
       if (!Number.isFinite(height) || height <= 0) {
@@ -395,10 +390,6 @@ const projectMeta = projects.map((project) => {
       activePanelResizeObserver.observe(panel);
     };
 
-    /**
-     * @param {number} targetLeft
-     * @param {(() => void) | null} [onComplete]
-     */
     const quickScrollTrackTo = (
       targetLeft: number,
       onComplete: (() => void) | null = null,
@@ -414,7 +405,6 @@ const projectMeta = projects.map((project) => {
         return;
       }
       const startedAt = performance.now();
-      /** @param {number} now */
       const step = (now: number) => {
         const progress = Math.min(
           1,
@@ -434,7 +424,6 @@ const projectMeta = projects.map((project) => {
       trackQuickScrollFrame = window.requestAnimationFrame(step);
     };
 
-    /** @param {number} targetTop */
     const quickScrollWindowTo = (targetTop: number) => {
       stopWindowQuickScroll();
       const startTop = window.scrollY;
@@ -447,7 +436,6 @@ const projectMeta = projects.map((project) => {
         return;
       }
       const startedAt = performance.now();
-      /** @param {number} now */
       const step = (now: number) => {
         const progress = Math.min(
           1,
@@ -466,11 +454,6 @@ const projectMeta = projects.map((project) => {
       };
       windowQuickScrollFrame = window.requestAnimationFrame(step);
     };
-
-    /**
-     * @param {number} nextIndex
-     * @param {{ syncHeight?: boolean; observeHeight?: boolean; force?: boolean }} [options]
-     */
     const setActiveIndex = (
       nextIndex: number,
       {
@@ -494,7 +477,7 @@ const projectMeta = projects.map((project) => {
       }
       activeIndex = wrappedActiveIndex;
       dots.forEach((dot) => {
-        const dotIndex = parseRequiredIndex(
+        const dotIndex = parseRequiredCarouselIndex(
           dot.dataset.index,
           '[projects-carousel] Dot index is invalid.',
         );
@@ -512,12 +495,10 @@ const projectMeta = projects.map((project) => {
     };
 
     const getTrackMaxScrollLeft = () => getTrackMaxScrollLeftFromTrack(track);
-    /** @param {number} value */
     const clampTrackScrollLeft = (value: number) =>
       Math.min(getTrackMaxScrollLeft(), Math.max(0, value));
     const getTrackScrollPaddingInlineStart = () =>
       getTrackScrollPaddingInlineStartFromTrack(track);
-    /** @param {HTMLElement} panel */
     const getPanelTargetLeft = (panel: HTMLElement) => {
       const isDesktopViewport = window.matchMedia('(min-width: 768px)').matches;
       const scrollPaddingInlineStart = getTrackScrollPaddingInlineStart();
@@ -543,7 +524,6 @@ const projectMeta = projects.map((project) => {
       });
       return closestIndex;
     };
-    /** @param {number} offset */
     const runRelativeIndexTransition = (offset: number) => {
       const originIndex = getClosestVisiblePanelIndex();
       runIndexTransition(originIndex + offset, true);
@@ -560,32 +540,6 @@ const projectMeta = projects.map((project) => {
       });
       return { index, ratio };
     };
-    /**
-     * @param {number} fromIndex
-     * @param {number} toIndex
-     */
-    const getJumpDistance = (fromIndex: number, toIndex: number) => {
-      const wrappedFrom = wrapIndex(fromIndex);
-      const wrappedTo = wrapIndex(toIndex);
-      const rawDistance = Math.abs(wrappedTo - wrappedFrom);
-      return Math.min(rawDistance, total - rawDistance);
-    };
-    /**
-     * @param {number} fromIndex
-     * @param {number} toIndex
-     * @returns {'near' | 'long' | 'wrap'}
-     */
-    const getTransitionMode = (
-      fromIndex: number,
-      toIndex: number,
-    ): TransitionMode => {
-      if (!Number.isInteger(fromIndex) || fromIndex < 0) {
-        return 'near';
-      }
-      const jumpDistance = getJumpDistance(fromIndex, toIndex);
-      return jumpDistance >= LONG_JUMP_THRESHOLD ? 'long' : 'near';
-    };
-    /** @param {number} index */
     const settleTrackOnPanel = (index: number) => {
       const wrappedIndex = wrapIndex(index);
       const panel = panels[wrappedIndex];
@@ -605,10 +559,6 @@ const projectMeta = projects.map((project) => {
         force: true,
       });
     };
-    /**
-     * @param {number} index
-     * @param {(() => void) | null} [onComplete]
-     */
     const releaseProgrammaticTrackLock = (
       index: number,
       onComplete: (() => void) | null = null,
@@ -625,12 +575,6 @@ const projectMeta = projects.map((project) => {
         });
       });
     };
-
-    /**
-     * @param {number} nextIndex
-     * @param {boolean} [useQuickMotion]
-     * @param {(() => void) | null} [onComplete]
-     */
     const executeIndexScroll = (
       nextIndex: number,
       useQuickMotion = false,
@@ -670,10 +614,6 @@ const projectMeta = projects.map((project) => {
       }, QUICK_SCROLL_DURATION_MS);
     };
 
-    /**
-     * @param {number} targetIndex
-     * @param {number} targetHeight
-     */
     const runLongJumpTransition = (
       targetIndex: number,
       targetHeight: number,
@@ -716,50 +656,26 @@ const projectMeta = projects.map((project) => {
       }, LONG_JUMP_FADE_OUT_MS);
     };
 
-    /**
-     * @param {number} targetIndex
-     * @param {number} [currentIndex]
-     */
-    const createHeightTransitionPlan = (
-      targetIndex: number,
-      currentIndex: number = activeIndex,
-    ): HeightTransitionPlan => {
-      const wrappedTargetIndex = wrapIndex(targetIndex);
-      const wrappedCurrentIndex = wrapIndex(currentIndex);
+    const getCurrentPanelHeight = (wrappedCurrentIndex: number) => {
       const currentPanel = panels[wrappedCurrentIndex];
       if (!(currentPanel instanceof HTMLElement)) {
         throw new Error('[projects-carousel] Active panel is missing.');
       }
+      return getPanelHeight(currentPanel);
+    };
+
+    const getTargetPanelHeight = (wrappedTargetIndex: number) => {
       const targetPanel = panels[wrappedTargetIndex];
       if (!(targetPanel instanceof HTMLElement)) {
         throw new Error('[projects-carousel] Target panel is missing.');
       }
-      const currentHeight = getPanelHeight(currentPanel);
-      const targetHeight = getPanelHeight(targetPanel);
-      const preExpandBeforeScroll =
-        targetHeight - currentHeight >= transitionPolicy.preExpandMinDeltaPx;
-      const postContractAfterScroll =
-        currentHeight - targetHeight >= transitionPolicy.preExpandMinDeltaPx;
-      return {
-        wrappedTargetIndex,
-        targetHeight,
-        preExpandBeforeScroll,
-        postContractAfterScroll,
-        preExpandDurationMs: preExpandBeforeScroll
-          ? transitionPolicy.preExpandDurationMs
-          : 0,
-      };
+      return getPanelHeight(targetPanel);
     };
 
-    /**
-     * @param {number} targetIndex
-     * @param {boolean} [useQuickMotion]
-     * @returns {'same' | 'near' | 'long' | 'wrap'}
-     */
     const runIndexTransition = (
       targetIndex: number,
       useQuickMotion = false,
-    ): IndexTransitionResult => {
+    ): CarouselIndexTransitionResult => {
       clearPendingTransitionTimers();
       stopQuickScrolls();
       stopNativeSmoothScroll();
@@ -769,15 +685,25 @@ const projectMeta = projects.map((project) => {
       clearProgrammaticTargetIndex();
       isProgrammaticTransition = false;
       const originIndex = getClosestVisiblePanelIndex();
-      const plan = createHeightTransitionPlan(targetIndex, originIndex);
+      const plan = createCarouselHeightTransitionPlan({
+        targetIndex,
+        currentIndex: originIndex,
+        total,
+        preExpandMinDeltaPx: transitionPolicy.preExpandMinDeltaPx,
+        preExpandDurationMs: transitionPolicy.preExpandDurationMs,
+        getCurrentHeight: getCurrentPanelHeight,
+        getTargetHeight: getTargetPanelHeight,
+      });
       if (plan.wrappedTargetIndex === originIndex) {
         setActiveIndex(originIndex, { force: true });
         return 'same';
       }
-      const transitionMode = getTransitionMode(
-        originIndex,
-        plan.wrappedTargetIndex,
-      );
+      const transitionMode = getCarouselTransitionMode({
+        fromIndex: originIndex,
+        toIndex: plan.wrappedTargetIndex,
+        total,
+        longJumpThreshold: LONG_JUMP_THRESHOLD,
+      });
       if (transitionMode === 'long') {
         runLongJumpTransition(plan.wrappedTargetIndex, plan.targetHeight);
         return transitionMode;
@@ -810,14 +736,10 @@ const projectMeta = projects.map((project) => {
       return transitionMode;
     };
 
-    /**
-     * @param {string} panelId
-     * @param {boolean} [useQuickMotion]
-     */
     const scrollToPanelId = (
       panelId: string,
       useQuickMotion = false,
-    ): IndexTransitionResult | false => {
+    ): CarouselIndexTransitionResult | false => {
       const mappedIndex = panelIndexById.get(panelId);
       if (typeof mappedIndex !== 'number' || !Number.isInteger(mappedIndex)) {
         return false;
@@ -886,10 +808,6 @@ const projectMeta = projects.map((project) => {
       correctCarouselVerticalOffset(false);
     };
 
-    /**
-     * @param {string} panelId
-     * @param {boolean} [useQuickMotion]
-     */
     const navigateToPanelId = (
       panelId: string,
       useQuickMotion = false,
@@ -934,23 +852,8 @@ const projectMeta = projects.map((project) => {
       });
     });
 
-    /**
-     * @param {string | number | undefined} value
-     * @param {string} errorMessage
-     */
-    const parseRequiredIndex = (
-      value: string | number | undefined,
-      errorMessage: string,
-    ): number => {
-      const index = Number(value);
-      if (!Number.isInteger(index)) {
-        throw new Error(errorMessage);
-      }
-      return index;
-    };
-
     dots.forEach((dot) => {
-      const index = parseRequiredIndex(
+      const index = parseRequiredCarouselIndex(
         dot.dataset.index,
         '[projects-carousel] Dot index is invalid.',
       );
@@ -958,10 +861,8 @@ const projectMeta = projects.map((project) => {
         runIndexTransition(index, true);
       });
     });
-    /** @type {Array<() => void>} */
     const cardJumpCleanup: Array<() => void> = [];
     cardJumpLinks.forEach((link) => {
-      /** @param {MouseEvent} event */
       const handleCardJump = (event: MouseEvent) => {
         const href = link.getAttribute('href') ?? '';
         if (!href.startsWith('#')) {
@@ -1007,7 +908,6 @@ const projectMeta = projects.map((project) => {
       }
     });
 
-    /** @param {KeyboardEvent} event */
     const handleCancelKeys = (event: KeyboardEvent) => {
       if (!scrollCancelKeys.has(event.key)) {
         return;
@@ -1036,7 +936,7 @@ const projectMeta = projects.map((project) => {
           if (!(entry.target instanceof HTMLElement)) {
             return;
           }
-          const index = parseRequiredIndex(
+          const index = parseRequiredCarouselIndex(
             entry.target.dataset.index,
             '[projects-carousel] Panel index is invalid.',
           );

@@ -94,7 +94,7 @@ describe('Project carousel jump behavior', () => {
       'const originIndex = getClosestVisiblePanelIndex();',
     );
     expect(projectCarousel).toContain(
-      'const plan = createHeightTransitionPlan(targetIndex, originIndex);',
+      'const plan = createCarouselHeightTransitionPlan({',
     );
     expect(projectCarousel).toContain(
       'if (plan.wrappedTargetIndex === originIndex) {',

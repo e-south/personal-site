@@ -54,7 +54,7 @@ describe('ProjectCarousel controls', () => {
     expect(contents).toContain('const transitionPolicy = {');
     expect(contents).toContain('preExpandDurationMs');
     expect(contents).toContain('preExpandMinDeltaPx');
-    expect(contents).toContain('const createHeightTransitionPlan = (');
+    expect(contents).toContain('createCarouselHeightTransitionPlan({');
     expect(contents).toContain('preExpandBeforeScroll');
     expect(contents).toContain('const runIndexTransition = (');
     expect(contents).toContain('targetIndex: number');
@@ -100,10 +100,15 @@ describe('ProjectCarousel controls', () => {
       process.cwd(),
       'src/components/projects/ProjectCarousel.astro',
     );
+    const helperPath = path.resolve(
+      process.cwd(),
+      'src/lib/projectCarouselTransitions.ts',
+    );
     const contents = await readFile(filePath, 'utf-8');
+    const helperContents = await readFile(helperPath, 'utf-8');
 
     expect(contents).toContain('postContractAfterScroll');
-    expect(contents).toContain('currentHeight - targetHeight');
+    expect(helperContents).toContain('currentHeight - targetHeight');
     expect(contents).toContain(
       'executeIndexScroll(plan.wrappedTargetIndex, useQuickMotion, () => {',
     );

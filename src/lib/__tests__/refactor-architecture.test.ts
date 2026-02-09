@@ -85,4 +85,28 @@ describe('project carousel helper extraction', () => {
     );
     expect(helpers).toContain('export const getPanelTargetLeft = (');
   });
+
+  it('uses shared transition helpers from a dedicated carousel module', async () => {
+    const carousel = await read(
+      'src/components/projects/ProjectCarousel.astro',
+    );
+
+    expect(carousel).toContain(
+      "import { createCarouselHeightTransitionPlan } from '@/lib/projectCarouselTransitions';",
+    );
+    expect(carousel).toContain(
+      "import { getCarouselTransitionMode } from '@/lib/projectCarouselTransitions';",
+    );
+    expect(carousel).toContain(
+      "import { parseRequiredCarouselIndex } from '@/lib/projectCarouselTransitions';",
+    );
+  });
+
+  it('keeps typed carousel script without duplicate JSDoc type annotations', async () => {
+    const carousel = await read(
+      'src/components/projects/ProjectCarousel.astro',
+    );
+
+    expect(carousel).not.toContain('@param {');
+  });
 });
