@@ -30,6 +30,15 @@ describe('home runtime modularization', () => {
     expect(home).toContain('initStoryVideos({');
   });
 
+  it('delegates story carousel runtime wiring from home orchestrator', async () => {
+    const home = await read('src/lib/home.ts');
+
+    expect(home).toContain(
+      "import { initStoryCarousels } from '@/lib/home/storyCarousels';",
+    );
+    expect(home).toContain('initStoryCarousels({ getScrollBehavior })');
+  });
+
   it('extracts hero rotator and story video modules', async () => {
     const heroRotator = await read('src/lib/home/heroRotator.ts');
     const storyVideos = await read('src/lib/home/storyVideos.ts');
@@ -38,6 +47,17 @@ describe('home runtime modularization', () => {
     expect(heroRotator).toContain('Home hero rotator root is missing.');
     expect(storyVideos).toContain('export const initStoryVideos =');
     expect(storyVideos).toContain('story:video-check');
+  });
+
+  it('extracts story carousel runtime module', async () => {
+    const storyCarousels = await read('src/lib/home/storyCarousels.ts');
+
+    expect(storyCarousels).toContain('export const initStoryCarousels =');
+    expect(storyCarousels).toContain(
+      'Story carousel needs at least two items.',
+    );
+    expect(storyCarousels).toContain('phd-at-boston-university');
+    expect(storyCarousels).toContain('imperial-crick-training');
   });
 });
 

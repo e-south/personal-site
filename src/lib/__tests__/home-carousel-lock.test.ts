@@ -15,7 +15,10 @@ import { describe, expect, it } from 'vitest';
 
 describe('story carousel height lock', () => {
   it('includes Imperial / Crick and PhD chapters', async () => {
-    const filePath = path.resolve(process.cwd(), 'src/lib/home.ts');
+    const filePath = path.resolve(
+      process.cwd(),
+      'src/lib/home/storyCarousels.ts',
+    );
     const contents = await readFile(filePath, 'utf-8');
 
     expect(contents).toContain('imperial-crick-training');
