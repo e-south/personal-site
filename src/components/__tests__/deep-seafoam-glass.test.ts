@@ -221,7 +221,9 @@ describe('Requested polish adjustments', () => {
     const storyMediaLeaf = await read(
       'src/components/home/StoryMediaLeaf.astro',
     );
-    const storyChapters = await read('src/components/home/StoryChapters.astro');
+    const storyMediaItem = await read(
+      'src/components/home/StoryMediaItem.astro',
+    );
     const projectBanner = await read(
       'src/components/projects/ProjectBanner.astro',
     );
@@ -237,7 +239,7 @@ describe('Requested polish adjustments', () => {
     expect(storyMediaLeaf).toContain(
       'class="story-media-caption liquid-caption"',
     );
-    expect(storyChapters).toContain(
+    expect(storyMediaItem).toContain(
       'class="story-media-caption story-media-stack-caption liquid-caption"',
     );
     expect(projectBanner).toContain('project-banner-caption liquid-caption');
@@ -313,13 +315,13 @@ describe('Requested polish adjustments', () => {
 
   it('accounts for sticky header offset in story and project hash scrolling', async () => {
     const homeLib = await read('src/lib/home.ts');
-    const projectCarousel = await read(
-      'src/components/projects/ProjectCarousel.astro',
+    const projectCarouselRuntime = await read(
+      'src/lib/projectCarouselRuntime.ts',
     );
 
     expect(homeLib).toContain('getHeaderHeight() + 24 + marginTop');
-    expect(projectCarousel).toContain('scrollCarouselIntoView');
-    expect(projectCarousel).toContain('siteHeader.offsetHeight');
+    expect(projectCarouselRuntime).toContain('scrollCarouselIntoView');
+    expect(projectCarouselRuntime).toContain('siteHeader.offsetHeight');
   });
 });
 
@@ -351,12 +353,12 @@ describe('Smart scroll offset hardening', () => {
   });
 
   it('applies a final corrective alignment pass after project hash jumps', async () => {
-    const projectCarousel = await read(
-      'src/components/projects/ProjectCarousel.astro',
+    const projectCarouselRuntime = await read(
+      'src/lib/projectCarouselRuntime.ts',
     );
 
-    expect(projectCarousel).toContain('correctCarouselVerticalOffset');
-    expect(projectCarousel).toContain("behavior: 'auto'");
+    expect(projectCarouselRuntime).toContain('correctCarouselVerticalOffset');
+    expect(projectCarouselRuntime).toContain("behavior: 'auto'");
   });
 });
 

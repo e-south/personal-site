@@ -1,0 +1,45 @@
+---
+/*
+--------------------------------------------------------------------------------
+personal-site
+src/components/home/StoryMediaItem.astro
+
+Renders a story media item, including stacked media groups and single media leaves.
+
+Module Author(s): Eric J. South
+--------------------------------------------------------------------------------
+*/
+
+import StoryMediaLeaf from '@/components/home/StoryMediaLeaf.astro';
+import type { StoryMediaItem } from '@/data/storyMedia';
+
+type Props = {
+  item: StoryMediaItem;
+  eager?: boolean;
+};
+
+const { item, eager = false } = Astro.props as Props;
+---
+
+{
+  item.kind === 'stack' ? (
+    <div class="story-media-stack-frame" data-frame={item.frame}>
+      <div class="story-media-stack">
+        {item.items.map((leaf, leafIndex) => (
+          <StoryMediaLeaf
+            item={leaf}
+            eager={eager && leafIndex === 0}
+            frameOverride={item.frame}
+          />
+        ))}
+      </div>
+      {item.caption && (
+        <p class="story-media-caption story-media-stack-caption liquid-caption">
+          {item.caption}
+        </p>
+      )}
+    </div>
+  ) : (
+    <StoryMediaLeaf item={item} eager={eager} />
+  )
+}

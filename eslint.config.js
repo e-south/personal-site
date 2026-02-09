@@ -23,6 +23,7 @@ export default [
       'src/lib/home/**/*.ts',
       'src/lib/layout/**/*.ts',
       'src/lib/projectCarousel.ts',
+      'src/lib/projectCarouselRuntime.ts',
     ],
     languageOptions: {
       globals: {

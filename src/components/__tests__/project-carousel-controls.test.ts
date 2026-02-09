@@ -13,13 +13,14 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
+const read = async (relativePath: string) =>
+  readFile(path.resolve(process.cwd(), relativePath), 'utf-8');
+
 describe('ProjectCarousel controls', () => {
   it('renders minimal prev/next pills with hover lift and border accent', async () => {
-    const filePath = path.resolve(
-      process.cwd(),
+    const contents = await read(
       'src/components/projects/ProjectCarousel.astro',
     );
-    const contents = await readFile(filePath, 'utf-8');
 
     expect(contents).not.toContain('project-carousel-button__cap');
     expect(contents).toContain('project-carousel-button__icon');
@@ -32,11 +33,9 @@ describe('ProjectCarousel controls', () => {
   });
 
   it('offsets the initial nav control onset lower while keeping sticky centering', async () => {
-    const filePath = path.resolve(
-      process.cwd(),
+    const contents = await read(
       'src/components/projects/ProjectCarousel.astro',
     );
-    const contents = await readFile(filePath, 'utf-8');
 
     expect(contents).toContain('project-carousel-nav-layer');
     expect(contents).toContain('padding-top: clamp(2.4rem, 4.6vw, 3.6rem);');
@@ -45,11 +44,7 @@ describe('ProjectCarousel controls', () => {
   });
 
   it('pre-expands carousel height before moving to longer narratives', async () => {
-    const filePath = path.resolve(
-      process.cwd(),
-      'src/components/projects/ProjectCarousel.astro',
-    );
-    const contents = await readFile(filePath, 'utf-8');
+    const contents = await read('src/lib/projectCarouselRuntime.ts');
 
     expect(contents).toContain('const transitionPolicy = {');
     expect(contents).toContain('preExpandDurationMs');
@@ -64,11 +59,7 @@ describe('ProjectCarousel controls', () => {
   });
 
   it('guards against stale observer and duplicate index updates during pre-expand transitions', async () => {
-    const filePath = path.resolve(
-      process.cwd(),
-      'src/components/projects/ProjectCarousel.astro',
-    );
-    const contents = await readFile(filePath, 'utf-8');
+    const contents = await read('src/lib/projectCarouselRuntime.ts');
 
     expect(contents).toContain('let activeIndex = -1;');
     expect(contents).toContain(
@@ -79,41 +70,30 @@ describe('ProjectCarousel controls', () => {
   });
 
   it('uses a fluid, configurable height transition for project narrative resizing', async () => {
-    const filePath = path.resolve(
-      process.cwd(),
+    const projectCarousel = await read(
       'src/components/projects/ProjectCarousel.astro',
     );
-    const contents = await readFile(filePath, 'utf-8');
+    const runtime = await read('src/lib/projectCarouselRuntime.ts');
 
-    expect(contents).toContain('heightTransitionMs');
-    expect(contents).toContain("'--project-carousel-height-transition-ms'");
-    expect(contents).toContain(
+    expect(runtime).toContain('heightTransitionMs');
+    expect(runtime).toContain("'--project-carousel-height-transition-ms'");
+    expect(projectCarousel).toContain(
       'height var(--project-carousel-height-transition-ms, 520ms)',
     );
-    expect(contents).toContain(
+    expect(projectCarousel).toContain(
       'var(--project-carousel-height-transition-ms, 520ms)',
     );
   });
 
   it('defers contraction until after horizontal movement when target narratives are shorter', async () => {
-    const filePath = path.resolve(
-      process.cwd(),
-      'src/components/projects/ProjectCarousel.astro',
-    );
-    const helperPath = path.resolve(
-      process.cwd(),
-      'src/lib/projectCarouselTransitions.ts',
-    );
-    const contents = await readFile(filePath, 'utf-8');
-    const helperContents = await readFile(helperPath, 'utf-8');
+    const runtime = await read('src/lib/projectCarouselRuntime.ts');
+    const helperContents = await read('src/lib/projectCarouselTransitions.ts');
 
-    expect(contents).toContain('postContractAfterScroll');
+    expect(runtime).toContain('postContractAfterScroll');
     expect(helperContents).toContain('currentHeight - targetHeight');
-    expect(contents).toContain(
+    expect(runtime).toContain(
       'executeIndexScroll(plan.wrappedTargetIndex, useQuickMotion, () => {',
     );
-    expect(contents).toContain(
-      'track.style.height = `${plan.targetHeight}px`;',
-    );
+    expect(runtime).toContain('track.style.height = `${plan.targetHeight}px`;');
   });
 });

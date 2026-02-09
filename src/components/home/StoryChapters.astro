@@ -11,8 +11,8 @@ Module Author(s): Eric J. South
 */
 
 import type { CollectionEntry } from 'astro:content';
+import StoryMediaItem from '@/components/home/StoryMediaItem.astro';
 import Prose from '@/components/ui/Prose.astro';
-import StoryMediaLeaf from '@/components/home/StoryMediaLeaf.astro';
 import type { StoryRegistry } from '@/data/storyMedia';
 import { buildStoryChapters } from '@/lib/story';
 import { isSafeExternalHref, sanitizeHref } from '@/lib/urls';
@@ -94,29 +94,7 @@ const chapterCount = chapterItems.length;
                   <div class="story-media-single">
                     {chapter.media.map((item, mediaIndex) => {
                       const eagerBase = chapterIndex === 0 && mediaIndex === 0;
-                      return item.kind === 'stack' ? (
-                        <div
-                          class="story-media-stack-frame"
-                          data-frame={item.frame}
-                        >
-                          <div class="story-media-stack">
-                            {item.items.map((leaf, leafIndex) => (
-                              <StoryMediaLeaf
-                                item={leaf}
-                                eager={eagerBase && leafIndex === 0}
-                                frameOverride={item.frame}
-                              />
-                            ))}
-                          </div>
-                          {item.caption && (
-                            <p class="story-media-caption story-media-stack-caption liquid-caption">
-                              {item.caption}
-                            </p>
-                          )}
-                        </div>
-                      ) : (
-                        <StoryMediaLeaf item={item} eager={eagerBase} />
-                      );
+                      return <StoryMediaItem item={item} eager={eagerBase} />;
                     })}
                   </div>
                 ) : (
@@ -132,29 +110,7 @@ const chapterCount = chapterItems.length;
                           chapterIndex === 0 && mediaIndex === 0;
                         return (
                           <div class="story-carousel-item" data-carousel-item>
-                            {item.kind === 'stack' ? (
-                              <div
-                                class="story-media-stack-frame"
-                                data-frame={item.frame}
-                              >
-                                <div class="story-media-stack">
-                                  {item.items.map((leaf, leafIndex) => (
-                                    <StoryMediaLeaf
-                                      item={leaf}
-                                      eager={eagerBase && leafIndex === 0}
-                                      frameOverride={item.frame}
-                                    />
-                                  ))}
-                                </div>
-                                {item.caption && (
-                                  <p class="story-media-caption story-media-stack-caption liquid-caption">
-                                    {item.caption}
-                                  </p>
-                                )}
-                              </div>
-                            ) : (
-                              <StoryMediaLeaf item={item} eager={eagerBase} />
-                            )}
+                            <StoryMediaItem item={item} eager={eagerBase} />
                           </div>
                         );
                       })}

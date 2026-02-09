@@ -83,15 +83,24 @@ describe('layout enhancement modularization', () => {
 });
 
 describe('project carousel helper extraction', () => {
-  it('uses shared project carousel geometry helpers from component script', async () => {
+  it('uses dedicated project carousel runtime binder from component script', async () => {
     const carousel = await read(
       'src/components/projects/ProjectCarousel.astro',
     );
 
     expect(carousel).toContain(
+      "import { bindProjectCarousel } from '@/lib/projectCarouselRuntime';",
+    );
+    expect(carousel).toContain('bindProjectCarousel();');
+  });
+
+  it('uses shared project carousel geometry helpers from component script', async () => {
+    const runtime = await read('src/lib/projectCarouselRuntime.ts');
+
+    expect(runtime).toContain(
       "import { getTrackMaxScrollLeftFromTrack } from '@/lib/projectCarousel';",
     );
-    expect(carousel).toContain('getTrackMaxScrollLeftFromTrack(track)');
+    expect(runtime).toContain('getTrackMaxScrollLeftFromTrack(track)');
   });
 
   it('defines reusable project carousel geometry helpers', async () => {
@@ -107,26 +116,48 @@ describe('project carousel helper extraction', () => {
   });
 
   it('uses shared transition helpers from a dedicated carousel module', async () => {
-    const carousel = await read(
-      'src/components/projects/ProjectCarousel.astro',
-    );
+    const runtime = await read('src/lib/projectCarouselRuntime.ts');
 
-    expect(carousel).toContain(
+    expect(runtime).toContain(
       "import { createCarouselHeightTransitionPlan } from '@/lib/projectCarouselTransitions';",
     );
-    expect(carousel).toContain(
+    expect(runtime).toContain(
       "import { getCarouselTransitionMode } from '@/lib/projectCarouselTransitions';",
     );
-    expect(carousel).toContain(
+    expect(runtime).toContain(
       "import { parseRequiredCarouselIndex } from '@/lib/projectCarouselTransitions';",
     );
   });
 
-  it('keeps typed carousel script without duplicate JSDoc type annotations', async () => {
-    const carousel = await read(
-      'src/components/projects/ProjectCarousel.astro',
+  it('extracts project carousel runtime module', async () => {
+    const runtime = await read('src/lib/projectCarouselRuntime.ts');
+
+    expect(runtime).toContain('export const bindProjectCarousel = () =>');
+    expect(runtime).toContain(
+      "throw new Error('[projects-carousel] Track element not found.');",
+    );
+    expect(runtime).not.toContain('@param {');
+  });
+});
+
+describe('story chapter rendering modularization', () => {
+  it('delegates story media item rendering from story chapters component', async () => {
+    const storyChapters = await read('src/components/home/StoryChapters.astro');
+
+    expect(storyChapters).toContain(
+      "import StoryMediaItem from '@/components/home/StoryMediaItem.astro';",
+    );
+    expect(storyChapters).toContain('<StoryMediaItem');
+  });
+
+  it('extracts story media item rendering into dedicated component', async () => {
+    const storyMediaItem = await read(
+      'src/components/home/StoryMediaItem.astro',
     );
 
-    expect(carousel).not.toContain('@param {');
+    expect(storyMediaItem).toContain("item.kind === 'stack'");
+    expect(storyMediaItem).toContain(
+      'class="story-media-caption story-media-stack-caption liquid-caption"',
+    );
   });
 });
