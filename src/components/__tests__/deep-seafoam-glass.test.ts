@@ -18,9 +18,11 @@ const read = async (relativePath: string) =>
 
 describe('Deep Seafoam Glass theme contract', () => {
   it('defines global seafoam tokens, glass utilities, focus rings, and progressive reveals', async () => {
-    const contents = await read('src/layouts/Layout.astro');
+    const layout = await read('src/layouts/Layout.astro');
+    const contents = await read('src/styles/layout.css');
     const enhancements = await read('src/lib/layout/pageEnhancements.ts');
 
+    expect(layout).toContain("import '@/styles/layout.css';");
     expect(contents).toContain('--site-radius-control: 14px;');
     expect(contents).toContain('--site-glass-blur: 10px;');
     expect(contents).toContain('.glass-surface');
@@ -28,7 +30,7 @@ describe('Deep Seafoam Glass theme contract', () => {
     expect(contents).toContain('[data-reveal]');
     expect(contents).toContain('js-enhanced');
     expect(contents).toContain("data-reveal-ready='true'");
-    expect(contents).toContain('bindLayoutEnhancements();');
+    expect(layout).toContain('bindLayoutEnhancements();');
     expect(enhancements).toContain('IntersectionObserver');
     expect(enhancements).toContain('(prefers-reduced-motion: reduce)');
   });
@@ -51,7 +53,7 @@ describe('Deep Seafoam Glass theme contract', () => {
   });
 
   it('uses page-anchored corner glows without scroll-following overlays', async () => {
-    const contents = await read('src/layouts/Layout.astro');
+    const contents = await read('src/styles/layout.css');
 
     expect(contents).toContain('1260px circle at 10% -14%');
     expect(contents).toContain('site-shell');
@@ -216,7 +218,7 @@ describe('Requested polish adjustments', () => {
   });
 
   it('uses a shared liquid-glass fill for media captions', async () => {
-    const layout = await read('src/layouts/Layout.astro');
+    const layout = await read('src/styles/layout.css');
     const homePage = await read('src/pages/index.astro');
     const storyMediaLeaf = await read(
       'src/components/home/StoryMediaLeaf.astro',
@@ -301,7 +303,7 @@ describe('Requested polish adjustments', () => {
     const blogIndex = await read('src/pages/blog/index.astro');
     const blogPaged = await read('src/pages/blog/[page].astro');
     const blogSlug = await read('src/pages/blog/[slug].astro');
-    const layout = await read('src/layouts/Layout.astro');
+    const layout = await read('src/styles/layout.css');
 
     expect(blogIndex).toContain('class="blog-cover-media media-depth-surface');
     expect(blogPaged).toContain('class="blog-cover-media media-depth-surface');
@@ -334,7 +336,7 @@ describe('Requested polish adjustments', () => {
 
 describe('Smart scroll offset hardening', () => {
   it('defines and updates a global scroll offset token from sticky header height', async () => {
-    const layout = await read('src/layouts/Layout.astro');
+    const layout = await read('src/styles/layout.css');
     const enhancements = await read('src/lib/layout/pageEnhancements.ts');
 
     expect(layout).toContain('--site-scroll-offset');

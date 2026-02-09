@@ -110,8 +110,9 @@ describe('Project carousel jump behavior', () => {
     expect(projectCarouselRuntime).toContain(
       'if (plan.wrappedTargetIndex === originIndex) {',
     );
-    expect(projectCarouselRuntime).toContain('stopQuickScrolls();');
-    expect(projectCarouselRuntime).toContain('clearProgrammaticTargetIndex();');
+    expect(projectCarouselRuntime).toContain(
+      'cancelProgrammaticCarouselTransition({',
+    );
     expect(projectCarouselRuntime).toContain("return 'same';");
   });
 
@@ -119,13 +120,20 @@ describe('Project carousel jump behavior', () => {
     const projectCarouselRuntime = await read(
       'src/lib/projectCarouselRuntime.ts',
     );
+    const transitionState = await read(
+      'src/lib/projectCarouselTransitionState.ts',
+    );
 
     expect(projectCarouselRuntime).toContain(
       'const stopNativeSmoothScroll = () => {',
     );
     expect(projectCarouselRuntime).toContain('left: track.scrollLeft,');
     expect(projectCarouselRuntime).toContain('top: window.scrollY,');
-    expect(projectCarouselRuntime).toContain('stopNativeSmoothScroll();');
+    expect(projectCarouselRuntime).toContain(
+      'cancelProgrammaticCarouselTransition({',
+    );
+    expect(projectCarouselRuntime).toContain('stopNativeSmoothScroll,');
+    expect(transitionState).toContain('stopNativeSmoothScroll?.();');
   });
 
   it('settles on the exact target panel before releasing programmatic snap-lock', async () => {
@@ -146,7 +154,7 @@ describe('Project carousel jump behavior', () => {
       'window.requestAnimationFrame(() => {',
     );
     expect(projectCarouselRuntime).toContain(
-      'setProgrammaticTrackState(false);',
+      'resetProgrammaticCarouselState({',
     );
   });
 

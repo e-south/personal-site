@@ -144,6 +144,17 @@ describe('layout enhancement modularization', () => {
     expect(headingTypography).toContain('[&_h1]:font-header');
     expect(headingTypography).toContain('[&_h6]:tracking-tight');
   });
+
+  it('loads global layout theme rules from a dedicated stylesheet module', async () => {
+    const layout = await read('src/layouts/Layout.astro');
+    const layoutStyles = await read('src/styles/layout.css');
+
+    expect(layout).toContain("import '@/styles/layout.css';");
+    expect(layout).not.toContain('<style is:global>');
+    expect(layoutStyles).toContain("html[data-theme='dark'] {");
+    expect(layoutStyles).toContain('--site-scroll-offset: 96px;');
+    expect(layoutStyles).toContain('html.js-enhanced [data-reveal]');
+  });
 });
 
 describe('project carousel helper extraction', () => {
@@ -235,6 +246,24 @@ describe('project carousel helper extraction', () => {
     expect(hashHelpers).toContain('export const getPanelIdFromHash = (');
     expect(hashHelpers).toContain('export const getPanelIdFromHref = (');
     expect(hashHelpers).toContain('export const updateHashForPanelId = (');
+  });
+
+  it('uses extracted transition state helpers for carousel programmatic reset flows', async () => {
+    const runtime = await read('src/lib/projectCarouselRuntime.ts');
+    const transitionState = await read(
+      'src/lib/projectCarouselTransitionState.ts',
+    );
+
+    expect(runtime).toContain("from '@/lib/projectCarouselTransitionState';");
+    expect(runtime).toContain('cancelProgrammaticCarouselTransition({');
+    expect(runtime).toContain('resetProgrammaticCarouselState({');
+
+    expect(transitionState).toContain(
+      'export const resetProgrammaticCarouselState = (',
+    );
+    expect(transitionState).toContain(
+      'export const cancelProgrammaticCarouselTransition = (',
+    );
   });
 
   it('extracts project carousel runtime module', async () => {

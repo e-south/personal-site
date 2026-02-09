@@ -19,10 +19,12 @@ const read = async (relativePath: string) =>
 describe('Section divider consistency', () => {
   it('defines shared divider tokens and utilities in the global layout', async () => {
     const layout = await read('src/layouts/Layout.astro');
+    const layoutStyles = await read('src/styles/layout.css');
 
-    expect(layout).toContain('--site-divider-line:');
-    expect(layout).toContain('.section-divider-line');
-    expect(layout).toContain('.section-divider-bottom::after');
+    expect(layout).toContain("import '@/styles/layout.css';");
+    expect(layoutStyles).toContain('--site-divider-line:');
+    expect(layoutStyles).toContain('.section-divider-line');
+    expect(layoutStyles).toContain('.section-divider-bottom::after');
   });
 
   it('uses shared divider classes across section breaker locations', async () => {

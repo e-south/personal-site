@@ -34,6 +34,10 @@ import {
   runQuickTrackScroll,
   runQuickWindowScroll,
 } from '@/lib/projectCarouselMotion';
+import {
+  cancelProgrammaticCarouselTransition,
+  resetProgrammaticCarouselState,
+} from '@/lib/projectCarouselTransitionState';
 
 const initProjectCarousel = () => {
   const carousel = document.querySelector('[data-project-carousel]');
@@ -152,6 +156,9 @@ const initProjectCarousel = () => {
   };
   const clearProgrammaticTargetIndex = () => {
     programmaticTargetIndex = null;
+  };
+  const setProgrammaticTransitionActive = (active: boolean) => {
+    isProgrammaticTransition = active;
   };
 
   const stopTrackQuickScroll = () => {
@@ -418,9 +425,12 @@ const initProjectCarousel = () => {
     settleTrackOnPanel(index);
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
-        setProgrammaticTrackState(false);
-        clearProgrammaticTargetIndex();
-        isProgrammaticTransition = false;
+        resetProgrammaticCarouselState({
+          setProgrammaticTrackState,
+          clearLongJumpVisualState,
+          clearProgrammaticTargetIndex,
+          setProgrammaticTransitionActive,
+        });
         if (typeof onComplete === 'function') {
           onComplete();
         }
@@ -525,14 +535,16 @@ const initProjectCarousel = () => {
     targetIndex: number,
     useQuickMotion = false,
   ): CarouselIndexTransitionResult => {
-    clearPendingTransitionTimers();
-    stopQuickScrolls();
-    stopNativeSmoothScroll();
-    clearVerticalCorrectionTimer();
-    setProgrammaticTrackState(false);
-    clearLongJumpVisualState();
-    clearProgrammaticTargetIndex();
-    isProgrammaticTransition = false;
+    cancelProgrammaticCarouselTransition({
+      clearPendingTransitionTimers,
+      stopQuickScrolls,
+      stopNativeSmoothScroll,
+      clearVerticalCorrectionTimer,
+      setProgrammaticTrackState,
+      clearLongJumpVisualState,
+      clearProgrammaticTargetIndex,
+      setProgrammaticTransitionActive,
+    });
     const originIndex = getClosestVisiblePanelIndex();
     const plan = createCarouselHeightTransitionPlan({
       targetIndex,
@@ -679,14 +691,16 @@ const initProjectCarousel = () => {
   };
 
   const cancelProgrammaticReposition = () => {
-    clearPendingTransitionTimers();
-    stopQuickScrolls();
-    stopNativeSmoothScroll();
-    clearVerticalCorrectionTimer();
-    setProgrammaticTrackState(false);
-    clearLongJumpVisualState();
-    clearProgrammaticTargetIndex();
-    isProgrammaticTransition = false;
+    cancelProgrammaticCarouselTransition({
+      clearPendingTransitionTimers,
+      stopQuickScrolls,
+      stopNativeSmoothScroll,
+      clearVerticalCorrectionTimer,
+      setProgrammaticTrackState,
+      clearLongJumpVisualState,
+      clearProgrammaticTargetIndex,
+      setProgrammaticTransitionActive,
+    });
   };
 
   prevButtons.forEach((button) => {
@@ -834,15 +848,17 @@ const initProjectCarousel = () => {
     window.removeEventListener('resize', handleResize);
     track.removeEventListener('load', handleTrackContentLoad, true);
     cardJumpCleanup.forEach((dispose) => dispose());
-    clearPendingTransitionTimers();
-    stopQuickScrolls();
-    clearVerticalCorrectionTimer();
+    cancelProgrammaticCarouselTransition({
+      clearPendingTransitionTimers,
+      stopQuickScrolls,
+      clearVerticalCorrectionTimer,
+      setProgrammaticTrackState,
+      clearLongJumpVisualState,
+      clearProgrammaticTargetIndex,
+      setProgrammaticTransitionActive,
+    });
     stopTrackHeightSync();
     disconnectActivePanelResizeObserver();
-    setProgrammaticTrackState(false);
-    clearLongJumpVisualState();
-    clearProgrammaticTargetIndex();
-    isProgrammaticTransition = false;
   };
   document.addEventListener('astro:before-swap', cleanup, { once: true });
   window.addEventListener('pagehide', cleanup, { once: true });

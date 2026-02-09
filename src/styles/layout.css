@@ -1,0 +1,230 @@
+/*
+--------------------------------------------------------------------------------
+personal-site
+src/styles/layout.css
+
+Defines global layout theme tokens, surfaces, and reveal behavior.
+
+Module Author(s): Eric J. South
+--------------------------------------------------------------------------------
+*/
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --site-bg: #071311;
+  --site-surface: #0d1e1b;
+  --site-surface-strong: #122923;
+  --site-border: #21413a;
+  --site-text: #d7f5ee;
+  --site-muted: #9bc8be;
+  --site-accent: #49d6b2;
+  --site-accent-soft: #2b8873;
+  --site-radius-control: 14px;
+  --site-radius-card: 18px;
+  --site-radius-pill: 999px;
+  --site-glass-blur: 10px;
+  --site-focus-ring: #86fce0;
+  --site-scroll-offset: 96px;
+  --site-shadow-1: 0 10px 35px color-mix(in oklab, #000 50%, transparent);
+  --site-shadow-2: 0 20px 60px color-mix(in oklab, #000 65%, transparent);
+  --site-media-depth-shadow:
+    var(--site-shadow-1), 0 16px 30px color-mix(in oklab, #000 24%, transparent);
+  --site-shadow-glow:
+    0 0 0 1px color-mix(in oklab, var(--site-accent) 20%, transparent),
+    0 18px 46px color-mix(in oklab, var(--site-accent) 20%, transparent);
+  --site-divider-line: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in oklab, var(--site-border) 70%, transparent) 18%,
+    color-mix(in oklab, var(--site-accent) 30%, transparent) 50%,
+    color-mix(in oklab, var(--site-border) 70%, transparent) 82%,
+    transparent 100%
+  );
+
+  --b1: 167 46% 6%;
+  --b2: 168 41% 10%;
+  --b3: 168 35% 14%;
+  --bc: 166 57% 90%;
+  --p: 164 63% 57%;
+  --pc: 167 45% 8%;
+  --a: 174 52% 56%;
+  --ac: 167 45% 8%;
+  --n: 168 30% 10%;
+  --nc: 165 42% 86%;
+  --in: 186 75% 55%;
+  --su: 154 60% 54%;
+  --wa: 40 88% 60%;
+  --er: 4 75% 58%;
+
+  --color-base-100: var(--site-bg);
+  --color-base-200: var(--site-surface);
+  --color-base-300: var(--site-border);
+  --color-base-content: var(--site-text);
+  --color-primary: var(--site-accent);
+  --color-primary-content: #07231c;
+  --color-secondary: #7ed4c0;
+  --color-secondary-content: #08251f;
+  --color-accent: var(--site-accent);
+  --color-accent-content: #07231c;
+  --color-neutral: #0c1a17;
+  --color-neutral-content: #d7f5ee;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+  height: 100%;
+}
+
+html {
+  scroll-padding-top: var(--site-scroll-offset);
+}
+
+body {
+  color: var(--site-text);
+  background:
+    radial-gradient(
+      1260px circle at 10% -14%,
+      color-mix(in oklab, var(--site-accent-soft) 64%, transparent),
+      transparent 64%
+    ),
+    radial-gradient(
+      960px circle at 90% 4%,
+      color-mix(in oklab, #12362e 62%, transparent),
+      transparent 62%
+    ),
+    var(--site-bg);
+}
+
+.site-shell {
+  position: relative;
+  background:
+    radial-gradient(
+      132% 220% at 108% 50%,
+      color-mix(in oklab, var(--site-accent) 14%, transparent) 0%,
+      color-mix(in oklab, var(--site-accent-soft) 8%, transparent) 16%,
+      transparent 44%
+    ),
+    linear-gradient(
+      175deg,
+      color-mix(in oklab, var(--site-surface) 18%, transparent) 0%,
+      transparent 55%
+    );
+}
+
+.glass-surface {
+  background:
+    linear-gradient(
+      140deg,
+      color-mix(in oklab, var(--site-surface) 78%, transparent),
+      color-mix(in oklab, var(--site-surface-strong) 88%, transparent)
+    ),
+    color-mix(in oklab, var(--site-surface) 58%, transparent);
+  border: 1px solid color-mix(in oklab, var(--site-border) 58%, transparent);
+  box-shadow:
+    var(--site-shadow-1),
+    inset 0 1px 0 color-mix(in oklab, #fff 6%, transparent);
+  backdrop-filter: blur(var(--site-glass-blur));
+  -webkit-backdrop-filter: blur(var(--site-glass-blur));
+}
+
+.glass-card {
+  border-radius: var(--site-radius-card);
+  border: 1px solid color-mix(in oklab, var(--site-border) 52%, transparent);
+  background:
+    linear-gradient(
+      155deg,
+      color-mix(in oklab, var(--site-surface) 78%, transparent),
+      color-mix(in oklab, var(--site-surface-strong) 84%, transparent)
+    ),
+    color-mix(in oklab, var(--site-surface) 54%, transparent);
+  box-shadow:
+    var(--site-shadow-1),
+    inset 0 1px 0 color-mix(in oklab, #fff 5%, transparent);
+  backdrop-filter: blur(var(--site-glass-blur));
+  -webkit-backdrop-filter: blur(var(--site-glass-blur));
+}
+
+.media-depth-surface {
+  box-shadow: var(--site-media-depth-shadow);
+}
+
+.liquid-caption {
+  box-sizing: border-box;
+  border: 1px solid color-mix(in oklab, var(--site-border) 64%, transparent);
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in oklab, var(--site-surface) 74%, transparent),
+      color-mix(in oklab, var(--site-surface-strong) 82%, transparent)
+    ),
+    color-mix(in oklab, var(--site-surface) 58%, transparent);
+  color: color-mix(in oklab, var(--site-text) 92%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, #fff 10%, transparent),
+    0 10px 24px color-mix(in oklab, #000 36%, transparent);
+  backdrop-filter: blur(var(--site-glass-blur));
+  -webkit-backdrop-filter: blur(var(--site-glass-blur));
+}
+
+.section-divider-line {
+  height: 1px;
+  width: 100%;
+  background: var(--site-divider-line);
+}
+
+.section-divider-bottom {
+  position: relative;
+}
+
+.section-divider-bottom::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  pointer-events: none;
+  background: var(--site-divider-line);
+}
+
+.section-divider-bottom:last-child::after {
+  display: none;
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid var(--site-focus-ring);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px
+    color-mix(in oklab, var(--site-focus-ring) 26%, transparent);
+}
+
+[data-reveal] {
+  opacity: 1;
+  transform: none;
+}
+
+html.js-enhanced [data-reveal][data-reveal-ready='true'] {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  transition:
+    opacity 420ms ease-out,
+    transform 420ms ease-out;
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+html.js-enhanced [data-reveal][data-reveal-ready='true'].is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js-enhanced [data-reveal][data-reveal-ready='true'] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
