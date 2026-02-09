@@ -16,9 +16,7 @@ const linkLabels: Record<string, string> = {
   paper: 'Paper',
 };
 
-const banners = project.banners ?? [];
-const bannersAbove = banners.filter((banner) => banner.placement === 'above');
-const bannersBelow = banners.filter((banner) => banner.placement === 'below');
+const cardBanners = project.banners ?? [];
 
 const parseEmphasis = (text: string) =>
   text
@@ -35,9 +33,13 @@ const parseEmphasis = (text: string) =>
 ---
 
 <article
-  class="flex flex-col gap-5 rounded-2xl border border-base-content/15 bg-base-200/30 p-6"
+  class="project-card glass-card relative flex flex-col gap-5 rounded-2xl p-6"
 >
-  {bannersAbove.map((banner) => <ProjectBanner banner={banner} />)}
+  <a
+    href={`#project-${project.slug}`}
+    class="focus-ring project-card-jump"
+    data-project-card-jump
+    aria-label={`Jump to narrative for ${project.title}`}></a>
 
   <div class="space-y-2">
     <h2 class="text-2xl font-semibold">{project.title}</h2>
@@ -57,7 +59,7 @@ const parseEmphasis = (text: string) =>
 
   {
     project.tech.length > 0 && (
-      <ul class="flex flex-wrap gap-2">
+      <ul class="relative z-20 flex flex-wrap gap-2">
         {project.tech.map((tag) => (
           <li>
             <TagChip label={tag} size="xs" uppercase />
@@ -69,7 +71,7 @@ const parseEmphasis = (text: string) =>
 
   {
     project.links && (
-      <div class="flex flex-wrap gap-4 text-sm text-base-content/70 font-sans">
+      <div class="relative z-20 flex flex-wrap gap-4 text-sm text-base-content/70 font-sans">
         {Object.entries(project.links).map(([key, href]) =>
           href ? (
             <PillLink href={href}>{linkLabels[key] ?? key}</PillLink>
@@ -79,5 +81,30 @@ const parseEmphasis = (text: string) =>
     )
   }
 
-  {bannersBelow.map((banner) => <ProjectBanner banner={banner} />)}
+  {
+    cardBanners.map((banner) => (
+      <div class="project-card-asset">
+        <ProjectBanner banner={banner} />
+      </div>
+    ))
+  }
 </article>
+
+<style>
+  .project-card-jump {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    z-index: 10;
+  }
+
+  .project-card-asset {
+    position: relative;
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  .project-card-asset * {
+    pointer-events: none;
+  }
+</style>

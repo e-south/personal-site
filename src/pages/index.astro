@@ -18,6 +18,7 @@ import { storyRegistry } from '@/data/storyMedia';
 import PillLink from '@/components/ui/PillLink.astro';
 import HomeController from '@/components/home/HomeController';
 import StoryChapters from '@/components/home/StoryChapters.astro';
+import SubscribeCta from '@/components/ui/SubscribeCta.astro';
 import { getImage } from 'astro:assets';
 import { getCollection, getEntry } from 'astro:content';
 import { requireEntry } from '@/lib/require';
@@ -33,6 +34,24 @@ const name = homeData.name;
 const headline = homeData.headline ?? '';
 const locationLine = homeData.locationLine;
 const overview = homeData.overview;
+
+const parseOverviewSegments = (text: string) =>
+  text
+    .split(/(<em>[^<]+<\/em>)/g)
+    .filter(Boolean)
+    .map((segment) => {
+      const match = segment.match(/^<em>([^<]+)<\/em>$/);
+      if (!match) {
+        return {
+          content: segment,
+          emphasis: false,
+        };
+      }
+      return {
+        content: match[1],
+        emphasis: true,
+      };
+    });
 
 const heroBaseWidth = 320;
 const heroContainerAspect = 4 / 5;
@@ -77,7 +96,7 @@ const heroFirst = heroImageVariants[0];
   <section id="top" class="space-y-16" data-story-top>
     <div class="flex min-h-[calc(100vh-9rem)] flex-col gap-10">
       <div class="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
-        <div class="space-y-6">
+        <div class="space-y-6" data-reveal>
           <div class="space-y-3">
             {
               locationLine && (
@@ -99,17 +118,28 @@ const heroFirst = heroImageVariants[0];
           </div>
           {
             overview && (
-              <p
-                class="text-lg text-base-content/80 leading-relaxed text-justify"
-                set:html={overview}
-              />
+              <p class="text-lg text-base-content/80 leading-relaxed text-justify">
+                {parseOverviewSegments(overview).map((part) =>
+                  part.emphasis ? (
+                    <em>{part.content}</em>
+                  ) : (
+                    <span>{part.content}</span>
+                  ),
+                )}
+              </p>
             )
           }
         </div>
 
-        <div class="order-first lg:order-none">
+        <div
+          class="order-first space-y-5 lg:order-none"
+          data-home-hero-secondary
+          data-reveal
+        >
           <div class="mx-auto max-w-xs" data-hero-shell>
-            <div class="relative overflow-hidden rounded-3xl">
+            <div
+              class="home-hero-image-shell relative overflow-hidden rounded-3xl"
+            >
               <figure
                 class="relative"
                 data-hero-rotator
@@ -129,7 +159,7 @@ const heroFirst = heroImageVariants[0];
                   data-hero-image
                 />
                 <figcaption
-                  class="pointer-events-none absolute bottom-3 left-1/2 w-[90%] -translate-x-1/2 rounded-2xl bg-black/45 px-3 py-1.5 text-center text-[0.7rem] leading-snug text-white/90 backdrop-blur-sm transition-opacity duration-500 ease-out"
+                  class="pointer-events-none absolute bottom-3 left-1/2 w-[90%] -translate-x-1/2 rounded-2xl liquid-caption px-3 py-1.5 text-center text-[0.7rem] leading-snug transition-opacity duration-500 ease-out"
                   data-hero-caption
                   data-empty={heroFirst.caption ? 'false' : 'true'}
                   aria-hidden={heroFirst.caption ? 'false' : 'true'}
@@ -148,7 +178,7 @@ const heroFirst = heroImageVariants[0];
                   {heroItems.map((_, index) => (
                     <button
                       type="button"
-                      class="hero-dot"
+                      class="hero-dot focus-ring"
                       data-hero-dot
                       data-hero-index={index}
                       aria-label={`Show image ${index + 1}`}
@@ -159,10 +189,11 @@ const heroFirst = heroImageVariants[0];
               )
             }
           </div>
+          <SubscribeCta class="mx-auto w-full max-w-md" />
         </div>
       </div>
 
-      <div class="flex justify-center -mt-4">
+      <div class="flex justify-center -mt-4" data-reveal>
         <PillLink
           href="#about"
           variant="pastel"
@@ -205,9 +236,29 @@ const heroFirst = heroImageVariants[0];
       transform: scale(1.08);
     }
 
-    [data-hero-dot]:focus-visible {
-      outline: 2px solid currentColor;
-      outline-offset: 3px;
+    .home-hero-image-shell {
+      position: relative;
+      isolation: isolate;
+      box-shadow:
+        var(--site-shadow-1),
+        var(--site-shadow-2),
+        0 24px 42px color-mix(in oklab, #000 32%, transparent);
+    }
+
+    .home-hero-image-shell::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      box-shadow:
+        inset 0 1px 0 color-mix(in oklab, #fff 24%, transparent),
+        inset 0 -26px 30px color-mix(in oklab, #000 26%, transparent);
+    }
+
+    [data-hero-image] {
+      transform: scale(1.01);
+      transform-origin: center;
     }
 
     :global(html.story-snap) [data-story-top] {

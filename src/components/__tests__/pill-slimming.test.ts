@@ -23,7 +23,7 @@ describe('Pill slimming styles', () => {
 
     expect(contents).toContain('min-height: 2.1rem;');
     expect(contents).toContain(
-      'background: color-mix(in oklab, currentColor 6%, transparent);',
+      'color-mix(in oklab, var(--site-surface) 78%, transparent)',
     );
     expect(contents).toContain('#imperial-crick-training .story-carousel');
     expect(contents).toContain('height: var(--carousel-lock-height, auto);');
@@ -36,9 +36,9 @@ describe('Pill slimming styles', () => {
     );
     const contents = await readFile(filePath, 'utf-8');
 
-    expect(contents).toContain('padding: 0.35rem 0.85rem;');
+    expect(contents).toContain('padding: 0.4rem 0.9rem;');
     expect(contents).toContain(
-      'background-color: color-mix(in oklab, hsl(var(--p)) 8%, transparent);',
+      'color-mix(in oklab, var(--site-surface) 74%, transparent)',
     );
   });
 });

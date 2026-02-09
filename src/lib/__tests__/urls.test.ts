@@ -33,6 +33,12 @@ describe('withBase', () => {
     const { withBase } = await loadUrls('/lab/');
     expect(withBase('/blog')).toBe('/lab/blog');
   });
+
+  it('falls back to base for unsafe external schemes', async () => {
+    const { withBase } = await loadUrls('/');
+    expect(withBase('javascript:alert(1)')).toBe('/');
+    expect(withBase('data:text/html,hello')).toBe('/');
+  });
 });
 
 describe('toAbsoluteUrl', () => {
@@ -48,5 +54,23 @@ describe('toAbsoluteUrl', () => {
     expect(toAbsoluteUrl('/blog', 'https://example.com')).toBe(
       'https://example.com/lab/blog',
     );
+  });
+});
+
+describe('safe href helpers', () => {
+  it('detects safe external href protocols', async () => {
+    const { isSafeExternalHref } = await loadUrls('/');
+    expect(isSafeExternalHref('https://example.com')).toBe(true);
+    expect(isSafeExternalHref('mailto:person@example.com')).toBe(true);
+    expect(isSafeExternalHref('tel:+15551234567')).toBe(true);
+    expect(isSafeExternalHref('javascript:alert(1)')).toBe(false);
+  });
+
+  it('sanitizes unsafe href values to hash', async () => {
+    const { sanitizeHref } = await loadUrls('/');
+    expect(sanitizeHref('/projects')).toBe('/projects');
+    expect(sanitizeHref('#about')).toBe('#about');
+    expect(sanitizeHref('javascript:alert(1)')).toBe('#');
+    expect(sanitizeHref('data:text/html,hello')).toBe('#');
   });
 });

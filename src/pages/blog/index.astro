@@ -37,18 +37,20 @@ const intro = blogData.intro;
   hasPosts ? (
     <Layout title={title}>
       <div class="mx-auto max-w-3xl space-y-12">
-        <header class="space-y-3">
+        <header class="space-y-3" data-reveal>
           <h1 class="text-4xl sm:text-5xl font-semibold">{title}</h1>
           <p class="text-base-content/70">{intro}</p>
         </header>
 
-        <SubscribeCta />
+        <div data-reveal>
+          <SubscribeCta />
+        </div>
 
-        <div class="space-y-10">
+        <div class="space-y-10" data-reveal>
           {page.data.map((post) => (
-            <article class="border-b border-base-content/15 pb-10 last:border-b-0 last:pb-0">
+            <article class="glass-card space-y-3 p-6">
               {post.cover && (
-                <figure class="aspect-video mb-6 overflow-hidden rounded-xl border border-base-content/10">
+                <figure class="blog-cover-media media-depth-surface aspect-video mb-6 overflow-hidden rounded-xl">
                   <Image
                     src={post.cover}
                     alt={requireValue(
@@ -69,7 +71,7 @@ const intro = blogData.intro;
                   )}
                 </div>
                 <h2 class="text-2xl font-semibold">
-                  <a href={post.slug} class="hover:text-accent">
+                  <a href={post.slug} class="focus-ring hover:text-accent">
                     {post.title}
                   </a>
                 </h2>
@@ -90,15 +92,17 @@ const intro = blogData.intro;
   ) : (
     <Layout title={title}>
       <div class="mx-auto max-w-3xl space-y-12">
-        <header class="space-y-3">
+        <header class="space-y-3" data-reveal>
           <h1 class="text-4xl sm:text-5xl font-semibold">{title}</h1>
           <p class="text-base-content/70">{intro}</p>
         </header>
 
-        <SubscribeCta />
+        <div data-reveal>
+          <SubscribeCta />
+        </div>
 
         {Content && (
-          <div class="text-base-content/70 leading-relaxed">
+          <div class="text-base-content/70 leading-relaxed" data-reveal>
             <Content />
           </div>
         )}

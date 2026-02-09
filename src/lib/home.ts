@@ -296,7 +296,10 @@ const initStoryNavigation = () => {
   const getScrollOffset = (target: HTMLElement) => {
     const style = window.getComputedStyle(target);
     const marginTop = Number.parseFloat(style.scrollMarginTop || '0');
-    return Number.isFinite(marginTop) ? marginTop : 0;
+    if (!Number.isFinite(marginTop)) {
+      return getHeaderHeight() + 24;
+    }
+    return getHeaderHeight() + 24 + marginTop;
   };
 
   const getTargetScrollTop = (target: HTMLElement, offset: number) => {
@@ -307,6 +310,22 @@ const initStoryNavigation = () => {
   const restoreSnap = () => {
     suppressSnap = false;
     applySnapState(isStoryInView());
+  };
+
+  const releaseScrollControl = () => {
+    clearActiveScroll();
+    suppressSnap = true;
+    if (snapTimer !== null) {
+      window.clearTimeout(snapTimer);
+      snapTimer = null;
+    }
+  };
+
+  const cancelActiveScrollLock = () => {
+    if (!activeScrollTarget) {
+      return;
+    }
+    releaseScrollControl();
   };
 
   const handleScroll = () => {
@@ -329,6 +348,34 @@ const initStoryNavigation = () => {
   window.addEventListener('scroll', handleScroll, { passive: true });
   addCleanup(() => window.removeEventListener('scroll', handleScroll));
 
+  window.addEventListener('wheel', cancelActiveScrollLock, { passive: true });
+  addCleanup(() => window.removeEventListener('wheel', cancelActiveScrollLock));
+
+  window.addEventListener('touchmove', cancelActiveScrollLock, {
+    passive: true,
+  });
+  addCleanup(() =>
+    window.removeEventListener('touchmove', cancelActiveScrollLock),
+  );
+
+  const cancelScrollKeys = new Set([
+    'ArrowUp',
+    'ArrowDown',
+    'PageUp',
+    'PageDown',
+    'Home',
+    'End',
+    ' ',
+  ]);
+  const handleKeyCancel = (event: KeyboardEvent) => {
+    if (!cancelScrollKeys.has(event.key)) {
+      return;
+    }
+    cancelActiveScrollLock();
+  };
+  window.addEventListener('keydown', handleKeyCancel);
+  addCleanup(() => window.removeEventListener('keydown', handleKeyCancel));
+
   const scheduleVideoCheck = () => {
     const delay = prefersReducedMotion() ? 0 : 250;
     window.setTimeout(() => {
@@ -336,15 +383,26 @@ const initStoryNavigation = () => {
     }, delay);
   };
 
-  const waitForScrollSettle = (target: HTMLElement, offset: number) => {
+  const waitForScrollSettle = (target: HTMLElement) => {
+    const finalizeScrollAlignment = () => {
+      window.scrollTo({
+        top: getTargetScrollTop(target, getScrollOffset(target)),
+        behavior: 'auto',
+      });
+    };
+
     const start = performance.now();
     const check = () => {
       if (activeScrollTarget !== target) {
         return;
       }
-      const delta = Math.abs(target.getBoundingClientRect().top - offset);
+      const currentOffset = getScrollOffset(target);
+      const delta = Math.abs(
+        target.getBoundingClientRect().top - currentOffset,
+      );
       const elapsed = performance.now() - start;
       if (delta <= 2 || elapsed > 1600) {
+        finalizeScrollAlignment();
         clearActiveScroll();
         restoreSnap();
         return;
@@ -378,7 +436,7 @@ const initStoryNavigation = () => {
     if (behavior === 'smooth') {
       window.requestAnimationFrame(() => {
         performScroll();
-        waitForScrollSettle(target, offset);
+        waitForScrollSettle(target);
       });
     } else {
       performScroll();

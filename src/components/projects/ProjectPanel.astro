@@ -4,7 +4,7 @@ import PillLink from '@/components/ui/PillLink.astro';
 import ProjectBanner from '@/components/projects/ProjectBanner.astro';
 import Prose from '@/components/ui/Prose.astro';
 import type { ProjectPanel as ProjectPanelType } from '@/lib/projects';
-import { withBase } from '@/lib/urls';
+import { isSafeExternalHref, sanitizeHref, withBase } from '@/lib/urls';
 
 type Props = {
   project: ProjectPanelType;
@@ -30,8 +30,10 @@ const publication = data.publication;
 const panelId = `project-${entry.slug}`;
 const titleId = `${panelId}-title`;
 
-const normalizeHref = (href: string) =>
-  href.startsWith('/') ? withBase(href) : href;
+const normalizeHref = (href: string) => {
+  const safeHref = sanitizeHref(href);
+  return safeHref.startsWith('/') ? withBase(safeHref) : safeHref;
+};
 
 const parseEmphasis = (text: string) =>
   text
@@ -49,7 +51,7 @@ const parseEmphasis = (text: string) =>
 
 <section
   id={panelId}
-  class="h-full w-full min-w-full shrink-0 snap-center md:snap-start"
+  class="w-full min-w-full shrink-0 snap-center md:snap-start"
   role="group"
   aria-roledescription="slide"
   aria-label={`Project ${index + 1} of ${total}: ${data.title}`}
@@ -59,9 +61,7 @@ const parseEmphasis = (text: string) =>
   data-index={index}
 >
   <div class="project-panel-scroll">
-    <div
-      class="mx-auto flex min-h-full w-full max-w-3xl flex-col gap-8 px-0 py-8 sm:px-6"
-    >
+    <div class="mx-auto flex w-full max-w-3xl flex-col gap-8 px-0 py-8 sm:px-6">
       <header class="space-y-4">
         <div
           class="text-xs font-semibold uppercase tracking-[0.3em] text-base-content/50"
@@ -141,18 +141,26 @@ const parseEmphasis = (text: string) =>
               {publication.label}{' '}
               {publication.links.map((link, linkIndex) => (
                 <span>
-                  <a
-                    class="text-accent/80 transition hover:text-accent"
-                    href={normalizeHref(link.href)}
-                  >
-                    {parseEmphasis(link.label).map((part) =>
-                      part.emphasis ? (
-                        <em>{part.content}</em>
-                      ) : (
-                        <span>{part.content}</span>
-                      ),
-                    )}
-                  </a>
+                  {(() => {
+                    const href = normalizeHref(link.href);
+                    const isExternalLink = isSafeExternalHref(href);
+                    return (
+                      <a
+                        class="focus-ring text-accent/80 transition hover:text-accent"
+                        href={href}
+                        target={isExternalLink ? '_blank' : undefined}
+                        rel={isExternalLink ? 'noreferrer noopener' : undefined}
+                      >
+                        {parseEmphasis(link.label).map((part) =>
+                          part.emphasis ? (
+                            <em>{part.content}</em>
+                          ) : (
+                            <span>{part.content}</span>
+                          ),
+                        )}
+                      </a>
+                    );
+                  })()}
                   {linkIndex < publication.links.length - 1 && (
                     <span class="mx-2 text-base-content/30" aria-hidden="true">
                       ·
@@ -170,43 +178,43 @@ const parseEmphasis = (text: string) =>
 
 <style>
   .project-panel-scroll {
-    height: 100%;
-    overflow-y: auto;
-    overscroll-behavior-y: contain;
+    height: auto;
+    overflow: visible;
+    overscroll-behavior: auto;
     -webkit-overflow-scrolling: touch;
   }
 
-  :global([data-project='synthetic-microbial-communities'] .prose img) {
+  :global([data-carousel-panel] .prose) {
+    --project-media-canvas-padding-inline: 0.72rem;
+    --project-media-canvas-padding-block: 0.62rem;
+  }
+
+  :global([data-carousel-panel] .prose picture),
+  :global([data-carousel-panel] .prose img) {
+    display: block;
+    inline-size: 100%;
+    max-inline-size: 100%;
+  }
+
+  :global([data-carousel-panel] .prose img) {
     display: block;
     width: 100%;
     max-width: 100%;
     height: auto;
+    object-fit: contain;
     margin: 2rem auto;
-    padding: 1rem;
+    padding-inline: var(--project-media-canvas-padding-inline);
+    padding-block: var(--project-media-canvas-padding-block);
     border-radius: 1.25rem;
-    border: 1px solid color-mix(in oklab, currentColor 10%, transparent);
-    background: #ffffff;
+    background: #fff;
+    box-shadow: var(--site-media-depth-shadow);
     box-sizing: border-box;
   }
 
-  :global([data-project='molecular-sequence-design'] .prose img) {
-    display: block;
-    width: 100%;
-    max-width: 100%;
-    height: auto;
-    margin: 2rem auto;
-    padding: 1rem;
-    border-radius: 1.25rem;
-    border: 1px solid color-mix(in oklab, currentColor 10%, transparent);
-    background: #ffffff;
-    box-sizing: border-box;
-  }
-
-  @media (max-width: 767px) {
-    .project-panel-scroll {
-      height: auto;
-      overflow: visible;
-      overscroll-behavior: auto;
+  @media (min-width: 768px) {
+    :global([data-carousel-panel] .prose) {
+      --project-media-canvas-padding-inline: 0.98rem;
+      --project-media-canvas-padding-block: 0.76rem;
     }
   }
 </style>

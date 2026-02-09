@@ -22,10 +22,7 @@ const shouldRender =
 {
   shouldRender && (
     <section
-      class:list={[
-        'rounded-2xl border border-base-content/10 bg-base-content/5 px-5 py-5 sm:px-6',
-        className,
-      ]}
+      class:list={['glass-card rounded-2xl px-5 py-5 sm:px-6', className]}
       aria-label="Newsletter subscription"
     >
       <div class="space-y-3">
@@ -48,7 +45,7 @@ const shouldRender =
           required
           autocomplete="email"
           placeholder="you@example.com"
-          class="w-full rounded-xl border border-base-content/15 bg-base-100 px-3 py-2 text-sm text-base-content placeholder:text-base-content/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-base-content/40 sm:max-w-xs"
+          class="focus-ring w-full rounded-[var(--site-radius-control)] border border-base-content/20 bg-base-100/70 px-3 py-2 text-sm text-base-content placeholder:text-base-content/40 sm:max-w-xs"
         />
         <label class="sr-only" for="newsletter-name">
           Name
@@ -59,7 +56,7 @@ const shouldRender =
           type="text"
           autocomplete="name"
           placeholder="Name (optional)"
-          class="w-full rounded-xl border border-base-content/15 bg-base-100 px-3 py-2 text-sm text-base-content placeholder:text-base-content/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-base-content/40 sm:max-w-xs"
+          class="focus-ring w-full rounded-[var(--site-radius-control)] border border-base-content/20 bg-base-100/70 px-3 py-2 text-sm text-base-content placeholder:text-base-content/40 sm:max-w-xs"
         />
         <input
           type="text"
@@ -71,7 +68,7 @@ const shouldRender =
         />
         <button
           type="submit"
-          class="inline-flex items-center justify-center rounded-xl bg-base-content px-4 py-2 text-sm font-semibold text-base-100 transition hover:bg-base-content/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-base-content/40"
+          class="focus-ring inline-flex items-center justify-center rounded-[var(--site-radius-control)] border border-base-content/15 bg-base-content px-4 py-2 text-sm font-semibold text-base-100 transition hover:bg-base-content/90"
         >
           Subscribe
         </button>
@@ -129,7 +126,7 @@ const shouldRender =
         return;
       }
 
-      if (statusEl) statusEl.textContent = 'Subscribing...';
+      if (statusEl) statusEl.textContent = 'Subscribing…';
       const submitButton = form.querySelector('button[type="submit"]');
       if (submitButton) submitButton.disabled = true;
 

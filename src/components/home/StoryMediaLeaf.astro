@@ -76,7 +76,9 @@ const maxHeight = getFrameHeight(effectiveFrame);
   </div>
   {
     item.caption && (
-      <figcaption class="story-media-caption">{item.caption}</figcaption>
+      <figcaption class="story-media-caption liquid-caption">
+        {item.caption}
+      </figcaption>
     )
   }
 </figure>
@@ -95,8 +97,10 @@ const maxHeight = getFrameHeight(effectiveFrame);
     margin: 0 auto;
     display: flex;
     justify-content: center;
-    border-radius: 0.9rem;
+    border-radius: var(--site-radius-card);
     overflow: hidden;
+    padding: 0;
+    box-shadow: var(--site-shadow-1);
   }
 
   .story-media-surface {
@@ -119,7 +123,7 @@ const maxHeight = getFrameHeight(effectiveFrame);
       --story-media-height-dvh,
       var(--story-media-height-svh, var(--story-media-height, 70vh))
     );
-    border-radius: 0;
+    border-radius: inherit;
     object-fit: contain;
     display: block;
   }
@@ -129,7 +133,6 @@ const maxHeight = getFrameHeight(effectiveFrame);
     inset: auto auto 0.75rem auto;
     max-width: calc(100% - 1.5rem);
     width: min(80%, 26rem);
-    box-sizing: border-box;
     padding: 0.55rem 0.75rem;
     border-radius: 0.65rem;
     text-align: center;
@@ -137,10 +140,6 @@ const maxHeight = getFrameHeight(effectiveFrame);
     line-height: 1.35;
     letter-spacing: 0.02em;
     text-transform: none;
-    color: #f8fafc;
-    background: color-mix(in oklab, #0b0b0c 72%, transparent);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
     left: 50%;
     transform: translateX(-50%);
     z-index: 1;

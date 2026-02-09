@@ -37,8 +37,20 @@ const blog = defineCollection({
       }),
 });
 
+const safeExternalUrl = z
+  .string()
+  .url()
+  .refine((value) => {
+    try {
+      const protocol = new URL(value).protocol;
+      return protocol === 'http:' || protocol === 'https:';
+    } catch {
+      return false;
+    }
+  }, 'External links must use http or https.');
+
 const internalOrExternalLink = z.union([
-  z.string().url(),
+  safeExternalUrl,
   z.string().regex(/^\//),
 ]);
 
@@ -55,9 +67,9 @@ const projects = defineCollection({
         tech: z.array(z.string()).default([]),
         links: z
           .object({
-            repo: z.string().url().optional(),
-            live: z.string().url().optional(),
-            paper: z.string().url().optional(),
+            repo: safeExternalUrl.optional(),
+            live: safeExternalUrl.optional(),
+            paper: safeExternalUrl.optional(),
           })
           .optional(),
         image: image().optional(),
@@ -103,8 +115,8 @@ const papers = defineCollection({
       venue: z.string(),
       year: z.number().int(),
       coFirst: z.boolean().optional(),
-      link: z.string().url().optional(),
-      pdf: z.union([z.string().url(), z.string().regex(/^\//)]).optional(),
+      link: safeExternalUrl.optional(),
+      pdf: z.union([safeExternalUrl, z.string().regex(/^\//)]).optional(),
       abstract: z.string().optional(),
       featured: z.boolean().default(false),
     })
@@ -194,7 +206,7 @@ const story = defineCollection({
     .object({
       title: z.string(),
       ctaLabel: z.string().optional(),
-      ctaHref: z.string().url().optional(),
+      ctaHref: safeExternalUrl.optional(),
     })
     .refine((data) => !(data.ctaLabel && !data.ctaHref), {
       message: 'ctaHref is required when ctaLabel is set.',

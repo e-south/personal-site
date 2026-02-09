@@ -17,7 +17,7 @@ if (!Array.isArray(projects) || projects.length === 0) {
 ---
 
 <nav
-  class="flex items-center justify-center gap-3 rounded-full bg-base-100/90 px-4 py-2 text-sm text-base-content/70 shadow-sm backdrop-blur"
+  class="flex items-center justify-center gap-3 px-2 py-1 text-sm text-base-content/80"
   aria-label={`Project carousel navigation (${position})`}
   data-carousel-nav={position}
 >
@@ -26,7 +26,7 @@ if (!Array.isArray(projects) || projects.length === 0) {
       projects.map((project, index) => (
         <button
           type="button"
-          class="project-carousel-dot"
+          class="focus-ring project-carousel-dot"
           data-carousel-dot
           data-index={index}
           data-active={index === 0 ? 'true' : 'false'}
@@ -48,7 +48,7 @@ if (!Array.isArray(projects) || projects.length === 0) {
     justify-content: center;
     width: 2.75rem;
     height: 2.75rem;
-    border-radius: 999px;
+    border-radius: var(--site-radius-control);
     border: 0;
     background: transparent;
     transition: transform 0.2s ease;
@@ -58,7 +58,7 @@ if (!Array.isArray(projects) || projects.length === 0) {
     width: 0.5rem;
     height: 0.5rem;
     border-radius: 999px;
-    border: 1px solid color-mix(in oklab, currentColor 35%, transparent);
+    border: 1px solid color-mix(in oklab, var(--site-accent) 48%, transparent);
     background: transparent;
     transition:
       transform 0.2s ease,
@@ -67,13 +67,8 @@ if (!Array.isArray(projects) || projects.length === 0) {
   }
 
   .project-carousel-dot[data-active='true'] .project-carousel-dot__inner {
-    border-color: currentColor;
-    background: currentColor;
+    border-color: color-mix(in oklab, var(--site-accent) 84%, transparent);
+    background: color-mix(in oklab, var(--site-accent) 78%, transparent);
     transform: scale(1.1);
-  }
-
-  .project-carousel-dot:focus-visible {
-    outline: 2px solid color-mix(in oklab, hsl(var(--p)) 70%, transparent);
-    outline-offset: 4px;
   }
 </style>

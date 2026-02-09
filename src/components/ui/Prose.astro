@@ -25,9 +25,14 @@ const classes = className ? `${baseClasses} ${className}` : baseClasses;
     {
       'font-serif': template.proseFont === 'serif',
       'font-sans': template.proseFont === 'sans',
-      'prose-headings:font-display': template.displayFont === 'display',
-      'prose-headings:font-serif': template.displayFont === 'serif',
-      'prose-headings:font-sans': template.displayFont === 'sans',
+      'prose-h1:font-display': template.displayFont === 'display',
+      'prose-h2:font-display': template.displayFont === 'display',
+      'prose-h1:font-serif': template.displayFont === 'serif',
+      'prose-h2:font-serif': template.displayFont === 'serif',
+      'prose-h1:font-sans': template.displayFont === 'sans',
+      'prose-h2:font-sans': template.displayFont === 'sans',
+      'prose-h3:font-sans': true,
+      'prose-h4:font-sans': true,
     },
   ]}
 >

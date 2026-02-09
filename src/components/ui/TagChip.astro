@@ -1,6 +1,4 @@
 ---
-import { hashToHue } from '@/lib/colors';
-
 const {
   label,
   uppercase = false,
@@ -12,28 +10,43 @@ const {
   size?: 'xs' | 'sm';
   class?: string;
 };
-
-const hash = hashToHue(label);
 const sizeClasses =
   size === 'xs' ? 'px-2.5 py-1 text-[0.6rem]' : 'px-3 py-1 text-[0.65rem]';
 ---
 
 <span
   class:list={[
-    'tag-chip inline-flex items-center rounded-full border font-sans',
+    'tag-chip inline-flex items-center rounded-[var(--site-radius-control)] font-sans',
     sizeClasses,
     uppercase ? 'uppercase tracking-[0.18em]' : 'tracking-[0.06em]',
     className,
   ]}
-  style={`--tag-hue:${hash};`}
 >
   {label}
 </span>
 
 <style>
   .tag-chip {
-    background-color: hsl(var(--tag-hue) 65% 60% / 0.18);
-    border-color: hsl(var(--tag-hue) 65% 60% / 0.35);
-    color: hsl(var(--tag-hue) 70% 82%);
+    border: 1px solid transparent;
+    background:
+      linear-gradient(
+        140deg,
+        color-mix(in oklab, var(--site-accent) 18%, transparent),
+        color-mix(in oklab, var(--site-accent-soft) 14%, transparent)
+      ),
+      color-mix(in oklab, var(--site-surface) 58%, transparent);
+    color: color-mix(in oklab, var(--site-text) 86%, transparent);
+    transition:
+      transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 220ms ease,
+      color 220ms ease,
+      background-color 260ms ease;
+    will-change: transform;
+  }
+
+  .tag-chip:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in oklab, var(--site-accent) 38%, transparent);
+    color: var(--site-text);
   }
 </style>

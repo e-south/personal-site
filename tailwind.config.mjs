@@ -5,8 +5,8 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Manrope Variable', 'system-ui', 'sans-serif'],
-        display: ['Fraunces Variable', 'ui-serif', 'serif'],
-        mono: ['JetBrains Mono Variable', 'ui-monospace', 'monospace'],
+        display: ['Source Serif 4 Variable', 'ui-serif', 'serif'],
+        mono: ['ui-monospace', 'monospace'],
         serif: ['Source Serif 4 Variable', 'ui-serif', 'serif'],
       },
     },

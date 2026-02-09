@@ -30,4 +30,13 @@ describe('hero images', () => {
     expect(contents).toContain('heroContainerAspect');
     expect(contents).toContain('getHeroCoverWidth');
   });
+
+  it('applies layered depth styling to hero media assets', async () => {
+    const filePath = path.resolve(process.cwd(), 'src/pages/index.astro');
+    const contents = await readFile(filePath, 'utf-8');
+
+    expect(contents).toContain('home-hero-image-shell::after');
+    expect(contents).toContain('var(--site-shadow-2)');
+    expect(contents).toContain('inset 0 1px 0');
+  });
 });

@@ -23,30 +23,28 @@ const locationShort = requireValue(linksData.location, 'links/links.location');
 
 <Layout title={title}>
   <div class="mx-auto w-full max-w-3xl space-y-10">
-    <header class="space-y-3">
+    <header class="space-y-3" data-reveal>
       <h1 class="text-4xl sm:text-5xl font-semibold">{title}</h1>
       <p class="text-base-content/70">{intro}</p>
     </header>
 
-    <section class="space-y-6 text-base-content/80">
-      <div class="space-y-2">
+    <section class="space-y-6 text-base-content/80" data-reveal>
+      <div class="section-divider-bottom space-y-4 pb-4">
         <p
           class="text-sm uppercase tracking-[0.2em] text-base-content/60 font-sans"
         >
           Email
         </p>
-        <p class="select-all text-lg">{email}</p>
+        <p class="select-all text-lg text-base-content/90">{email}</p>
       </div>
 
-      <div class="grid gap-6 sm:grid-cols-2">
-        <div class="space-y-2">
-          <p
-            class="text-sm uppercase tracking-[0.2em] text-base-content/60 font-sans"
-          >
-            Location
-          </p>
-          <p>{locationShort}</p>
-        </div>
+      <div class="space-y-2">
+        <p
+          class="text-sm uppercase tracking-[0.2em] text-base-content/60 font-sans"
+        >
+          Location
+        </p>
+        <p class="text-base-content/85">{locationShort}</p>
       </div>
 
       {
