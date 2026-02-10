@@ -56,7 +56,7 @@ describe('Typography policy contract', () => {
     expect(tailwind).toContain("mono: ['ui-monospace', 'monospace']");
   });
 
-  it('uses heavy sans typography for top banner controls and headers throughout the site', async () => {
+  it('uses non-bold top-banner typography while keeping active pill links bold', async () => {
     const layout = await read('src/layouts/Layout.astro');
     const headingTypography = await read('src/lib/layout/headingTypography.ts');
     const navLink = await read('src/components/ui/NavLink.astro');
@@ -77,7 +77,8 @@ describe('Typography policy contract', () => {
     expect(prose).toContain('prose-headings:font-bold');
 
     expect(navLink).toContain('font-header');
-    expect(navLink).toContain('font-bold');
+    expect(navLink).toContain('font-normal');
+    expect(navLink).toContain('nav-active text-base-content font-bold');
     expect(navbar).toContain('font-header text-lg');
   });
 });
