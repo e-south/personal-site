@@ -45,16 +45,20 @@ describe('Project carousel jump behavior', () => {
     const projectCarouselRuntime = await read(
       'src/lib/projectCarouselRuntime.ts',
     );
+    const visibilityObserver = await read(
+      'src/lib/projectCarouselVisibilityObserver.ts',
+    );
 
     expect(projectCarouselRuntime).toContain(
       'let programmaticTargetIndex: number | null = null;',
     );
     expect(projectCarouselRuntime).toContain(
+      'createProjectCarouselVisibilityObserver({',
+    );
+    expect(visibilityObserver).toContain(
       'if (programmaticTargetIndex !== null) {',
     );
-    expect(projectCarouselRuntime).toContain(
-      'index !== programmaticTargetIndex',
-    );
+    expect(visibilityObserver).toContain('index !== programmaticTargetIndex');
     expect(projectCarouselRuntime).toContain('programmaticTargetIndex = null;');
   });
 
@@ -217,15 +221,21 @@ describe('Project carousel jump behavior', () => {
     const projectCarouselRuntime = await read(
       'src/lib/projectCarouselRuntime.ts',
     );
+    const visibilityObserver = await read(
+      'src/lib/projectCarouselVisibilityObserver.ts',
+    );
 
-    expect(projectCarouselRuntime).toContain(
+    expect(visibilityObserver).toContain(
       'if (programmaticTargetIndex !== null) {',
     );
-    expect(projectCarouselRuntime).toContain(
+    expect(visibilityObserver).toContain(
       'if (index !== programmaticTargetIndex) {',
     );
-    expect(projectCarouselRuntime).not.toContain(
+    expect(visibilityObserver).not.toContain(
       'if (index !== programmaticTargetIndex) {\n            return;\n          }\n          clearProgrammaticTargetIndex();',
+    );
+    expect(projectCarouselRuntime).toContain(
+      'getProgrammaticTargetIndex: () => programmaticTargetIndex,',
     );
   });
 
@@ -233,29 +243,30 @@ describe('Project carousel jump behavior', () => {
     const projectCarouselRuntime = await read(
       'src/lib/projectCarouselRuntime.ts',
     );
+    const visibilityObserver = await read(
+      'src/lib/projectCarouselVisibilityObserver.ts',
+    );
 
-    expect(projectCarouselRuntime).toContain(
+    expect(visibilityObserver).toContain(
       'const panelVisibilityRatios = panels.map(() => 0);',
     );
     expect(projectCarouselRuntime).toContain(
       'const HEIGHT_SYNC_INTERSECTION_RATIO = 0.72;',
     );
     expect(projectCarouselRuntime).toContain(
-      'const getMostVisiblePanelFromRatios = () => {',
+      'heightSyncIntersectionRatio: HEIGHT_SYNC_INTERSECTION_RATIO,',
     );
-    expect(projectCarouselRuntime).toContain(
-      'const isProgrammaticLockActive =',
+    expect(visibilityObserver).toContain(
+      'const getMostVisiblePanelFromRatios = (panelVisibilityRatios: number[]) => {',
     );
-    expect(projectCarouselRuntime).toContain(
-      'isProgrammaticTransition && programmaticTargetIndex !== null;',
+    expect(visibilityObserver).toContain('const isProgrammaticLockActive =');
+    expect(visibilityObserver).toContain('const shouldSyncHeight =');
+    expect(visibilityObserver).toContain(
+      '!isProgrammaticLockActive && ratio >= heightSyncIntersectionRatio;',
     );
-    expect(projectCarouselRuntime).toContain('const shouldSyncHeight =');
-    expect(projectCarouselRuntime).toContain(
-      '!isProgrammaticLockActive && ratio >= HEIGHT_SYNC_INTERSECTION_RATIO;',
-    );
-    expect(projectCarouselRuntime).toContain('setActiveIndex(index, {');
-    expect(projectCarouselRuntime).toContain('syncHeight: shouldSyncHeight');
-    expect(projectCarouselRuntime).toContain('observeHeight: shouldSyncHeight');
+    expect(visibilityObserver).toContain('setActiveIndex(index, {');
+    expect(visibilityObserver).toContain('syncHeight: shouldSyncHeight');
+    expect(visibilityObserver).toContain('observeHeight: shouldSyncHeight');
   });
 
   it('computes panel target scroll positions from snap geometry to prevent post-transition horizontal snap corrections', async () => {

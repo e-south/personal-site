@@ -364,6 +364,26 @@ describe('project carousel helper extraction', () => {
     expect(targetTop).toContain('window.scrollY');
   });
 
+  it('extracts project carousel visibility observer sync into a dedicated module', async () => {
+    const runtime = await read('src/lib/projectCarouselRuntime.ts');
+    const visibilityObserver = await read(
+      'src/lib/projectCarouselVisibilityObserver.ts',
+    );
+
+    expect(runtime).toContain(
+      "import { createProjectCarouselVisibilityObserver } from '@/lib/projectCarouselVisibilityObserver';",
+    );
+    expect(runtime).toContain(
+      'const observer = createProjectCarouselVisibilityObserver({',
+    );
+
+    expect(visibilityObserver).toContain(
+      'export const createProjectCarouselVisibilityObserver = ({',
+    );
+    expect(visibilityObserver).toContain('new IntersectionObserver(');
+    expect(visibilityObserver).toContain('heightSyncIntersectionRatio');
+  });
+
   it('extracts project carousel transition timer scheduling into a dedicated module', async () => {
     const runtime = await read('src/lib/projectCarouselRuntime.ts');
     const transitionTimers = await read(

@@ -25,6 +25,7 @@ import {
   runQuickTrackScroll,
   runQuickWindowScroll,
 } from '@/lib/projectCarouselMotion';
+import { createProjectCarouselVisibilityObserver } from '@/lib/projectCarouselVisibilityObserver';
 import {
   cancelProgrammaticCarouselTransition,
   resetProgrammaticCarouselState,
@@ -100,7 +101,6 @@ const initProjectCarousel = () => {
   let activePanelResizeObserver: ResizeObserver | null = null;
   let programmaticTargetIndex: number | null = null;
   let isProgrammaticTransition = false;
-  const panelVisibilityRatios = panels.map(() => 0);
   const panelIndexById = new Map<string, number>();
   panels.forEach((panel, index) => {
     panelIndexById.set(panel.id, index);
@@ -341,18 +341,6 @@ const initProjectCarousel = () => {
   const runRelativeIndexTransition = (offset: number) => {
     const originIndex = getClosestVisiblePanelIndex();
     runIndexTransition(originIndex + offset, true);
-  };
-  const getMostVisiblePanelFromRatios = () => {
-    let index = -1;
-    let ratio = 0;
-    panelVisibilityRatios.forEach((nextRatio, nextIndex) => {
-      if (nextRatio <= ratio) {
-        return;
-      }
-      ratio = nextRatio;
-      index = nextIndex;
-    });
-    return { index, ratio };
   };
   const settleTrackOnPanel = (index: number) => {
     const wrappedIndex = wrapIndex(index);
@@ -608,45 +596,15 @@ const initProjectCarousel = () => {
     handleHashNavigation,
   });
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (!(entry.target instanceof HTMLElement)) {
-          return;
-        }
-        const index = parseRequiredCarouselIndex(
-          entry.target.dataset.index,
-          '[projects-carousel] Panel index is invalid.',
-        );
-        panelVisibilityRatios[index] = entry.isIntersecting
-          ? entry.intersectionRatio
-          : 0;
-      });
-      const { index, ratio } = getMostVisiblePanelFromRatios();
-      if (!Number.isInteger(index) || index < 0) {
-        return;
-      }
-      if (programmaticTargetIndex !== null) {
-        if (index !== programmaticTargetIndex) {
-          return;
-        }
-      }
-      const isProgrammaticLockActive =
-        isProgrammaticTransition && programmaticTargetIndex !== null;
-      const shouldSyncHeight =
-        !isProgrammaticLockActive && ratio >= HEIGHT_SYNC_INTERSECTION_RATIO;
-      setActiveIndex(index, {
-        syncHeight: shouldSyncHeight,
-        observeHeight: shouldSyncHeight,
-      });
-    },
-    {
-      root: track,
-      threshold: [0.45, 0.6, 0.75],
-    },
-  );
-
-  panels.forEach((panel) => observer.observe(panel));
+  const observer = createProjectCarouselVisibilityObserver({
+    track,
+    panels,
+    heightSyncIntersectionRatio: HEIGHT_SYNC_INTERSECTION_RATIO,
+    getProgrammaticTargetIndex: () => programmaticTargetIndex,
+    isProgrammaticTransitionActive: () =>
+      isProgrammaticTransition && programmaticTargetIndex !== null,
+    setActiveIndex,
+  });
   setActiveIndex(0);
   handleHashNavigation(true);
   const cleanup = () => {
