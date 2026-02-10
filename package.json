@@ -57,7 +57,7 @@
     "@secretlint/secretlint-rule-preset-recommend": "^11.3.0",
     "@tailwindcss/typography": "^0.5.19",
     "@typescript-eslint/eslint-plugin": "^8.53.1",
-    "@typescript-eslint/parser": "^8.53.0",
+    "@typescript-eslint/parser": "^8.55.0",
     "cheerio": "^1.0.0-rc.12",
     "daisyui": "^5.5.14",
     "eslint": "^9.39.2",
