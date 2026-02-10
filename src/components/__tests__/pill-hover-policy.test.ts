@@ -49,6 +49,13 @@ describe('Pill hover policy', () => {
     expect(storyChapterStyles).toContain('.story-carousel-button:hover');
     expect(storyChapterStyles).toContain('.story-nav-link:hover');
     expect(storyChapterStyles).toContain('transform: translateY(-1px);');
+    expect(storyChapterStyles).toContain('.story-carousel-button:disabled {');
+    expect(storyChapterStyles).toContain('cursor: default;');
+    expect(storyChapterStyles).toContain(
+      '.story-carousel-button:disabled:hover',
+    );
+    expect(storyChapterStyles).toContain('transform: none;');
+    expect(storyChapterStyles).not.toContain('cursor: not-allowed;');
 
     expect(pagination).toContain('border: 1px solid transparent;');
     expect(pagination).toContain('.pagination-pill:hover');

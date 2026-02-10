@@ -39,6 +39,11 @@ describe('withBase', () => {
     expect(withBase('javascript:alert(1)')).toBe('/');
     expect(withBase('data:text/html,hello')).toBe('/');
   });
+
+  it('rejects protocol-relative paths masquerading as internal routes', async () => {
+    const { withBase } = await loadUrls('/');
+    expect(withBase('//evil.example/path')).toBe('/');
+  });
 });
 
 describe('toAbsoluteUrl', () => {
@@ -70,6 +75,7 @@ describe('safe href helpers', () => {
     const { sanitizeHref } = await loadUrls('/');
     expect(sanitizeHref('/projects')).toBe('/projects');
     expect(sanitizeHref('#about')).toBe('#about');
+    expect(sanitizeHref('//evil.example/path')).toBe('#');
     expect(sanitizeHref('javascript:alert(1)')).toBe('#');
     expect(sanitizeHref('data:text/html,hello')).toBe('#');
   });

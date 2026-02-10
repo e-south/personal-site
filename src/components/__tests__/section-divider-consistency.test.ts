@@ -12,6 +12,7 @@ Module Author(s): Eric J. South
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { readStylesheetBundle } from '../../test/readStylesheetBundle';
 
 const read = async (relativePath: string) =>
   readFile(path.resolve(process.cwd(), relativePath), 'utf-8');
@@ -19,7 +20,7 @@ const read = async (relativePath: string) =>
 describe('Section divider consistency', () => {
   it('defines shared divider tokens and utilities in the global layout', async () => {
     const layout = await read('src/layouts/Layout.astro');
-    const layoutStyles = await read('src/styles/layout.css');
+    const layoutStyles = await readStylesheetBundle('src/styles/layout.css');
 
     expect(layout).toContain("import '@/styles/layout.css';");
     expect(layoutStyles).toContain('--site-divider-line:');

@@ -24,7 +24,11 @@ const locationShort = requireValue(linksData.location, 'links/links.location');
 <Layout title={title}>
   <div class="mx-auto w-full max-w-3xl space-y-10">
     <header class="space-y-3" data-reveal>
-      <h1 class="text-4xl sm:text-5xl font-semibold">{title}</h1>
+      <h1
+        class="page-main-header page-main-header--contact text-4xl sm:text-5xl font-semibold"
+      >
+        {title}
+      </h1>
       <p class="text-base-content/70">{intro}</p>
     </header>
 

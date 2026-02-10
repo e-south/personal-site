@@ -20,25 +20,43 @@ const normalizePath = (path: string) => {
   const normalized = cleaned.replace(/\/+$/, '');
   return normalized === '' ? '/' : normalized;
 };
-const normalizedCurrent = normalizePath(currentPath);
-const normalizedHref = normalizePath(href);
+const normalizedBase = normalizePath(withBase('/'));
+const stripBasePrefix = (path: string) => {
+  if (normalizedBase === '/' || !path.startsWith(normalizedBase)) {
+    return path;
+  }
+  const stripped = path.slice(normalizedBase.length);
+  if (stripped === '' || stripped === '/') {
+    return '/';
+  }
+  return stripped.startsWith('/') ? stripped : `/${stripped}`;
+};
+const normalizedCurrent = stripBasePrefix(normalizePath(currentPath));
+const normalizedHref = stripBasePrefix(normalizePath(href));
+const pathMatches = (current: string, target: string) =>
+  current === target || (target !== '/' && current.startsWith(`${target}/`));
+const activeRouteAliases: Record<string, string[]> = {
+  '/projects': ['/research'],
+  '/publications': ['/papers'],
+};
+const aliasMatches = (activeRouteAliases[normalizedHref] ?? []).some((alias) =>
+  pathMatches(normalizedCurrent, alias),
+);
 const isActive =
   !isExternal &&
-  (normalizedCurrent === normalizedHref ||
-    (normalizedHref !== '/' &&
-      normalizedCurrent.startsWith(`${normalizedHref}/`)));
+  (pathMatches(normalizedCurrent, normalizedHref) || aliasMatches);
 const baseClass =
-  'focus-ring inline-flex items-center gap-1 rounded-[var(--site-radius-control)] px-3 py-1.5 text-[0.95rem] font-normal font-header transition-colors';
-const internalClasses =
-  'text-base-content/76 hover:text-base-content hover:bg-base-content/8';
-const activeClasses = 'nav-active text-base-content font-bold';
+  'focus-ring nav-pill inline-flex items-center gap-1 rounded-[var(--site-radius-control)] px-3 py-1.5 text-[0.95rem] font-header';
+const internalClasses = 'nav-pill--internal text-base-content/76 font-medium';
+const activeClasses = 'text-base-content font-extrabold';
 ---
 
 {
   isActive ? (
     <span
       aria-current="page"
-      class:list={[baseClass, internalClasses, activeClasses, className]}
+      data-nav-active={isActive ? 'true' : 'false'}
+      class:list={[baseClass, activeClasses, className]}
     >
       {item.label}
     </span>
@@ -52,6 +70,7 @@ const activeClasses = 'nav-active text-base-content font-bold';
         isExternal ? 'nav-icon' : internalClasses,
         className,
       ]}
+      data-nav-active={isActive ? 'true' : 'false'}
       aria-label={isExternal ? item.label : undefined}
     >
       {item.kind === 'external' && item.icon ? (
@@ -67,26 +86,55 @@ const activeClasses = 'nav-active text-base-content font-bold';
 }
 
 <style>
-  .nav-active {
-    border: 1px solid color-mix(in oklab, var(--site-accent) 42%, transparent);
+  .nav-pill {
+    border: 1px solid transparent;
+    background: transparent;
+    box-shadow: none;
+    transition:
+      transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 220ms ease,
+      background 220ms ease,
+      color 220ms ease,
+      box-shadow 220ms ease;
+  }
+
+  .nav-pill[data-nav-active='false']:hover,
+  .nav-pill[data-nav-active='false']:focus-visible {
+    transform: translateY(-1px);
+    border-color: color-mix(in oklab, var(--site-accent) 24%, transparent);
     background:
       linear-gradient(
-        140deg,
-        color-mix(in oklab, var(--site-accent) 28%, transparent),
-        color-mix(in oklab, var(--site-accent-soft) 26%, transparent)
+        145deg,
+        color-mix(in oklab, var(--site-accent) 14%, transparent),
+        color-mix(in oklab, var(--site-accent-soft) 12%, transparent)
       ),
-      color-mix(in oklab, var(--site-surface) 65%, transparent);
-    box-shadow: inset 0 1px 0 color-mix(in oklab, #fff 10%, transparent);
+      color-mix(in oklab, var(--site-surface) 58%, transparent);
+    backdrop-filter: blur(calc(var(--site-glass-blur) * 0.72));
+    -webkit-backdrop-filter: blur(calc(var(--site-glass-blur) * 0.72));
+    color: var(--site-text);
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, #fff 10%, transparent),
+      0 8px 20px color-mix(in oklab, var(--site-accent) 8%, transparent);
   }
+
+  .nav-pill[data-nav-active='true'] {
+    font-weight: 800;
+    font-variation-settings: 'wght' 800;
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
+    color: var(--site-text);
+  }
+
   .nav-icon {
     width: 2.25rem;
     height: 2.25rem;
     padding: 0;
     justify-content: center;
-    color: color-mix(in oklab, var(--site-text) 78%, transparent);
+    color: color-mix(in oklab, var(--site-text) 76%, transparent);
   }
+
   .nav-icon:hover {
     color: var(--site-text);
-    background-color: color-mix(in oklab, var(--site-accent) 18%, transparent);
   }
 </style>

@@ -1,0 +1,64 @@
+/*
+--------------------------------------------------------------------------------
+personal-site
+src/styles/layout/effects.css
+
+Defines reusable media-depth, caption glass, and reveal-motion effects.
+
+Module Author(s): Eric J. South
+--------------------------------------------------------------------------------
+*/
+
+.media-depth-surface {
+  box-shadow: var(--site-media-depth-shadow);
+}
+
+.liquid-caption {
+  box-sizing: border-box;
+  border: 1px solid color-mix(in oklab, var(--site-border) 64%, transparent);
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in oklab, var(--site-surface) 74%, transparent),
+      color-mix(in oklab, var(--site-surface-strong) 82%, transparent)
+    ),
+    color-mix(in oklab, var(--site-surface) 58%, transparent);
+  color: color-mix(in oklab, var(--site-text) 92%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, #fff 10%, transparent),
+    0 10px 24px color-mix(in oklab, #000 36%, transparent);
+  backdrop-filter: blur(var(--site-glass-blur));
+  -webkit-backdrop-filter: blur(var(--site-glass-blur));
+}
+
+[data-reveal] {
+  opacity: 1;
+  transform: none;
+}
+
+html.js-enhanced [data-reveal][data-reveal-ready='true'] {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  transition:
+    opacity 420ms ease-out,
+    transform 420ms ease-out;
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+html.js-enhanced [data-reveal][data-reveal-ready='true'].is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header-edge-line {
+    animation: none;
+  }
+
+  html.js-enhanced [data-reveal][data-reveal-ready='true'] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

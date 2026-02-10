@@ -1,9 +1,9 @@
 /*
 --------------------------------------------------------------------------------
 personal-site
-src/lib/__tests__/refactor-architecture.test.ts
+src/lib/__tests__/refactor-architecture.project-carousel.test.ts
 
-Locks refactor boundaries for modular home, layout, and project carousel logic.
+Locks refactor boundaries for project carousel modularization.
 
 Module Author(s): Eric J. South
 --------------------------------------------------------------------------------
@@ -15,224 +15,6 @@ import { describe, expect, it } from 'vitest';
 
 const read = async (relativePath: string) =>
   readFile(path.resolve(process.cwd(), relativePath), 'utf-8');
-
-describe('home runtime modularization', () => {
-  it('uses dedicated home runtime and lifecycle binders from home entrypoint', async () => {
-    const home = await read('src/lib/home.ts');
-    const homeRuntime = await read('src/lib/home/homeRuntime.ts');
-    const homeLifecycle = await read('src/lib/home/homeLifecycle.ts');
-
-    expect(home).toContain(
-      "import { createHomeRuntime } from '@/lib/home/homeRuntime';",
-    );
-    expect(home).toContain(
-      "import { bindHomeLifecycle } from '@/lib/home/homeLifecycle';",
-    );
-    expect(home).toContain('const homeRuntime = createHomeRuntime();');
-    expect(home).toContain('bindHomeLifecycle({');
-
-    expect(homeRuntime).toContain('export const createHomeRuntime = () =>');
-    expect(homeLifecycle).toContain('export const bindHomeLifecycle = ({');
-  });
-
-  it('delegates hero and story video logic from home runtime module', async () => {
-    const home = await read('src/lib/home.ts');
-    const homeRuntime = await read('src/lib/home/homeRuntime.ts');
-
-    expect(homeRuntime).toContain(
-      "import { initHeroRotator } from '@/lib/home/heroRotator';",
-    );
-    expect(homeRuntime).toContain('initStoryVideos,');
-    expect(homeRuntime).toContain("from '@/lib/home/storyVideos';");
-    expect(homeRuntime).toContain('initHeroRotator({');
-    expect(homeRuntime).toContain('initStoryVideos({');
-    expect(home).not.toContain(
-      "import { initHeroRotator } from '@/lib/home/heroRotator';",
-    );
-  });
-
-  it('delegates story carousel runtime wiring from home runtime module', async () => {
-    const homeRuntime = await read('src/lib/home/homeRuntime.ts');
-
-    expect(homeRuntime).toContain(
-      "import { initStoryCarousels } from '@/lib/home/storyCarousels';",
-    );
-    expect(homeRuntime).toContain('initStoryCarousels({ getScrollBehavior })');
-  });
-
-  it('delegates story navigation runtime from home runtime module', async () => {
-    const homeRuntime = await read('src/lib/home/homeRuntime.ts');
-    const storyNavigation = await read('src/lib/home/storyNavigation.ts');
-    const storyNavigationState = await read(
-      'src/lib/home/storyNavigationState.ts',
-    );
-    const storyNavigationLinks = await read(
-      'src/lib/home/storyNavigationLinks.ts',
-    );
-
-    expect(homeRuntime).toContain(
-      "import { initStoryNavigation } from '@/lib/home/storyNavigation';",
-    );
-    expect(homeRuntime).toContain('initStoryNavigation({');
-    expect(storyNavigation).toContain(
-      "import { createStoryNavigationState } from '@/lib/home/storyNavigationState';",
-    );
-    expect(storyNavigation).toContain('export const initStoryNavigation = (');
-    expect(storyNavigation).toContain('data-story-nav');
-    expect(storyNavigation).toContain('Story navigation controls are missing.');
-    expect(storyNavigationState).toContain(
-      'export const createStoryNavigationState = (',
-    );
-    expect(storyNavigationState).toContain('const applySnapState = (');
-    expect(storyNavigation).toContain(
-      "import { bindStoryNavigationLinks } from '@/lib/home/storyNavigationLinks';",
-    );
-    expect(storyNavigation).toContain('bindStoryNavigationLinks({');
-    expect(storyNavigationLinks).toContain(
-      'export const bindStoryNavigationLinks = ({',
-    );
-    expect(storyNavigationLinks).toContain('href must be a hash.');
-    expect(storyNavigationLinks).toContain('target is missing.');
-  });
-
-  it('extracts hero rotator and story video modules', async () => {
-    const heroRotator = await read('src/lib/home/heroRotator.ts');
-    const storyVideos = await read('src/lib/home/storyVideos.ts');
-
-    expect(heroRotator).toContain('export const initHeroRotator =');
-    expect(heroRotator).toContain('Home hero rotator root is missing.');
-    expect(storyVideos).toContain('export const initStoryVideos =');
-    expect(storyVideos).toContain('story:video-check');
-  });
-
-  it('extracts story carousel runtime module', async () => {
-    const storyCarousels = await read('src/lib/home/storyCarousels.ts');
-
-    expect(storyCarousels).toContain('export const initStoryCarousels =');
-    expect(storyCarousels).toContain(
-      'Story carousel needs at least two items.',
-    );
-    expect(storyCarousels).toContain('phd-at-boston-university');
-    expect(storyCarousels).toContain('imperial-crick-training');
-  });
-});
-
-describe('layout enhancement modularization', () => {
-  it('uses shared layout client initializer from layout file', async () => {
-    const layout = await read('src/layouts/Layout.astro');
-    const layoutClient = await read('src/lib/layout/layoutClient.ts');
-
-    expect(layout).toContain(
-      "import { initLayoutClient } from '@/lib/layout/layoutClient';",
-    );
-    expect(layout).toContain('initLayoutClient();');
-    expect(layoutClient).toContain(
-      "import { bindLayoutEnhancements } from '@/lib/layout/pageEnhancements';",
-    );
-    expect(layoutClient).toContain('export const initLayoutClient = () =>');
-    expect(layoutClient).toContain('bindLayoutEnhancements();');
-  });
-
-  it('loads layout navigation data from a dedicated navigation helper', async () => {
-    const layout = await read('src/layouts/Layout.astro');
-    const layoutNavigation = await read('src/lib/layout/layoutNavigation.ts');
-
-    expect(layout).toContain(
-      "import { getLayoutNavigation } from '@/lib/layout/layoutNavigation';",
-    );
-    expect(layout).toContain(
-      'const { navItems, externalLinks } = await getLayoutNavigation();',
-    );
-    expect(layoutNavigation).toContain(
-      "import { getNavigation, features } from '@/data/navigation';",
-    );
-    expect(layoutNavigation).toContain(
-      "import { hasPublishedBlogPosts } from '@/lib/content';",
-    );
-    expect(layoutNavigation).toContain(
-      'export const getLayoutNavigation = async () =>',
-    );
-  });
-
-  it('keeps reveal and scroll-offset logic in dedicated helper module', async () => {
-    const enhancements = await read('src/lib/layout/pageEnhancements.ts');
-
-    expect(enhancements).toContain('const setScrollOffsetToken = () =>');
-    expect(enhancements).toContain('const initReveals = () =>');
-    expect(enhancements).toContain(
-      'export const bindLayoutEnhancements = () =>',
-    );
-  });
-
-  it('shares sticky-header offset helpers across layout and scroll runtimes', async () => {
-    const enhancements = await read('src/lib/layout/pageEnhancements.ts');
-    const storyNavigation = await read('src/lib/home/storyNavigation.ts');
-    const projectCarouselRuntime = await read(
-      'src/lib/projectCarouselRuntime.ts',
-    );
-    const projectCarouselTargetTop = await read(
-      'src/lib/projectCarouselTargetTop.ts',
-    );
-    const stickyHeaderOffset = await read(
-      'src/lib/layout/stickyHeaderOffset.ts',
-    );
-
-    expect(stickyHeaderOffset).toContain(
-      'export const getStickyHeader = () =>',
-    );
-    expect(stickyHeaderOffset).toContain(
-      'export const getStickyHeaderOffset = (',
-    );
-    expect(stickyHeaderOffset).toContain('export const getScrollMarginTop = (');
-
-    expect(enhancements).toContain("from '@/lib/layout/stickyHeaderOffset';");
-    expect(enhancements).toContain('getStickyHeader');
-    expect(enhancements).toContain('getStickyHeaderOffset');
-
-    expect(storyNavigation).toContain(
-      "from '@/lib/layout/stickyHeaderOffset';",
-    );
-    expect(storyNavigation).toContain('getScrollMarginTop');
-    expect(storyNavigation).toContain('getStickyHeader');
-    expect(storyNavigation).toContain('getStickyHeaderOffset');
-
-    expect(projectCarouselRuntime).toContain(
-      "from '@/lib/projectCarouselTargetTop';",
-    );
-    expect(projectCarouselRuntime).toContain('resolveProjectCarouselTargetTop');
-    expect(projectCarouselTargetTop).toContain(
-      "from '@/lib/layout/stickyHeaderOffset';",
-    );
-    expect(projectCarouselTargetTop).toContain('getStickyHeader');
-    expect(projectCarouselTargetTop).toContain('getStickyHeaderOffset');
-  });
-
-  it('uses a dedicated helper for layout heading typography classes', async () => {
-    const layout = await read('src/layouts/Layout.astro');
-    const headingTypography = await read('src/lib/layout/headingTypography.ts');
-
-    expect(layout).toContain(
-      "import { headingTypographyClasses } from '@/lib/layout/headingTypography';",
-    );
-    expect(layout).toContain('headingTypographyClasses');
-    expect(headingTypography).toContain(
-      'export const headingTypographyClasses',
-    );
-    expect(headingTypography).toContain('[&_h1]:font-header');
-    expect(headingTypography).toContain('[&_h6]:tracking-tight');
-  });
-
-  it('loads global layout theme rules from a dedicated stylesheet module', async () => {
-    const layout = await read('src/layouts/Layout.astro');
-    const layoutStyles = await read('src/styles/layout.css');
-
-    expect(layout).toContain("import '@/styles/layout.css';");
-    expect(layout).not.toContain('<style is:global>');
-    expect(layoutStyles).toContain("html[data-theme='dark'] {");
-    expect(layoutStyles).toContain('--site-scroll-offset: 96px;');
-    expect(layoutStyles).toContain('html.js-enhanced [data-reveal]');
-  });
-});
 
 describe('project carousel helper extraction', () => {
   it('uses dedicated project carousel runtime binder from component script', async () => {
@@ -278,11 +60,13 @@ describe('project carousel helper extraction', () => {
 
   it('uses shared project carousel geometry helpers from component script', async () => {
     const runtime = await read('src/lib/projectCarouselRuntime.ts');
+    const trackTargets = await read('src/lib/projectCarouselTrackTargets.ts');
 
     expect(runtime).toContain(
-      "import { getTrackMaxScrollLeftFromTrack } from '@/lib/projectCarousel';",
+      "import { createProjectCarouselTrackTargets } from '@/lib/projectCarouselTrackTargets';",
     );
-    expect(runtime).toContain('getTrackMaxScrollLeftFromTrack(track)');
+    expect(runtime).toContain('createProjectCarouselTrackTargets({');
+    expect(trackTargets).toContain('getTrackMaxScrollLeftFromTrack(track)');
   });
 
   it('defines reusable project carousel geometry helpers', async () => {
@@ -405,6 +189,31 @@ describe('project carousel helper extraction', () => {
     expect(heightSync).toContain('const scheduleTrackHeightSync = (');
   });
 
+  it('extracts project carousel panel-height accessors into a dedicated helper module', async () => {
+    const runtime = await read('src/lib/projectCarouselRuntime.ts');
+    const panelHeights = await read('src/lib/projectCarouselPanelHeights.ts');
+
+    expect(runtime).toContain(
+      "import { createProjectCarouselPanelHeights } from '@/lib/projectCarouselPanelHeights';",
+    );
+    expect(runtime).toContain(
+      'const { getCurrentPanelHeight, getTargetPanelHeight } =',
+    );
+    expect(runtime).toContain('createProjectCarouselPanelHeights({');
+
+    expect(panelHeights).toContain(
+      'export const createProjectCarouselPanelHeights = ({',
+    );
+    expect(panelHeights).toContain('const getCurrentPanelHeight = (');
+    expect(panelHeights).toContain('const getTargetPanelHeight = (');
+    expect(panelHeights).toContain(
+      "throw new Error('[projects-carousel] Active panel is missing.');",
+    );
+    expect(panelHeights).toContain(
+      "throw new Error('[projects-carousel] Target panel is missing.');",
+    );
+  });
+
   it('extracts project carousel runtime timing and threshold constants into a dedicated config module', async () => {
     const runtime = await read('src/lib/projectCarouselRuntime.ts');
     const runtimeConfig = await read('src/lib/projectCarouselRuntimeConfig.ts');
@@ -431,22 +240,32 @@ describe('project carousel helper extraction', () => {
     const transitionTimers = await read(
       'src/lib/projectCarouselTransitionTimers.ts',
     );
+    const transitionScheduling = await read(
+      'src/lib/projectCarouselTransitionScheduling.ts',
+    );
 
     expect(runtime).toContain(
       "import { createProjectCarouselTransitionTimers } from '@/lib/projectCarouselTransitionTimers';",
     );
     expect(runtime).toContain(
+      "import { createProjectCarouselTransitionScheduling } from '@/lib/projectCarouselTransitionScheduling';",
+    );
+    expect(runtime).toContain(
       'const transitionTimers = createProjectCarouselTransitionTimers({',
     );
-    expect(runtime).toContain('transitionTimers.clearPendingTransitionTimers');
+    expect(runtime).toContain('createProjectCarouselTransitionScheduling({');
     expect(runtime).toContain(
-      'transitionTimers.schedulePendingPreScrollTimer(',
+      'transitionScheduling.clearPendingTransitionTimers',
+    );
+    expect(runtime).toContain('transitionScheduling.schedulePendingPreScroll(');
+    expect(runtime).toContain(
+      'transitionScheduling.schedulePendingIndexFinalize',
     );
     expect(runtime).toContain(
-      'transitionTimers.schedulePendingIndexFinalizeTimer(',
+      'transitionScheduling.schedulePendingLongJumpSwap',
     );
     expect(runtime).toContain(
-      'transitionTimers.schedulePendingLongJumpSwapTimer(',
+      'transitionScheduling.schedulePendingLongJumpRelease',
     );
 
     expect(transitionTimers).toContain(
@@ -458,18 +277,36 @@ describe('project carousel helper extraction', () => {
     expect(transitionTimers).toContain(
       'const schedulePendingIndexFinalizeTimer = (',
     );
+    expect(transitionScheduling).toContain(
+      'export const createProjectCarouselTransitionScheduling = ({',
+    );
+    expect(transitionScheduling).toContain(
+      'transitionTimers.schedulePendingIndexFinalizeTimer(',
+    );
   });
 
   it('uses extracted hash helpers for project panel hash parsing and updates', async () => {
     const runtime = await read('src/lib/projectCarouselRuntime.ts');
+    const panelNavigation = await read(
+      'src/lib/projectCarouselPanelNavigation.ts',
+    );
     const eventBindings = await read('src/lib/projectCarouselEventBindings.ts');
     const hashHelpers = await read('src/lib/projectCarouselHash.ts');
 
-    expect(runtime).toContain("from '@/lib/projectCarouselHash';");
-    expect(runtime).toContain('getPanelIdFromHash');
+    expect(runtime).toContain(
+      "import { createProjectCarouselPanelNavigation } from '@/lib/projectCarouselPanelNavigation';",
+    );
+    expect(runtime).toContain('createProjectCarouselPanelNavigation({');
     expect(eventBindings).toContain("from '@/lib/projectCarouselHash';");
     expect(eventBindings).toContain('getPanelIdFromHref');
     expect(eventBindings).toContain('updateHashForPanelId');
+    expect(panelNavigation).toContain("from '@/lib/projectCarouselHash';");
+    expect(panelNavigation).toContain('getPanelIdFromHash');
+    expect(panelNavigation).toContain(
+      'export const createProjectCarouselPanelNavigation = ({',
+    );
+    expect(panelNavigation).toContain('const panelIndexById = new Map');
+    expect(panelNavigation).toContain('const handleHashNavigation = (');
 
     expect(hashHelpers).toContain('export const getPanelIdFromHash = (');
     expect(hashHelpers).toContain('export const getPanelIdFromHref = (');
@@ -477,20 +314,80 @@ describe('project carousel helper extraction', () => {
   });
 
   it('uses extracted transition state helpers for carousel programmatic reset flows', async () => {
-    const runtime = await read('src/lib/projectCarouselRuntime.ts');
     const transitionState = await read(
       'src/lib/projectCarouselTransitionState.ts',
     );
+    const trackLockRelease = await read(
+      'src/lib/projectCarouselTrackLockRelease.ts',
+    );
+    const transitionCancellation = await read(
+      'src/lib/projectCarouselTransitionCancellation.ts',
+    );
 
-    expect(runtime).toContain("from '@/lib/projectCarouselTransitionState';");
-    expect(runtime).toContain('cancelProgrammaticCarouselTransition({');
-    expect(runtime).toContain('resetProgrammaticCarouselState({');
+    expect(trackLockRelease).toContain('resetProgrammaticCarouselState({');
+    expect(transitionCancellation).toContain(
+      "import { cancelProgrammaticCarouselTransition } from '@/lib/projectCarouselTransitionState';",
+    );
+    expect(transitionCancellation).toContain(
+      'cancelProgrammaticCarouselTransition({',
+    );
 
     expect(transitionState).toContain(
       'export const resetProgrammaticCarouselState = (',
     );
     expect(transitionState).toContain(
       'export const cancelProgrammaticCarouselTransition = (',
+    );
+  });
+
+  it('extracts project carousel transition cancellation wiring into a dedicated helper', async () => {
+    const runtime = await read('src/lib/projectCarouselRuntime.ts');
+    const transitionCancellation = await read(
+      'src/lib/projectCarouselTransitionCancellation.ts',
+    );
+
+    expect(runtime).toContain(
+      "import { createProjectCarouselTransitionCancellation } from '@/lib/projectCarouselTransitionCancellation';",
+    );
+    expect(runtime).toContain('const transitionCancellation =');
+    expect(runtime).toContain('createProjectCarouselTransitionCancellation({');
+    expect(runtime).toContain('transitionCancellation.cancelCurrentTransition');
+    expect(runtime).toContain('transitionCancellation.cancelCleanupTransition');
+
+    expect(transitionCancellation).toContain(
+      'export const createProjectCarouselTransitionCancellation = ({',
+    );
+    expect(transitionCancellation).toContain('const cancelCurrentTransition =');
+    expect(transitionCancellation).toContain('const cancelCleanupTransition =');
+    expect(transitionCancellation).toContain(
+      "import { cancelProgrammaticCarouselTransition } from '@/lib/projectCarouselTransitionState';",
+    );
+  });
+
+  it('extracts project carousel cleanup lifecycle registration into a dedicated helper', async () => {
+    const runtime = await read('src/lib/projectCarouselRuntime.ts');
+    const cleanupLifecycle = await read(
+      'src/lib/projectCarouselCleanupLifecycle.ts',
+    );
+
+    expect(runtime).toContain(
+      "import { bindProjectCarouselCleanupLifecycle } from '@/lib/projectCarouselCleanupLifecycle';",
+    );
+    expect(runtime).toContain('bindProjectCarouselCleanupLifecycle({');
+    expect(runtime).toContain(
+      'cancelCleanupTransition: transitionCancellation.cancelCleanupTransition,',
+    );
+
+    expect(cleanupLifecycle).toContain(
+      'export const bindProjectCarouselCleanupLifecycle = ({',
+    );
+    expect(cleanupLifecycle).toContain('const cleanup = () => {');
+    expect(cleanupLifecycle).toContain('disconnectObserver();');
+    expect(cleanupLifecycle).toContain(
+      "documentTarget.addEventListener('astro:before-swap'",
+    );
+    expect(cleanupLifecycle).toContain(
+      "windowTarget.addEventListener('pagehide', cleanup, { once: true });",
     );
   });
 
@@ -549,6 +446,43 @@ describe('project carousel helper extraction', () => {
     );
   });
 
+  it('extracts transition execution into a dedicated module', async () => {
+    const runtime = await read('src/lib/projectCarouselRuntime.ts');
+    const transitionExecution = await read(
+      'src/lib/projectCarouselTransitionExecution.ts',
+    );
+
+    expect(runtime).toContain(
+      "import { createProjectCarouselTransitionExecution } from '@/lib/projectCarouselTransitionExecution';",
+    );
+    expect(runtime).toContain('createProjectCarouselTransitionExecution({');
+    expect(transitionExecution).toContain(
+      'export const createProjectCarouselTransitionExecution = ({',
+    );
+    expect(transitionExecution).toContain('const executeIndexScroll = (');
+    expect(transitionExecution).toContain(
+      'const runLongJumpTransition = (targetIndex: number, targetHeight: number) => {',
+    );
+  });
+
+  it('extracts track-settling and programmatic lock release into a dedicated module', async () => {
+    const runtime = await read('src/lib/projectCarouselRuntime.ts');
+    const trackLockRelease = await read(
+      'src/lib/projectCarouselTrackLockRelease.ts',
+    );
+
+    expect(runtime).toContain(
+      "import { createProjectCarouselTrackLockRelease } from '@/lib/projectCarouselTrackLockRelease';",
+    );
+    expect(runtime).toContain('createProjectCarouselTrackLockRelease({');
+    expect(trackLockRelease).toContain('const settleTrackOnPanel = (');
+    expect(trackLockRelease).toContain(
+      'const releaseProgrammaticTrackLock = (',
+    );
+    expect(trackLockRelease).toContain('requestAnimationFrame(() => {');
+    expect(trackLockRelease).toContain('resetProgrammaticCarouselState({');
+  });
+
   it('extracts project carousel runtime module', async () => {
     const runtime = await read('src/lib/projectCarouselRuntime.ts');
 
@@ -558,54 +492,76 @@ describe('project carousel helper extraction', () => {
     );
     expect(runtime).not.toContain('@param {');
   });
-});
 
-describe('story chapter rendering modularization', () => {
-  it('loads story chapter styles from a dedicated stylesheet module', async () => {
-    const storyChapters = await read('src/components/home/StoryChapters.astro');
-    const storyChapterStyles = await read('src/styles/story-chapters.css');
+  it('extracts project carousel mutable runtime state into a dedicated controller module', async () => {
+    const runtime = await read('src/lib/projectCarouselRuntime.ts');
+    const runtimeState = await read('src/lib/projectCarouselRuntimeState.ts');
 
-    expect(storyChapters).toContain("import '@/styles/story-chapters.css';");
-    expect(storyChapters).not.toContain('<style>');
-    expect(storyChapterStyles).toContain('.story-carousel');
-    expect(storyChapterStyles).toContain('.story-chapter-cta:hover');
+    expect(runtime).toContain(
+      "import { createProjectCarouselRuntimeState } from '@/lib/projectCarouselRuntimeState';",
+    );
+    expect(runtime).toContain('const runtimeState =');
+    expect(runtime).toContain('createProjectCarouselRuntimeState({');
+    expect(runtimeState).toContain(
+      'export const createProjectCarouselRuntimeState = ({',
+    );
+    expect(runtimeState).toContain('let activeIndex = -1;');
+    expect(runtimeState).toContain('let trackQuickScrollFrame: number | null');
+    expect(runtimeState).toContain('let windowQuickScrollFrame: number | null');
+    expect(runtimeState).toContain(
+      'let programmaticTargetIndex: number | null',
+    );
+    expect(runtimeState).toContain('let isProgrammaticTransition = false;');
   });
 
-  it('delegates story media item rendering from story chapters component', async () => {
-    const storyChapters = await read('src/components/home/StoryChapters.astro');
+  it('extracts project carousel element querying into a dedicated helper module', async () => {
+    const runtime = await read('src/lib/projectCarouselRuntime.ts');
+    const carouselElements = await read('src/lib/projectCarouselElements.ts');
 
-    expect(storyChapters).toContain(
-      "import StoryMediaItem from '@/components/home/StoryMediaItem.astro';",
+    expect(runtime).toContain(
+      "import { queryProjectCarouselElements } from '@/lib/projectCarouselElements';",
     );
-    expect(storyChapters).toContain('<StoryMediaItem');
+    expect(runtime).toContain('const CARD_JUMP_LINK_SELECTOR');
+    expect(runtime).toContain('queryProjectCarouselElements({');
+    expect(runtime).toContain('cardJumpLinkSelector: CARD_JUMP_LINK_SELECTOR,');
+    expect(carouselElements).toContain(
+      'export const queryProjectCarouselElements = ({',
+    );
+    expect(carouselElements).toContain('document.querySelectorAll(');
   });
 
-  it('extracts story media item rendering into dedicated component', async () => {
-    const storyMediaItem = await read(
-      'src/components/home/StoryMediaItem.astro',
-    );
+  it('extracts project carousel track target and closest-panel geometry into a dedicated helper module', async () => {
+    const runtime = await read('src/lib/projectCarouselRuntime.ts');
+    const trackTargets = await read('src/lib/projectCarouselTrackTargets.ts');
 
-    expect(storyMediaItem).toContain("item.kind === 'stack'");
-    expect(storyMediaItem).toContain(
-      'class="story-media-caption story-media-stack-caption liquid-caption"',
+    expect(runtime).toContain(
+      "import { createProjectCarouselTrackTargets } from '@/lib/projectCarouselTrackTargets';",
     );
+    expect(runtime).toContain('createProjectCarouselTrackTargets({');
+    expect(runtime).toContain('getPanelTargetLeft,');
+    expect(runtime).toContain('getClosestVisiblePanelIndex,');
+    expect(trackTargets).toContain(
+      'export const createProjectCarouselTrackTargets = ({',
+    );
+    expect(trackTargets).toContain(
+      'const getTrackScrollPaddingInlineStart = () =>',
+    );
+    expect(trackTargets).toContain('const getClosestVisiblePanelIndex = () =>');
   });
-});
 
-describe('story media registry modularization', () => {
-  it('delegates story registry validation to a dedicated helper module', async () => {
-    const storyMedia = await read('src/data/storyMedia.ts');
-    const storyMediaValidation = await read('src/lib/storyMediaValidation.ts');
+  it('extracts project carousel active-index and closest-panel selection into a dedicated helper module', async () => {
+    const runtime = await read('src/lib/projectCarouselRuntime.ts');
+    const activeIndex = await read('src/lib/projectCarouselActiveIndex.ts');
 
-    expect(storyMedia).toContain(
-      "import { assertStoryRegistry } from '@/lib/storyMediaValidation';",
+    expect(runtime).toContain(
+      "import { applyCarouselActiveIndex } from '@/lib/projectCarouselActiveIndex';",
     );
-    expect(storyMedia).toContain('assertStoryRegistry({');
-    expect(storyMediaValidation).toContain(
-      'export const assertStoryRegistry =',
+    expect(runtime).toContain('const setActiveIndex = (');
+    expect(runtime).toContain('applyCarouselActiveIndex({');
+    expect(activeIndex).toContain('export const applyCarouselActiveIndex = ({');
+    expect(activeIndex).toContain(
+      'export const resolveClosestVisiblePanelIndex = ({',
     );
-    expect(storyMediaValidation).toContain(
-      'Story chapter order contains duplicates.',
-    );
+    expect(activeIndex).toContain("dot.setAttribute('aria-current'");
   });
 });

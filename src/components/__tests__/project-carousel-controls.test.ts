@@ -66,7 +66,7 @@ describe('ProjectCarousel controls', () => {
     expect(transitionOrchestration).toContain('useQuickMotion = false');
     expect(contents).not.toContain("transitionIntent = 'nearest'");
     expect(contents).toContain(
-      'transitionTimers.schedulePendingPreScrollTimer(',
+      'transitionScheduling.schedulePendingPreScroll(',
     );
     expect(transitionTimers).toContain(
       'const schedulePendingPreScrollTimer = (',
@@ -75,13 +75,27 @@ describe('ProjectCarousel controls', () => {
 
   it('guards against stale observer and duplicate index updates during pre-expand transitions', async () => {
     const contents = await read('src/lib/projectCarouselRuntime.ts');
+    const runtimeState = await read('src/lib/projectCarouselRuntimeState.ts');
+    const cleanupLifecycle = await read(
+      'src/lib/projectCarouselCleanupLifecycle.ts',
+    );
+    const activeIndexHelpers = await read(
+      'src/lib/projectCarouselActiveIndex.ts',
+    );
 
-    expect(contents).toContain('let activeIndex = -1;');
-    expect(contents).toContain(
+    expect(contents).toContain('createProjectCarouselRuntimeState({');
+    expect(runtimeState).toContain('let activeIndex = -1;');
+    expect(contents).toContain('applyCarouselActiveIndex({');
+    expect(activeIndexHelpers).toContain(
       'const wrappedActiveIndex = wrapIndex(nextIndex);',
     );
-    expect(contents).toContain('if (wrappedActiveIndex === activeIndex) {');
-    expect(contents).toContain('disconnectActivePanelResizeObserver();');
+    expect(activeIndexHelpers).toContain(
+      'if (wrappedActiveIndex === activeIndex) {',
+    );
+    expect(contents).toContain('bindProjectCarouselCleanupLifecycle({');
+    expect(cleanupLifecycle).toContain(
+      'disconnectActivePanelResizeObserver();',
+    );
   });
 
   it('uses a fluid, configurable height transition for project narrative resizing', async () => {

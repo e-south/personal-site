@@ -32,12 +32,28 @@ export const initStoryVideos = ({
 
   const playThreshold = 0.5;
   const pauseThreshold = 0.1;
+  const visibilityByVideo = new Map<HTMLVideoElement, number>();
+
+  const attachSourceIfNeeded = (video: HTMLVideoElement) => {
+    if (video.dataset.storyVideoAttached === 'true') {
+      return;
+    }
+    const sourceUrl = video.dataset.storyVideoSrc ?? '';
+    if (!sourceUrl) {
+      throw new Error('Story video source is missing.');
+    }
+    const source = document.createElement('source');
+    source.src = sourceUrl;
+    source.type = 'video/mp4';
+    video.append(source);
+    video.dataset.storyVideoAttached = 'true';
+    video.load();
+  };
 
   const ensurePlaybackAttributes = (video: HTMLVideoElement) => {
     video.muted = true;
     video.playsInline = true;
     video.loop = true;
-    video.autoplay = true;
     if (!video.preload || video.preload === 'none') {
       video.preload = 'metadata';
     }
@@ -49,6 +65,7 @@ export const initStoryVideos = ({
       if (state === 'playing') {
         return;
       }
+      attachSourceIfNeeded(video);
       video.dataset.playState = 'playing';
       const playPromise = video.play();
       if (playPromise && typeof playPromise.catch === 'function') {
@@ -91,6 +108,13 @@ export const initStoryVideos = ({
     const totalArea = rect.width * rect.height;
     return totalArea > 0 ? visibleArea / totalArea : 0;
   };
+  const getKnownVisibilityRatio = (video: HTMLVideoElement) => {
+    const knownRatio = visibilityByVideo.get(video);
+    if (typeof knownRatio === 'number') {
+      return knownRatio;
+    }
+    return getVisibilityRatio(video);
+  };
 
   const observer = new IntersectionObserver(
     (entries) => {
@@ -98,6 +122,7 @@ export const initStoryVideos = ({
         if (!(entry.target instanceof HTMLVideoElement)) {
           return;
         }
+        visibilityByVideo.set(entry.target, entry.intersectionRatio);
         updateByRatio(entry.target, entry.intersectionRatio);
       });
     },
@@ -108,12 +133,16 @@ export const initStoryVideos = ({
 
   videos.forEach((video) => {
     ensurePlaybackAttributes(video);
+    visibilityByVideo.set(video, 0);
     observer.observe(video);
     const handleLoaded = () => {
-      updateByRatio(video, getVisibilityRatio(video));
+      updateByRatio(video, getKnownVisibilityRatio(video));
     };
     video.addEventListener('loadeddata', handleLoaded);
     addCleanup(() => video.removeEventListener('loadeddata', handleLoaded));
+    addCleanup(() => {
+      visibilityByVideo.delete(video);
+    });
   });
 
   let checkTimer: number | null = null;
@@ -124,7 +153,7 @@ export const initStoryVideos = ({
     checkTimer = window.setTimeout(() => {
       checkTimer = null;
       videos.forEach((video) => {
-        updateByRatio(video, getVisibilityRatio(video));
+        updateByRatio(video, getKnownVisibilityRatio(video));
       });
     }, 150);
   };

@@ -71,7 +71,10 @@ const parseEmphasis = (text: string) =>
           Project {index + 1} / {total}
         </div>
         <div class="space-y-3">
-          <h2 id={titleId} class="text-3xl font-semibold">
+          <h2
+            id={titleId}
+            class="project-panel-title text-3xl font-semibold text-base-content"
+          >
             {data.title}
           </h2>
           <p class="text-base-content/80 leading-relaxed">

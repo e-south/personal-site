@@ -27,6 +27,9 @@ type InitHeroRotatorOptions = {
 
 const defaultPrefersReducedMotion = () =>
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const MIN_SWIPE_X_PX = 36;
+const getWrappedIndex = (index: number, total: number) =>
+  ((index % total) + total) % total;
 
 export const initHeroRotator = ({
   defaultIntervalMs = 6500,
@@ -121,20 +124,41 @@ export const initHeroRotator = ({
     setActiveDot(index);
   };
 
-  items.forEach((item) => {
+  const preloadedIndices = new Set<number>();
+  const preloadIndex = (index: number) => {
+    if (index < 0 || index >= items.length || preloadedIndices.has(index)) {
+      return;
+    }
+    const item = items[index];
+    if (!item) {
+      return;
+    }
     const preload = new Image();
     preload.srcset = item.srcset;
     preload.sizes = item.sizes;
     preload.src = item.src;
-  });
+    preloadedIndices.add(index);
+  };
+  const preloadNextFrom = (index: number) => {
+    if (items.length < 2) {
+      return;
+    }
+    const nextIndex = getWrappedIndex(index + 1, items.length);
+    preloadIndex(nextIndex);
+  };
 
   const order = items.map((_, index) => index);
   let position = 0;
   let currentIndex = order[position];
+  preloadIndex(currentIndex);
   apply(items[currentIndex], currentIndex);
+  preloadNextFrom(currentIndex);
 
   let fadeTimeout: number | null = null;
   let intervalId: number | null = null;
+  let touchStartX: number | null = null;
+  let touchStartY: number | null = null;
+  let touchStartIndex = currentIndex;
 
   const clearFade = () => {
     if (fadeTimeout !== null) {
@@ -143,11 +167,18 @@ export const initHeroRotator = ({
     }
   };
 
+  const clearTouchStart = () => {
+    touchStartX = null;
+    touchStartY = null;
+  };
+
   const showIndex = (index: number, withFade: boolean) => {
     if (index < 0 || index >= items.length) {
       return;
     }
     currentIndex = index;
+    preloadIndex(index);
+    preloadNextFrom(index);
     clearFade();
     if (!withFade) {
       root.classList.remove('is-fading');
@@ -182,6 +213,7 @@ export const initHeroRotator = ({
   };
 
   const dotCleanup: Array<() => void> = [];
+  const touchCleanup: Array<() => void> = [];
 
   dots.forEach((dot) => {
     const indexValue = Number(dot.dataset.heroIndex);
@@ -200,6 +232,59 @@ export const initHeroRotator = ({
     dotCleanup.push(() => dot.removeEventListener('click', onClick));
   });
 
+  const handleTouchStart = (event: TouchEvent) => {
+    const touch = event.touches[0];
+    if (!touch) {
+      return;
+    }
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+    touchStartIndex = currentIndex;
+  };
+
+  const handleTouchEnd = (event: TouchEvent) => {
+    const touch = event.changedTouches[0];
+    if (!touch || touchStartX === null || touchStartY === null) {
+      clearTouchStart();
+      return;
+    }
+    const deltaX = touch.clientX - touchStartX;
+    const deltaY = touch.clientY - touchStartY;
+    clearTouchStart();
+    if (
+      Math.abs(deltaX) < MIN_SWIPE_X_PX ||
+      Math.abs(deltaX) <= Math.abs(deltaY)
+    ) {
+      return;
+    }
+    const direction = deltaX < 0 ? 1 : -1;
+    const nextIndex = getWrappedIndex(
+      touchStartIndex + direction,
+      items.length,
+    );
+    if (nextIndex === currentIndex) {
+      return;
+    }
+    setOrderFromIndex(nextIndex);
+    showIndex(nextIndex, !reduceMotion);
+    resetInterval();
+  };
+
+  const handleTouchCancel = () => {
+    clearTouchStart();
+  };
+
+  root.addEventListener('touchstart', handleTouchStart, { passive: true });
+  root.addEventListener('touchend', handleTouchEnd, { passive: true });
+  root.addEventListener('touchcancel', handleTouchCancel, { passive: true });
+  touchCleanup.push(() =>
+    root.removeEventListener('touchstart', handleTouchStart),
+  );
+  touchCleanup.push(() => root.removeEventListener('touchend', handleTouchEnd));
+  touchCleanup.push(() =>
+    root.removeEventListener('touchcancel', handleTouchCancel),
+  );
+
   resetInterval();
 
   return () => {
@@ -207,6 +292,8 @@ export const initHeroRotator = ({
       window.clearInterval(intervalId);
     }
     clearFade();
+    clearTouchStart();
     dotCleanup.forEach((cleanup) => cleanup());
+    touchCleanup.forEach((cleanup) => cleanup());
   };
 };

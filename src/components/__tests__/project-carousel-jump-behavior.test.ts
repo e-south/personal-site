@@ -45,11 +45,15 @@ describe('Project carousel jump behavior', () => {
     const projectCarouselRuntime = await read(
       'src/lib/projectCarouselRuntime.ts',
     );
+    const runtimeState = await read('src/lib/projectCarouselRuntimeState.ts');
     const visibilityObserver = await read(
       'src/lib/projectCarouselVisibilityObserver.ts',
     );
 
     expect(projectCarouselRuntime).toContain(
+      "import { createProjectCarouselRuntimeState } from '@/lib/projectCarouselRuntimeState';",
+    );
+    expect(runtimeState).toContain(
       'let programmaticTargetIndex: number | null = null;',
     );
     expect(projectCarouselRuntime).toContain(
@@ -59,7 +63,7 @@ describe('Project carousel jump behavior', () => {
       'if (programmaticTargetIndex !== null) {',
     );
     expect(visibilityObserver).toContain('index !== programmaticTargetIndex');
-    expect(projectCarouselRuntime).toContain('programmaticTargetIndex = null;');
+    expect(runtimeState).toContain('programmaticTargetIndex = null;');
   });
 
   it('uses a distance-aware long-jump mode to avoid noisy multi-panel travel', async () => {
@@ -104,8 +108,9 @@ describe('Project carousel jump behavior', () => {
     );
 
     expect(projectCarouselRuntime).toContain(
-      'const getClosestVisiblePanelIndex = () => {',
+      'createProjectCarouselTrackTargets({',
     );
+    expect(projectCarouselRuntime).toContain('getClosestVisiblePanelIndex,');
     expect(projectCarouselRuntime).not.toContain(
       'const syncActiveIndexToTrackPosition = () => {',
     );
@@ -119,7 +124,7 @@ describe('Project carousel jump behavior', () => {
       'if (plan.wrappedTargetIndex === originIndex) {',
     );
     expect(projectCarouselRuntime).toContain(
-      'cancelProgrammaticCarouselTransition({',
+      'transitionCancellation.cancelCurrentTransition();',
     );
     expect(transitionOrchestration).toContain("return 'same';");
   });
@@ -138,7 +143,7 @@ describe('Project carousel jump behavior', () => {
     expect(projectCarouselRuntime).toContain('left: track.scrollLeft,');
     expect(projectCarouselRuntime).toContain('top: window.scrollY,');
     expect(projectCarouselRuntime).toContain(
-      'cancelProgrammaticCarouselTransition({',
+      'createProjectCarouselTransitionCancellation({',
     );
     expect(projectCarouselRuntime).toContain('stopNativeSmoothScroll,');
     expect(transitionState).toContain('stopNativeSmoothScroll?.();');
@@ -148,22 +153,26 @@ describe('Project carousel jump behavior', () => {
     const projectCarouselRuntime = await read(
       'src/lib/projectCarouselRuntime.ts',
     );
+    const trackLockRelease = await read(
+      'src/lib/projectCarouselTrackLockRelease.ts',
+    );
 
     expect(projectCarouselRuntime).toContain(
-      'const settleTrackOnPanel = (index: number) => {',
+      "import { createProjectCarouselTrackLockRelease } from '@/lib/projectCarouselTrackLockRelease';",
     );
     expect(projectCarouselRuntime).toContain(
+      'createProjectCarouselTrackLockRelease({',
+    );
+    expect(trackLockRelease).toContain('const settleTrackOnPanel = (');
+    expect(projectCarouselRuntime).toContain('releaseProgrammaticTrackLock,');
+    expect(trackLockRelease).toContain(
       'const releaseProgrammaticTrackLock = (',
     );
-    expect(projectCarouselRuntime).toContain(
+    expect(trackLockRelease).toContain(
       'onComplete: (() => void) | null = null,',
     );
-    expect(projectCarouselRuntime).toContain(
-      'window.requestAnimationFrame(() => {',
-    );
-    expect(projectCarouselRuntime).toContain(
-      'resetProgrammaticCarouselState({',
-    );
+    expect(trackLockRelease).toContain('requestAnimationFrame(() => {');
+    expect(trackLockRelease).toContain('resetProgrammaticCarouselState({');
   });
 
   it('uses smooth correction for vertical offset reconciliation instead of abrupt post-move snap', async () => {
@@ -241,7 +250,7 @@ describe('Project carousel jump behavior', () => {
       'if (index !== programmaticTargetIndex) {\n            return;\n          }\n          clearProgrammaticTargetIndex();',
     );
     expect(projectCarouselRuntime).toContain(
-      'getProgrammaticTargetIndex: () => programmaticTargetIndex,',
+      'getProgrammaticTargetIndex: runtimeState.readProgrammaticTargetIndex,',
     );
   });
 
@@ -285,20 +294,23 @@ describe('Project carousel jump behavior', () => {
       'src/lib/projectCarouselRuntime.ts',
     );
     const carouselHelpers = await read('src/lib/projectCarousel.ts');
+    const trackTargets = await read('src/lib/projectCarouselTrackTargets.ts');
 
     expect(projectCarouselRuntime).toContain(
-      'const getTrackMaxScrollLeft = () =>',
+      "from '@/lib/projectCarouselTrackTargets';",
     );
     expect(projectCarouselRuntime).toContain(
-      'getTrackMaxScrollLeftFromTrack(track)',
+      'createProjectCarouselTrackTargets',
     );
-    expect(projectCarouselRuntime).toContain(
+    expect(trackTargets).toContain('const getTrackMaxScrollLeft = () =>');
+    expect(trackTargets).toContain('getTrackMaxScrollLeftFromTrack(track)');
+    expect(trackTargets).toContain(
       'const getTrackScrollPaddingInlineStart = () =>',
     );
-    expect(projectCarouselRuntime).toContain(
+    expect(trackTargets).toContain(
       'getTrackScrollPaddingInlineStartFromTrack(track)',
     );
-    expect(projectCarouselRuntime).toContain('getPanelTargetLeftFromGeometry');
+    expect(trackTargets).toContain('getPanelTargetLeftFromGeometry');
     expect(carouselHelpers).toContain(
       'Math.max(0, track.scrollWidth - track.clientWidth);',
     );
@@ -324,27 +336,33 @@ describe('Project carousel jump behavior', () => {
     const transitionTimers = await read(
       'src/lib/projectCarouselTransitionTimers.ts',
     );
+    const transitionScheduling = await read(
+      'src/lib/projectCarouselTransitionScheduling.ts',
+    );
 
     expect(projectCarouselRuntime).toContain(
       "import { createProjectCarouselTransitionTimers } from '@/lib/projectCarouselTransitionTimers';",
     );
     expect(projectCarouselRuntime).toContain(
+      "import { createProjectCarouselTransitionScheduling } from '@/lib/projectCarouselTransitionScheduling';",
+    );
+    expect(projectCarouselRuntime).toContain(
       'const transitionTimers = createProjectCarouselTransitionTimers({',
     );
     expect(projectCarouselRuntime).toContain(
-      'transitionTimers.clearPendingTransitionTimers();',
+      'transitionScheduling.clearPendingTransitionTimers',
     );
     expect(projectCarouselRuntime).toContain(
-      'transitionTimers.schedulePendingPreScrollTimer(',
+      'transitionScheduling.schedulePendingPreScroll(',
     );
     expect(projectCarouselRuntime).toContain(
-      'transitionTimers.schedulePendingIndexFinalizeTimer(',
+      'transitionScheduling.schedulePendingIndexFinalize',
     );
     expect(projectCarouselRuntime).toContain(
-      'transitionTimers.schedulePendingLongJumpSwapTimer(',
+      'transitionScheduling.schedulePendingLongJumpSwap',
     );
     expect(projectCarouselRuntime).toContain(
-      'transitionTimers.schedulePendingLongJumpReleaseTimer(',
+      'transitionScheduling.schedulePendingLongJumpRelease',
     );
     expect(transitionTimers).toContain(
       'export const createProjectCarouselTransitionTimers = ({',
@@ -353,6 +371,9 @@ describe('Project carousel jump behavior', () => {
       'const clearPendingTransitionTimers = () => {',
     );
     expect(transitionTimers).toContain('clearPendingPreScrollTimer();');
+    expect(transitionScheduling).toContain(
+      'export const createProjectCarouselTransitionScheduling = ({',
+    );
   });
 
   it('uses a shared relative-index transition helper for controls and keyboard arrows', async () => {

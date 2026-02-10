@@ -67,22 +67,38 @@ export const initStoryNavigation = ({
       baseOffsetPx: 24,
     });
 
-  const isHeroVisible = () => {
-    const topGuard = getSnapOffset();
-    return firstChapter.getBoundingClientRect().top > topGuard;
+  let viewportStateCache: {
+    isHeroVisible: boolean;
+    isStoryInView: boolean;
+  } | null = null;
+  const invalidateViewportStateCache = () => {
+    viewportStateCache = null;
   };
 
-  const isStoryInView = () => {
-    if (isHeroVisible()) {
-      return false;
+  const resolveStoryViewportState = () => {
+    if (viewportStateCache) {
+      return viewportStateCache;
     }
+    const topGuard = getSnapOffset();
+    const firstChapterTop = firstChapter.getBoundingClientRect().top;
+    const heroVisible = firstChapterTop > topGuard;
     const rect = storyRoot.getBoundingClientRect();
     const viewportHeight =
       window.innerHeight || document.documentElement.clientHeight;
     const topThreshold = viewportHeight * 0.15;
     const bottomThreshold = viewportHeight * 0.85;
-    return rect.top < bottomThreshold && rect.bottom > topThreshold;
+    viewportStateCache = {
+      isHeroVisible: heroVisible,
+      isStoryInView:
+        !heroVisible &&
+        rect.top < bottomThreshold &&
+        rect.bottom > topThreshold,
+    };
+    return viewportStateCache;
   };
+
+  const isHeroVisible = () => resolveStoryViewportState().isHeroVisible;
+  const isStoryInView = () => resolveStoryViewportState().isStoryInView;
 
   const clearActiveScroll = () => {
     state.clearActiveScroll();
@@ -109,9 +125,11 @@ export const initStoryNavigation = ({
     state.cancelActiveScrollLock();
   };
 
-  const handleScroll = () => {
+  let scrollRafId: number | null = null;
+  const runScrollUpdate = () => {
+    const { isStoryInView: storyInView } = resolveStoryViewportState();
     if (!state.isSnapSuppressed() && !state.hasActiveScrollTarget()) {
-      state.applySnapState(isStoryInView());
+      state.applySnapState(storyInView);
       return;
     }
     if (!state.isSnapSuppressed() || state.hasActiveScrollTarget()) {
@@ -120,8 +138,31 @@ export const initStoryNavigation = ({
     state.scheduleSnapRestore(restoreSnap, 160);
   };
 
+  const handleScroll = () => {
+    if (scrollRafId !== null) {
+      return;
+    }
+    scrollRafId = window.requestAnimationFrame(() => {
+      scrollRafId = null;
+      invalidateViewportStateCache();
+      runScrollUpdate();
+    });
+  };
+
   window.addEventListener('scroll', handleScroll, { passive: true });
-  addCleanup(() => window.removeEventListener('scroll', handleScroll));
+  const handleResize = () => {
+    invalidateViewportStateCache();
+  };
+  window.addEventListener('resize', handleResize, { passive: true });
+  addCleanup(() => {
+    window.removeEventListener('scroll', handleScroll);
+    window.removeEventListener('resize', handleResize);
+    if (scrollRafId !== null) {
+      window.cancelAnimationFrame(scrollRafId);
+      scrollRafId = null;
+    }
+    invalidateViewportStateCache();
+  });
 
   window.addEventListener('wheel', cancelActiveScrollLock, { passive: true });
   addCleanup(() => window.removeEventListener('wheel', cancelActiveScrollLock));
@@ -159,9 +200,10 @@ export const initStoryNavigation = ({
   };
 
   const waitForScrollSettle = (target: HTMLElement) => {
+    const settleOffset = getScrollOffset(target);
     const finalizeScrollAlignment = () => {
       window.scrollTo({
-        top: getTargetScrollTop(target, getScrollOffset(target)),
+        top: getTargetScrollTop(target, settleOffset),
         behavior: 'auto',
       });
     };
@@ -171,10 +213,7 @@ export const initStoryNavigation = ({
       if (!state.isActiveScrollTarget(target)) {
         return;
       }
-      const currentOffset = getScrollOffset(target);
-      const delta = Math.abs(
-        target.getBoundingClientRect().top - currentOffset,
-      );
+      const delta = Math.abs(target.getBoundingClientRect().top - settleOffset);
       const elapsed = performance.now() - start;
       if (delta <= 2 || elapsed > 1600) {
         finalizeScrollAlignment();
@@ -192,6 +231,7 @@ export const initStoryNavigation = ({
     const behavior = getScrollBehavior();
     const offset = href === '#top' ? 0 : getScrollOffset(target);
     const performScroll = () => {
+      invalidateViewportStateCache();
       window.scrollTo({
         top: getTargetScrollTop(target, offset),
         behavior,
@@ -248,6 +288,7 @@ export const initStoryNavigation = ({
 
   const observer = new IntersectionObserver(
     (entries) => {
+      invalidateViewportStateCache();
       entries.forEach((entry) => {
         if (state.isSnapSuppressed()) {
           return;

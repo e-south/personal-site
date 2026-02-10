@@ -33,6 +33,34 @@ Module Author(s): Eric J. South
   scroll-margin-top: 0;
 }
 
+.story-chapter-title {
+  color: var(--site-page-header-home);
+}
+
+#about > .story-chapter:nth-of-type(6n + 1) .story-chapter-title {
+  color: var(--site-page-header-home);
+}
+
+#about > .story-chapter:nth-of-type(6n + 2) .story-chapter-title {
+  color: var(--site-page-header-cv);
+}
+
+#about > .story-chapter:nth-of-type(6n + 3) .story-chapter-title {
+  color: var(--site-page-header-projects);
+}
+
+#about > .story-chapter:nth-of-type(6n + 4) .story-chapter-title {
+  color: var(--site-page-header-publications);
+}
+
+#about > .story-chapter:nth-of-type(6n + 5) .story-chapter-title {
+  color: var(--site-page-header-blog);
+}
+
+#about > .story-chapter:nth-of-type(6n + 6) .story-chapter-title {
+  color: var(--site-page-header-contact);
+}
+
 .story-media-stack {
   display: grid;
   gap: 1.25rem;
@@ -82,27 +110,17 @@ Module Author(s): Eric J. South
   gap: 1.5rem;
   overflow-x: auto;
   padding-bottom: 0.5rem;
-  scroll-snap-type: x proximity;
+  scroll-snap-type: x mandatory;
   scroll-padding-inline: 1rem;
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in oklab, var(--site-accent) 55%, transparent)
-    color-mix(in oklab, var(--site-surface) 50%, transparent);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-x pan-y;
+  touch-action: pan-y pinch-zoom;
+  overscroll-behavior-x: contain;
 }
 
 .story-carousel::-webkit-scrollbar {
-  height: 0.5rem;
-}
-
-.story-carousel::-webkit-scrollbar-track {
-  background: color-mix(in oklab, var(--site-surface) 54%, transparent);
-  border-radius: 999px;
-}
-
-.story-carousel::-webkit-scrollbar-thumb {
-  background: color-mix(in oklab, var(--site-accent) 52%, transparent);
-  border-radius: 999px;
+  display: none;
 }
 
 .story-carousel-item {
@@ -113,6 +131,35 @@ Module Author(s): Eric J. South
   display: flex;
   gap: 0.75rem;
   justify-content: center;
+}
+
+@media (max-width: 767px) {
+  .story-carousel-wrapper {
+    position: relative;
+  }
+
+  .story-carousel {
+    padding-inline: 2.25rem;
+    scroll-padding-inline: 2.25rem;
+  }
+
+  .story-carousel-controls {
+    position: absolute;
+    inset-inline: 0.3rem;
+    top: 50%;
+    transform: translateY(-50%);
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .story-carousel-button {
+    pointer-events: auto;
+    border-radius: 999px;
+    min-width: 2.55rem;
+    padding: 0.42rem 0.6rem;
+    letter-spacing: 0.1em;
+  }
 }
 
 #phd-at-boston-university .story-carousel-wrapper {
@@ -180,8 +227,30 @@ Module Author(s): Eric J. South
 }
 
 .story-carousel-button:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
+  opacity: 0.46;
+  cursor: default;
+  border-color: color-mix(in oklab, var(--site-text) 12%, transparent);
+  color: color-mix(in oklab, var(--site-text) 58%, transparent);
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in oklab, var(--site-surface) 84%, transparent),
+      color-mix(in oklab, var(--site-surface-strong) 86%, transparent)
+    ),
+    color-mix(in oklab, var(--site-surface) 58%, transparent);
+}
+
+.story-carousel-button:disabled:hover {
+  transform: none;
+  border-color: color-mix(in oklab, var(--site-text) 12%, transparent);
+  color: color-mix(in oklab, var(--site-text) 58%, transparent);
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in oklab, var(--site-surface) 84%, transparent),
+      color-mix(in oklab, var(--site-surface-strong) 86%, transparent)
+    ),
+    color-mix(in oklab, var(--site-surface) 58%, transparent);
 }
 
 .story-chapter-nav {

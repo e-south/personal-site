@@ -61,16 +61,14 @@ const maxHeight = getFrameHeight(effectiveFrame);
         <video
           class="story-media-asset"
           data-story-video
+          data-story-video-src={item.src}
           muted
           loop
           playsinline
-          autoplay
-          preload="metadata"
+          preload="none"
           poster={item.poster.src}
           aria-label={item.alt}
-        >
-          <source src={item.src} type="video/mp4" />
-        </video>
+        />
       )
     }
   </div>

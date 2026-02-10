@@ -51,7 +51,7 @@ const safeExternalUrl = z
 
 const internalOrExternalLink = z.union([
   safeExternalUrl,
-  z.string().regex(/^\//),
+  z.string().regex(/^\/(?!\/)/),
 ]);
 
 const projects = defineCollection({
@@ -116,7 +116,7 @@ const papers = defineCollection({
       year: z.number().int(),
       coFirst: z.boolean().optional(),
       link: safeExternalUrl.optional(),
-      pdf: z.union([safeExternalUrl, z.string().regex(/^\//)]).optional(),
+      pdf: z.union([safeExternalUrl, z.string().regex(/^\/(?!\/)/)]).optional(),
       abstract: z.string().optional(),
       featured: z.boolean().default(false),
     })

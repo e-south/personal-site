@@ -22,18 +22,14 @@ describe('Typography policy contract', () => {
     const packageJson = await read('package.json');
     const tailwind = await read('tailwind.config.mjs');
 
-    expect(layout).toContain("import '@fontsource-variable/manrope';");
-    expect(layout).toContain("import '@fontsource-variable/source-serif-4';");
-    expect(layout).toContain("import '@fontsource-variable/inter';");
-    expect(layout).toContain(
-      "import '@fontsource-variable/plus-jakarta-sans';",
-    );
+    expect(layout).toContain("import '@/styles/fonts.css';");
+    expect(layout).not.toContain("import '@fontsource-variable/inter';");
     expect(layout).not.toContain("import '@fontsource-variable/fraunces';");
     expect(layout).not.toContain(
       "import '@fontsource-variable/jetbrains-mono';",
     );
 
-    expect(packageJson).toContain('"@fontsource-variable/inter"');
+    expect(packageJson).not.toContain('"@fontsource-variable/inter"');
     expect(packageJson).toContain('"@fontsource-variable/plus-jakarta-sans"');
     expect(packageJson).not.toContain('"@fontsource-variable/fraunces"');
     expect(packageJson).not.toContain('"@fontsource-variable/jetbrains-mono"');
@@ -44,9 +40,7 @@ describe('Typography policy contract', () => {
     expect(tailwind).toContain(
       "header: ['Plus Jakarta Sans Variable', 'system-ui', 'sans-serif']",
     );
-    expect(tailwind).toContain(
-      "inter: ['Inter Variable', 'system-ui', 'sans-serif']",
-    );
+    expect(tailwind).not.toContain('inter: [');
     expect(tailwind).toContain(
       "display: ['Source Serif 4 Variable', 'ui-serif', 'serif']",
     );
@@ -56,7 +50,7 @@ describe('Typography policy contract', () => {
     expect(tailwind).toContain("mono: ['ui-monospace', 'monospace']");
   });
 
-  it('uses non-bold top-banner typography while keeping active pill links bold', async () => {
+  it('uses non-bold top-banner typography while keeping active links strongly emboldened only', async () => {
     const layout = await read('src/layouts/Layout.astro');
     const headingTypography = await read('src/lib/layout/headingTypography.ts');
     const navLink = await read('src/components/ui/NavLink.astro');
@@ -77,8 +71,19 @@ describe('Typography policy contract', () => {
     expect(prose).toContain('prose-headings:font-bold');
 
     expect(navLink).toContain('font-header');
-    expect(navLink).toContain('font-normal');
-    expect(navLink).toContain('nav-active text-base-content font-bold');
+    expect(navLink).toContain('font-medium');
+    expect(navLink).toContain(
+      "const activeClasses = 'text-base-content font-extrabold';",
+    );
+    expect(navLink).toContain(".nav-pill[data-nav-active='false']:hover");
+    expect(navLink).toContain('const normalizedBase = normalizePath(withBase(');
+    expect(navLink).toContain('const stripBasePrefix = (path: string) => {');
+    expect(navLink).toContain('data-nav-active={isActive ?');
+    expect(navLink).toContain('font-variation-settings:');
+    expect(navLink).toContain(
+      'class:list={[baseClass, activeClasses, className]}',
+    );
+    expect(navLink).not.toContain('.nav-active {');
     expect(navbar).toContain('font-header text-lg');
   });
 });

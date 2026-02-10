@@ -1,0 +1,115 @@
+/*
+--------------------------------------------------------------------------------
+personal-site
+src/styles/layout/header-effects.css
+
+Defines sticky header motion, nucleotide edge styling, and external-nav divider.
+
+Module Author(s): Eric J. South
+--------------------------------------------------------------------------------
+*/
+
+.site-header-edge {
+  position: sticky;
+  top: 0;
+  overflow: visible;
+  transform: translate3d(0, 0, 0);
+  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.site-header-edge.site-header-mobile-hidden {
+  transform: translate3d(0, -104%, 0);
+}
+
+.site-header-edge-line {
+  position: absolute;
+  left: -1.25rem;
+  right: -1.25rem;
+  bottom: -0.08rem;
+  height: 0.56rem;
+  overflow: hidden;
+  padding-inline: 0;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  font-family:
+    'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.45rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  font-variant-ligatures: none;
+  font-feature-settings: 'liga' 0;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--site-text) 34%, var(--site-accent) 66%);
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    #000 8%,
+    #000 92%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    #000 8%,
+    #000 92%,
+    transparent 100%
+  );
+  text-shadow: 0 0 12px color-mix(in oklab, var(--site-accent) 42%, transparent);
+  opacity: 0.98;
+}
+
+.site-header-edge-char {
+  display: inline-block;
+  transform-origin: 50% 58%;
+  transition:
+    color 120ms ease-out,
+    text-shadow 180ms ease-out,
+    transform 200ms cubic-bezier(0.21, 0.86, 0.3, 1),
+    filter 160ms ease-out;
+  will-change: color, text-shadow, transform, filter;
+}
+
+.site-header-external-divider {
+  position: relative;
+}
+
+.site-header-external-divider::before {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.92;
+}
+
+@media (max-width: 767px) {
+  .site-header-external-divider::before {
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 1px;
+    background: var(--site-divider-line);
+    box-shadow: var(--site-divider-shadow);
+  }
+}
+
+@media (min-width: 768px) {
+  .site-header-external-divider::before {
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      color-mix(in oklab, var(--site-text) 12%, transparent) 18%,
+      color-mix(in oklab, var(--site-accent) 22%, transparent) 50%,
+      color-mix(in oklab, var(--site-text) 12%, transparent) 82%,
+      transparent 100%
+    );
+    box-shadow:
+      1px 0 0 color-mix(in oklab, #fff 8%, transparent),
+      8px 0 20px color-mix(in oklab, var(--site-accent) 12%, transparent);
+  }
+}

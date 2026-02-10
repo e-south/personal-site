@@ -1,0 +1,39 @@
+/*
+--------------------------------------------------------------------------------
+personal-site
+src/styles/layout/page-header-palette.css
+
+Defines category-specific hues for page-level main headers.
+
+Module Author(s): Eric J. South
+--------------------------------------------------------------------------------
+*/
+
+.page-main-header {
+  --site-page-header-hue: var(--site-accent);
+  color: var(--site-page-header-hue) !important;
+}
+
+.page-main-header--home {
+  --site-page-header-hue: var(--site-page-header-home);
+}
+
+.page-main-header--cv {
+  --site-page-header-hue: var(--site-page-header-cv);
+}
+
+.page-main-header--projects {
+  --site-page-header-hue: var(--site-page-header-projects);
+}
+
+.page-main-header--publications {
+  --site-page-header-hue: var(--site-page-header-publications);
+}
+
+.page-main-header--blog {
+  --site-page-header-hue: var(--site-page-header-blog);
+}
+
+.page-main-header--contact {
+  --site-page-header-hue: var(--site-page-header-contact);
+}
