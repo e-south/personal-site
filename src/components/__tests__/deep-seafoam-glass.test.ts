@@ -21,6 +21,7 @@ describe('Deep Seafoam Glass theme contract', () => {
     const layout = await read('src/layouts/Layout.astro');
     const contents = await read('src/styles/layout.css');
     const enhancements = await read('src/lib/layout/pageEnhancements.ts');
+    const layoutClient = await read('src/lib/layout/layoutClient.ts');
 
     expect(layout).toContain("import '@/styles/layout.css';");
     expect(contents).toContain('--site-radius-control: 14px;');
@@ -30,7 +31,8 @@ describe('Deep Seafoam Glass theme contract', () => {
     expect(contents).toContain('[data-reveal]');
     expect(contents).toContain('js-enhanced');
     expect(contents).toContain("data-reveal-ready='true'");
-    expect(layout).toContain('bindLayoutEnhancements();');
+    expect(layout).toContain('initLayoutClient();');
+    expect(layoutClient).toContain('bindLayoutEnhancements();');
     expect(enhancements).toContain('IntersectionObserver');
     expect(enhancements).toContain('(prefers-reduced-motion: reduce)');
   });

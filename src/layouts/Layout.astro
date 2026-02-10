@@ -4,9 +4,8 @@ import { ClientRouter } from 'astro:transitions';
 import Navbar from '../components/ui/Navbar.astro';
 import Head from '../components/Head.astro';
 
-import { getNavigation, features } from '@/data/navigation';
-import { hasPublishedBlogPosts } from '@/lib/content';
 import { headingTypographyClasses } from '@/lib/layout/headingTypography';
+import { getLayoutNavigation } from '@/lib/layout/layoutNavigation';
 import { seo, template, analytics } from '../settings';
 import Footer from '../components/ui/Footer.astro';
 
@@ -30,12 +29,7 @@ const {
   showFooter = true,
 } = Astro.props;
 
-const blogAvailable = await hasPublishedBlogPosts();
-const navigation = getNavigation({
-  blogAvailable,
-  blogNavMode: features.blogNav,
-});
-const { internal: navItems, external: externalLinks } = navigation;
+const { navItems, externalLinks } = await getLayoutNavigation();
 ---
 
 <!doctype html>
@@ -76,9 +70,9 @@ const { internal: navItems, external: externalLinks } = navigation;
     </div>
 
     <script>
-      import { bindLayoutEnhancements } from '@/lib/layout/pageEnhancements';
+      import { initLayoutClient } from '@/lib/layout/layoutClient';
 
-      bindLayoutEnhancements();
+      initLayoutClient();
     </script>
   </body>
 </html>

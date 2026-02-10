@@ -17,39 +17,60 @@ const read = async (relativePath: string) =>
   readFile(path.resolve(process.cwd(), relativePath), 'utf-8');
 
 describe('home runtime modularization', () => {
-  it('delegates hero and story video logic from home orchestrator', async () => {
+  it('uses dedicated home runtime and lifecycle binders from home entrypoint', async () => {
     const home = await read('src/lib/home.ts');
+    const homeRuntime = await read('src/lib/home/homeRuntime.ts');
+    const homeLifecycle = await read('src/lib/home/homeLifecycle.ts');
 
     expect(home).toContain(
+      "import { createHomeRuntime } from '@/lib/home/homeRuntime';",
+    );
+    expect(home).toContain(
+      "import { bindHomeLifecycle } from '@/lib/home/homeLifecycle';",
+    );
+    expect(home).toContain('const homeRuntime = createHomeRuntime();');
+    expect(home).toContain('bindHomeLifecycle({');
+
+    expect(homeRuntime).toContain('export const createHomeRuntime = () =>');
+    expect(homeLifecycle).toContain('export const bindHomeLifecycle = ({');
+  });
+
+  it('delegates hero and story video logic from home runtime module', async () => {
+    const home = await read('src/lib/home.ts');
+    const homeRuntime = await read('src/lib/home/homeRuntime.ts');
+
+    expect(homeRuntime).toContain(
       "import { initHeroRotator } from '@/lib/home/heroRotator';",
     );
-    expect(home).toContain(
-      "import { initStoryVideos } from '@/lib/home/storyVideos';",
+    expect(homeRuntime).toContain('initStoryVideos,');
+    expect(homeRuntime).toContain("from '@/lib/home/storyVideos';");
+    expect(homeRuntime).toContain('initHeroRotator({');
+    expect(homeRuntime).toContain('initStoryVideos({');
+    expect(home).not.toContain(
+      "import { initHeroRotator } from '@/lib/home/heroRotator';",
     );
-    expect(home).toContain('initHeroRotator({');
-    expect(home).toContain('initStoryVideos({');
   });
 
-  it('delegates story carousel runtime wiring from home orchestrator', async () => {
-    const home = await read('src/lib/home.ts');
+  it('delegates story carousel runtime wiring from home runtime module', async () => {
+    const homeRuntime = await read('src/lib/home/homeRuntime.ts');
 
-    expect(home).toContain(
+    expect(homeRuntime).toContain(
       "import { initStoryCarousels } from '@/lib/home/storyCarousels';",
     );
-    expect(home).toContain('initStoryCarousels({ getScrollBehavior })');
+    expect(homeRuntime).toContain('initStoryCarousels({ getScrollBehavior })');
   });
 
-  it('delegates story navigation runtime from home orchestrator', async () => {
-    const home = await read('src/lib/home.ts');
+  it('delegates story navigation runtime from home runtime module', async () => {
+    const homeRuntime = await read('src/lib/home/homeRuntime.ts');
     const storyNavigation = await read('src/lib/home/storyNavigation.ts');
     const storyNavigationState = await read(
       'src/lib/home/storyNavigationState.ts',
     );
 
-    expect(home).toContain(
+    expect(homeRuntime).toContain(
       "import { initStoryNavigation } from '@/lib/home/storyNavigation';",
     );
-    expect(home).toContain('initStoryNavigation({');
+    expect(homeRuntime).toContain('initStoryNavigation({');
     expect(storyNavigation).toContain(
       "import { createStoryNavigationState } from '@/lib/home/storyNavigationState';",
     );
@@ -85,13 +106,40 @@ describe('home runtime modularization', () => {
 });
 
 describe('layout enhancement modularization', () => {
-  it('uses shared layout enhancement binder from layout file', async () => {
+  it('uses shared layout client initializer from layout file', async () => {
     const layout = await read('src/layouts/Layout.astro');
+    const layoutClient = await read('src/lib/layout/layoutClient.ts');
 
     expect(layout).toContain(
+      "import { initLayoutClient } from '@/lib/layout/layoutClient';",
+    );
+    expect(layout).toContain('initLayoutClient();');
+    expect(layoutClient).toContain(
       "import { bindLayoutEnhancements } from '@/lib/layout/pageEnhancements';",
     );
-    expect(layout).toContain('bindLayoutEnhancements();');
+    expect(layoutClient).toContain('export const initLayoutClient = () =>');
+    expect(layoutClient).toContain('bindLayoutEnhancements();');
+  });
+
+  it('loads layout navigation data from a dedicated navigation helper', async () => {
+    const layout = await read('src/layouts/Layout.astro');
+    const layoutNavigation = await read('src/lib/layout/layoutNavigation.ts');
+
+    expect(layout).toContain(
+      "import { getLayoutNavigation } from '@/lib/layout/layoutNavigation';",
+    );
+    expect(layout).toContain(
+      'const { navItems, externalLinks } = await getLayoutNavigation();',
+    );
+    expect(layoutNavigation).toContain(
+      "import { getNavigation, features } from '@/data/navigation';",
+    );
+    expect(layoutNavigation).toContain(
+      "import { hasPublishedBlogPosts } from '@/lib/content';",
+    );
+    expect(layoutNavigation).toContain(
+      'export const getLayoutNavigation = async () =>',
+    );
   });
 
   it('keeps reveal and scroll-offset logic in dedicated helper module', async () => {
