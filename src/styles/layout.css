@@ -32,12 +32,15 @@ html[data-theme='dark'] {
   --site-shadow-glow:
     0 0 0 1px color-mix(in oklab, var(--site-accent) 20%, transparent),
     0 18px 46px color-mix(in oklab, var(--site-accent) 20%, transparent);
+  --site-divider-shadow:
+    0 1px 0 color-mix(in oklab, #fff 8%, transparent),
+    0 8px 20px color-mix(in oklab, var(--site-accent) 12%, transparent);
   --site-divider-line: linear-gradient(
     90deg,
     transparent 0%,
-    color-mix(in oklab, var(--site-border) 70%, transparent) 18%,
-    color-mix(in oklab, var(--site-accent) 30%, transparent) 50%,
-    color-mix(in oklab, var(--site-border) 70%, transparent) 82%,
+    color-mix(in oklab, var(--site-text) 12%, transparent) 18%,
+    color-mix(in oklab, var(--site-accent) 22%, transparent) 50%,
+    color-mix(in oklab, var(--site-text) 12%, transparent) 82%,
     transparent 100%
   );
 
@@ -173,6 +176,8 @@ body {
   height: 1px;
   width: 100%;
   background: var(--site-divider-line);
+  box-shadow: var(--site-divider-shadow);
+  opacity: 0.92;
 }
 
 .section-divider-bottom {
@@ -188,6 +193,8 @@ body {
   height: 1px;
   pointer-events: none;
   background: var(--site-divider-line);
+  box-shadow: var(--site-divider-shadow);
+  opacity: 0.92;
 }
 
 .section-divider-bottom:last-child::after {
