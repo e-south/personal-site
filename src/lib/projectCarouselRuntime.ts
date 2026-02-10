@@ -35,6 +35,7 @@ import { createProjectCarouselTransitionTimers } from '@/lib/projectCarouselTran
 import { bindProjectCarouselEventBindings } from '@/lib/projectCarouselEventBindings';
 import { createProjectCarouselTransitionOrchestration } from '@/lib/projectCarouselTransitionOrchestration';
 import { createProjectCarouselViewportController } from '@/lib/projectCarouselViewport';
+import { createProjectCarouselRuntimeConfig } from '@/lib/projectCarouselRuntimeConfig';
 
 const initProjectCarousel = () => {
   const carousel = document.querySelector('[data-project-carousel]');
@@ -94,7 +95,11 @@ const initProjectCarousel = () => {
   );
 
   const total = panels.length;
-  const HEIGHT_SYNC_INTERSECTION_RATIO = 0.72;
+  const runtimeConfig = createProjectCarouselRuntimeConfig({
+    prefersReducedMotion: prefersReducedMotion.matches,
+  });
+  const HEIGHT_SYNC_INTERSECTION_RATIO =
+    runtimeConfig.heightSyncIntersectionRatio;
   let activeIndex = -1;
   let trackQuickScrollFrame: number | null = null;
   let windowQuickScrollFrame: number | null = null;
@@ -104,17 +109,13 @@ const initProjectCarousel = () => {
   panels.forEach((panel, index) => {
     panelIndexById.set(panel.id, index);
   });
-  const QUICK_SCROLL_DURATION_MS = 280;
-  const QUICK_CORRECTION_DELAY_MS = QUICK_SCROLL_DURATION_MS + 36;
-  const CORRECTION_THRESHOLD_PX = 10;
-  const LONG_JUMP_THRESHOLD = 2;
-  const LONG_JUMP_FADE_OUT_MS = prefersReducedMotion.matches ? 0 : 120;
-  const LONG_JUMP_FADE_IN_MS = prefersReducedMotion.matches ? 0 : 180;
-  const transitionPolicy = {
-    heightTransitionMs: prefersReducedMotion.matches ? 0 : 520,
-    preExpandDurationMs: prefersReducedMotion.matches ? 0 : 220,
-    preExpandMinDeltaPx: 14,
-  };
+  const QUICK_SCROLL_DURATION_MS = runtimeConfig.quickScrollDurationMs;
+  const QUICK_CORRECTION_DELAY_MS = runtimeConfig.quickCorrectionDelayMs;
+  const CORRECTION_THRESHOLD_PX = runtimeConfig.correctionThresholdPx;
+  const LONG_JUMP_THRESHOLD = runtimeConfig.longJumpThreshold;
+  const LONG_JUMP_FADE_OUT_MS = runtimeConfig.longJumpFadeOutMs;
+  const LONG_JUMP_FADE_IN_MS = runtimeConfig.longJumpFadeInMs;
+  const transitionPolicy = runtimeConfig.transitionPolicy;
   type ActiveIndexOptions = {
     syncHeight?: boolean;
     observeHeight?: boolean;

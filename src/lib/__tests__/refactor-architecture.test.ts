@@ -405,6 +405,27 @@ describe('project carousel helper extraction', () => {
     expect(heightSync).toContain('const scheduleTrackHeightSync = (');
   });
 
+  it('extracts project carousel runtime timing and threshold constants into a dedicated config module', async () => {
+    const runtime = await read('src/lib/projectCarouselRuntime.ts');
+    const runtimeConfig = await read('src/lib/projectCarouselRuntimeConfig.ts');
+
+    expect(runtime).toContain(
+      "import { createProjectCarouselRuntimeConfig } from '@/lib/projectCarouselRuntimeConfig';",
+    );
+    expect(runtime).toContain(
+      'const runtimeConfig = createProjectCarouselRuntimeConfig({',
+    );
+    expect(runtime).toContain('runtimeConfig.quickScrollDurationMs');
+    expect(runtime).toContain('runtimeConfig.transitionPolicy');
+
+    expect(runtimeConfig).toContain(
+      'export const createProjectCarouselRuntimeConfig = ({',
+    );
+    expect(runtimeConfig).toContain('quickScrollDurationMs: 280');
+    expect(runtimeConfig).toContain('longJumpThreshold: 2');
+    expect(runtimeConfig).toContain('heightSyncIntersectionRatio: 0.72');
+  });
+
   it('extracts project carousel transition timer scheduling into a dedicated module', async () => {
     const runtime = await read('src/lib/projectCarouselRuntime.ts');
     const transitionTimers = await read(

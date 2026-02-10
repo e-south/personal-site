@@ -44,6 +44,7 @@ describe('ProjectCarousel controls', () => {
 
   it('pre-expands carousel height before moving to longer narratives', async () => {
     const contents = await read('src/lib/projectCarouselRuntime.ts');
+    const runtimeConfig = await read('src/lib/projectCarouselRuntimeConfig.ts');
     const transitionOrchestration = await read(
       'src/lib/projectCarouselTransitionOrchestration.ts',
     );
@@ -51,9 +52,11 @@ describe('ProjectCarousel controls', () => {
       'src/lib/projectCarouselTransitionTimers.ts',
     );
 
-    expect(contents).toContain('const transitionPolicy = {');
-    expect(contents).toContain('preExpandDurationMs');
-    expect(contents).toContain('preExpandMinDeltaPx');
+    expect(contents).toContain(
+      'const transitionPolicy = runtimeConfig.transitionPolicy;',
+    );
+    expect(runtimeConfig).toContain('preExpandDurationMs');
+    expect(runtimeConfig).toContain('preExpandMinDeltaPx');
     expect(transitionOrchestration).toContain(
       'createCarouselHeightTransitionPlan({',
     );

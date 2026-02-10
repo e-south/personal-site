@@ -66,8 +66,12 @@ describe('Project carousel jump behavior', () => {
     const projectCarouselRuntime = await read(
       'src/lib/projectCarouselRuntime.ts',
     );
+    const runtimeConfig = await read('src/lib/projectCarouselRuntimeConfig.ts');
 
-    expect(projectCarouselRuntime).toContain('LONG_JUMP_THRESHOLD = 2;');
+    expect(projectCarouselRuntime).toContain(
+      'const LONG_JUMP_THRESHOLD = runtimeConfig.longJumpThreshold;',
+    );
+    expect(runtimeConfig).toContain('longJumpThreshold: 2');
     expect(projectCarouselRuntime).toContain(
       'project-carousel-track--soft-swap',
     );
@@ -166,13 +170,15 @@ describe('Project carousel jump behavior', () => {
     const projectCarouselRuntime = await read(
       'src/lib/projectCarouselRuntime.ts',
     );
+    const runtimeConfig = await read('src/lib/projectCarouselRuntimeConfig.ts');
     const projectCarouselViewport = await read(
       'src/lib/projectCarouselViewport.ts',
     );
 
     expect(projectCarouselRuntime).toContain(
-      'const CORRECTION_THRESHOLD_PX = 10;',
+      'const CORRECTION_THRESHOLD_PX = runtimeConfig.correctionThresholdPx;',
     );
+    expect(runtimeConfig).toContain('correctionThresholdPx: 10');
     expect(projectCarouselViewport).toContain(
       'const correctCarouselVerticalOffset = (useQuickMotion = false) => {',
     );
@@ -243,6 +249,7 @@ describe('Project carousel jump behavior', () => {
     const projectCarouselRuntime = await read(
       'src/lib/projectCarouselRuntime.ts',
     );
+    const runtimeConfig = await read('src/lib/projectCarouselRuntimeConfig.ts');
     const visibilityObserver = await read(
       'src/lib/projectCarouselVisibilityObserver.ts',
     );
@@ -251,8 +258,12 @@ describe('Project carousel jump behavior', () => {
       'const panelVisibilityRatios = panels.map(() => 0);',
     );
     expect(projectCarouselRuntime).toContain(
-      'const HEIGHT_SYNC_INTERSECTION_RATIO = 0.72;',
+      'const HEIGHT_SYNC_INTERSECTION_RATIO =',
     );
+    expect(projectCarouselRuntime).toContain(
+      'runtimeConfig.heightSyncIntersectionRatio;',
+    );
+    expect(runtimeConfig).toContain('heightSyncIntersectionRatio: 0.72');
     expect(projectCarouselRuntime).toContain(
       'heightSyncIntersectionRatio: HEIGHT_SYNC_INTERSECTION_RATIO,',
     );
