@@ -68,16 +68,16 @@ describe('Typography policy contract', () => {
     expect(headingTypography).toContain('[&_h2]:font-header');
     expect(headingTypography).toContain('[&_h3]:font-header');
     expect(headingTypography).toContain('[&_h4]:font-header');
-    expect(headingTypography).toContain('[&_h1]:font-extrabold');
-    expect(headingTypography).toContain('[&_h2]:font-extrabold');
-    expect(headingTypography).toContain('[&_h3]:font-extrabold');
-    expect(headingTypography).toContain('[&_h4]:font-extrabold');
+    expect(headingTypography).toContain('[&_h1]:font-bold');
+    expect(headingTypography).toContain('[&_h2]:font-bold');
+    expect(headingTypography).toContain('[&_h3]:font-bold');
+    expect(headingTypography).toContain('[&_h4]:font-bold');
 
     expect(prose).toContain('prose-headings:font-header');
-    expect(prose).toContain('prose-headings:font-extrabold');
+    expect(prose).toContain('prose-headings:font-bold');
 
     expect(navLink).toContain('font-header');
-    expect(navLink).toContain('font-extrabold');
+    expect(navLink).toContain('font-bold');
     expect(navbar).toContain('font-header text-lg');
   });
 });
