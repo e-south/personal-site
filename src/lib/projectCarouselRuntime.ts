@@ -31,6 +31,10 @@ import {
   cancelProgrammaticCarouselTransition,
   resetProgrammaticCarouselState,
 } from '@/lib/projectCarouselTransitionState';
+import {
+  activateProgrammaticCarouselTransition,
+  isProgrammaticCarouselTransitionLockActive,
+} from '@/lib/projectCarouselProgrammaticState';
 import { createProjectCarouselTransitionTimers } from '@/lib/projectCarouselTransitionTimers';
 import { bindProjectCarouselEventBindings } from '@/lib/projectCarouselEventBindings';
 import { createProjectCarouselTransitionOrchestration } from '@/lib/projectCarouselTransitionOrchestration';
@@ -353,8 +357,11 @@ const initProjectCarousel = () => {
     const finalizeIndexScroll = () => {
       releaseProgrammaticTrackLock(wrapped, onComplete);
     };
-    isProgrammaticTransition = true;
-    setProgrammaticTargetIndex(wrapped);
+    activateProgrammaticCarouselTransition({
+      targetIndex: wrapped,
+      setProgrammaticTargetIndex,
+      setProgrammaticTransitionActive,
+    });
     setProgrammaticTrackState(true);
     if (useQuickMotion && !prefersReducedMotion.matches) {
       quickScrollTrackTo(targetLeft, () => {
@@ -381,8 +388,11 @@ const initProjectCarousel = () => {
     stopTrackHeightSync();
     stopTrackQuickScroll();
     transitionTimers.clearPendingTransitionTimers();
-    isProgrammaticTransition = true;
-    setProgrammaticTargetIndex(targetIndex);
+    activateProgrammaticCarouselTransition({
+      targetIndex,
+      setProgrammaticTargetIndex,
+      setProgrammaticTransitionActive,
+    });
     setProgrammaticTrackState(true);
     track.classList.add('project-carousel-track--soft-swap');
     track.style.height = `${targetHeight}px`;
@@ -561,7 +571,10 @@ const initProjectCarousel = () => {
     heightSyncIntersectionRatio: HEIGHT_SYNC_INTERSECTION_RATIO,
     getProgrammaticTargetIndex: () => programmaticTargetIndex,
     isProgrammaticTransitionActive: () =>
-      isProgrammaticTransition && programmaticTargetIndex !== null,
+      isProgrammaticCarouselTransitionLockActive({
+        isProgrammaticTransition,
+        programmaticTargetIndex,
+      }),
     setActiveIndex,
   });
   setActiveIndex(0);

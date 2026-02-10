@@ -494,6 +494,27 @@ describe('project carousel helper extraction', () => {
     );
   });
 
+  it('extracts programmatic transition activation and lock-state checks into a dedicated helper', async () => {
+    const runtime = await read('src/lib/projectCarouselRuntime.ts');
+    const programmaticState = await read(
+      'src/lib/projectCarouselProgrammaticState.ts',
+    );
+
+    expect(runtime).toContain("from '@/lib/projectCarouselProgrammaticState';");
+    expect(runtime).toContain('activateProgrammaticCarouselTransition({');
+    expect(runtime).toContain('isProgrammaticCarouselTransitionLockActive({');
+
+    expect(programmaticState).toContain(
+      'export const activateProgrammaticCarouselTransition = ({',
+    );
+    expect(programmaticState).toContain(
+      'export const isProgrammaticCarouselTransitionLockActive = ({',
+    );
+    expect(programmaticState).toContain(
+      'isProgrammaticTransition && programmaticTargetIndex !== null',
+    );
+  });
+
   it('splits project carousel event listeners into a dedicated event-binding module', async () => {
     const runtime = await read('src/lib/projectCarouselRuntime.ts');
     const eventBindings = await read('src/lib/projectCarouselEventBindings.ts');
