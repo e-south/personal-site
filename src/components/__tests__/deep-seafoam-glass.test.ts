@@ -344,6 +344,9 @@ describe('Smart scroll offset hardening', () => {
     expect(layout).toContain('--site-scroll-offset');
     expect(layout).toContain('scroll-padding-top: var(--site-scroll-offset);');
     expect(enhancements).toContain('ResizeObserver');
+    expect(enhancements).toContain('isStickyHeader');
+    expect(enhancements).toContain('headerIsSticky ? 24 : 0');
+    expect(enhancements).toContain('headerIsSticky ? 56 : 0');
     expect(enhancements).toContain('setScrollOffsetToken');
   });
 

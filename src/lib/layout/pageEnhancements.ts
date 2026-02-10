@@ -12,6 +12,7 @@ Module Author(s): Eric J. South
 import {
   getStickyHeader,
   getStickyHeaderOffset,
+  isStickyHeader,
 } from '@/lib/layout/stickyHeaderOffset';
 
 type LayoutWindow = Window & {
@@ -38,10 +39,12 @@ export const bindLayoutEnhancements = () => {
   };
 
   const setScrollOffsetToken = () => {
+    const header = getStickyHeader();
+    const headerIsSticky = isStickyHeader(header);
     const offset = getStickyHeaderOffset({
-      header: getStickyHeader(),
-      baseOffsetPx: 24,
-      minOffsetPx: 56,
+      header,
+      baseOffsetPx: headerIsSticky ? 24 : 0,
+      minOffsetPx: headerIsSticky ? 56 : 0,
     });
     document.documentElement.style.setProperty(
       '--site-scroll-offset',

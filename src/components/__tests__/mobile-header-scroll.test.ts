@@ -19,9 +19,23 @@ const read = async (relativePath: string) =>
 describe('Mobile header scroll behavior', () => {
   it('keeps the top banner non-sticky on mobile and sticky on md+', async () => {
     const navbar = await read('src/components/ui/Navbar.astro');
+    const stickyHeaderOffset = await read(
+      'src/lib/layout/stickyHeaderOffset.ts',
+    );
 
     expect(navbar).toContain('md:sticky');
     expect(navbar).toContain('md:top-0');
+    expect(navbar).toContain('data-site-header');
     expect(navbar).not.toContain('class="sticky top-0');
+    expect(stickyHeaderOffset).toContain(
+      "document.querySelector('[data-site-header]')",
+    );
+    expect(stickyHeaderOffset).toContain('export const isStickyHeader = (');
+    expect(stickyHeaderOffset).toContain(
+      'window.getComputedStyle(header).position',
+    );
+    expect(stickyHeaderOffset).toContain(
+      'const headerHeight = isStickyHeader(',
+    );
   });
 });
