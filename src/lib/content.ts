@@ -27,6 +27,7 @@ export type ProjectPublicationLink = NonNullable<
 >[number];
 
 export type ProjectCard = {
+  slug: string;
   title: string;
   description: string;
   summary?: string;
@@ -62,6 +63,7 @@ let papersCache: PaperItem[] | null = null;
 const shouldUseCache = !import.meta.env.DEV;
 
 const mapProjectRecord = (project: ProjectEntry): ProjectRecord => ({
+  slug: project.slug,
   title: project.data.title,
   description: project.data.description,
   summary: project.data.summary,
@@ -77,6 +79,7 @@ const mapProjectRecord = (project: ProjectEntry): ProjectRecord => ({
 });
 
 const toProjectCard = ({
+  slug,
   title,
   description,
   summary,
@@ -88,6 +91,7 @@ const toProjectCard = ({
   banners,
   publication,
 }: ProjectRecord): ProjectCard => ({
+  slug,
   title,
   description,
   summary,

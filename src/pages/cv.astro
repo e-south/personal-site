@@ -1,23 +1,16 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import { withBase } from '@/lib/urls';
-import { getEntry, render } from 'astro:content';
+import { getEntry } from 'astro:content';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import PillLink from '@/components/ui/PillLink.astro';
-import Prose from '@/components/ui/Prose.astro';
 import { requireEntry } from '@/lib/require';
+import { formatLongDate } from '@/lib/dates';
 
 const cvEntry = requireEntry(await getEntry('cv', 'cv'), 'cv/cv');
 const pageEntry = requireEntry(await getEntry('page-cv', 'cv'), 'page-cv/cv');
-const { Content } = await render(cvEntry);
-const updated =
-  cvEntry.data.updated &&
-  cvEntry.data.updated.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+const updated = cvEntry.data.updated && formatLongDate(cvEntry.data.updated);
 const pageData = pageEntry.data;
 const title = pageData.title;
 const intro = pageData.intro;
@@ -54,13 +47,13 @@ const cvPath = configuredPdf.url;
 
 <Layout title={title}>
   <div class="mx-auto w-full max-w-4xl space-y-10">
-    <header class="space-y-3">
+    <header class="space-y-3" data-reveal>
       <h1 class="text-4xl sm:text-5xl font-semibold">{title}</h1>
       <p class="text-base-content/70">{introLine}</p>
     </header>
 
-    <div class="space-y-4">
-      <div class="rounded-2xl border border-base-content/15 bg-base-200/20 p-4">
+    <div class="space-y-4" data-reveal>
+      <div class="glass-card rounded-2xl p-4">
         <iframe src={cvPath} title="CV PDF" class="h-[70vh] w-full rounded-xl"
         ></iframe>
       </div>
@@ -68,18 +61,11 @@ const cvPath = configuredPdf.url;
         <PillLink
           href={cvPath}
           variant="pastel"
-          class="rounded-full px-6 py-2 text-[0.7rem] uppercase tracking-[0.2em]"
+          class="rounded-[var(--site-radius-control)] px-6 py-2 text-[0.7rem] uppercase tracking-[0.2em]"
         >
           {downloadLabel}
         </PillLink>
       </div>
     </div>
-
-    <section class="space-y-4">
-      <h2 class="text-2xl font-semibold">Text version</h2>
-      <Prose>
-        <Content />
-      </Prose>
-    </section>
   </div>
 </Layout>

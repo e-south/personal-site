@@ -5,6 +5,8 @@ import { getEntry } from 'astro:content';
 import { getNavigation } from '@/data/navigation';
 import PillLink from '@/components/ui/PillLink.astro';
 import { requireEntry } from '@/lib/require';
+import { profile } from '@/settings';
+import { isHighlightedAuthor, parseAuthor } from '@/lib/utils';
 
 const featuredPapers = await getFeaturedPapers(4);
 const publicationsEntry = requireEntry(
@@ -22,18 +24,11 @@ const scholarLink = navigation.external.find((link) => link.icon === 'scholar');
 if (!scholarLink) {
   throw new Error('Scholar link is missing from navigation.');
 }
-
-const authorName = 'Eric J. South';
-const normalizeAuthor = (author: string) => {
-  const hasAsterisk = author.includes('*');
-  const name = author.replace(/\*/g, '').trim();
-  return { name, hasAsterisk };
-};
 ---
 
 <Layout title={title}>
   <div class="mx-auto w-full max-w-3xl space-y-12">
-    <header class="space-y-3">
+    <header class="space-y-3" data-reveal>
       <h1 class="text-4xl sm:text-5xl font-semibold">{title}</h1>
       <p class="text-base-content/70">{intro}</p>
       <PillLink href={scholarLink.href} variant="pastel" toneKey={scholarLabel}>
@@ -44,19 +39,22 @@ const normalizeAuthor = (author: string) => {
 
     {
       featuredPapers.length > 0 && (
-        <section class="space-y-6">
+        <section class="space-y-6" data-reveal>
           <h2 class="text-sm uppercase tracking-[0.2em] text-base-content/60 font-sans">
             {selectedHeading}
           </h2>
           <div class="space-y-6">
             {featuredPapers.map((paper) => (
-              <article class="border-b border-base-content/15 pb-4 last:border-b-0">
+              <article class="glass-card space-y-2 p-5">
                 <h3 class="text-xl font-semibold">{paper.title}</h3>
                 <p class="text-sm text-base-content/70">
                   {paper.authors.map((author, index) => {
-                    const { name, hasAsterisk } = normalizeAuthor(author);
+                    const { name, hasAsterisk } = parseAuthor(author);
                     const displayName = `${name}${hasAsterisk ? '*' : ''}`;
-                    const isSelf = name === authorName;
+                    const isSelf = isHighlightedAuthor(
+                      author,
+                      profile.authorName,
+                    );
                     return (
                       <span>
                         {isSelf ? <strong>{displayName}</strong> : displayName}

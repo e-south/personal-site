@@ -5,6 +5,8 @@ import TagChip from '@/components/ui/TagChip.astro';
 import { requireEntry } from '@/lib/require';
 import ProjectCarousel from '@/components/projects/ProjectCarousel.astro';
 import { buildProjectPanels } from '@/lib/projects';
+import ProjectCard from '@/components/projects/ProjectCard.astro';
+import { getProjectCards } from '@/lib/content';
 
 const projectsEntry = requireEntry(
   await getEntry('page-projects', 'projects'),
@@ -17,11 +19,12 @@ const interests = projectsData.interests;
 
 const projectEntries = await getCollection('projects');
 const projects = await buildProjectPanels({ entries: projectEntries });
+const projectCards = await getProjectCards();
 ---
 
 <Layout title={title}>
   <div class="flex flex-col gap-10">
-    <header class="space-y-4">
+    <header class="space-y-4" data-reveal>
       <h1 class="text-4xl sm:text-5xl font-semibold">{title}</h1>
       <p class="text-base-content/70">{intro}</p>
       {
@@ -37,7 +40,21 @@ const projects = await buildProjectPanels({ entries: projectEntries });
 
     {
       projects.length > 0 ? (
-        <ProjectCarousel projects={projects} />
+        <>
+          <section class="space-y-6" data-project-grid data-reveal>
+            <div class="grid gap-6 md:grid-cols-2">
+              {projectCards.map((project) => (
+                <ProjectCard project={project} />
+              ))}
+            </div>
+          </section>
+
+          <div class="section-divider-line" aria-hidden="true" />
+
+          <section class="space-y-4" data-reveal>
+            <ProjectCarousel projects={projects} />
+          </section>
+        </>
       ) : (
         <p class="text-base-content/60">
           Projects are being curated. Check back soon.

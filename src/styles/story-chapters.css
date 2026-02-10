@@ -1,0 +1,233 @@
+/*
+--------------------------------------------------------------------------------
+personal-site
+src/styles/story-chapters.css
+
+Defines styling rules for the home story chapters component.
+
+Module Author(s): Eric J. South
+--------------------------------------------------------------------------------
+*/
+
+:global(html) {
+  scroll-behavior: smooth;
+}
+
+:global(html.story-snap) {
+  scroll-snap-type: y mandatory;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global(html) {
+    scroll-behavior: auto;
+  }
+
+  :global(html.story-snap) {
+    scroll-snap-type: none;
+  }
+}
+
+.story-chapter {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  scroll-margin-top: 0;
+}
+
+.story-media-stack {
+  display: grid;
+  gap: 1.25rem;
+  justify-items: center;
+}
+
+.story-media-stack-frame {
+  position: relative;
+  display: inline-grid;
+  justify-items: center;
+  width: fit-content;
+  max-width: min(100%, var(--story-media-cap, 100%));
+  margin: 0 auto;
+  --story-media-cap: 100%;
+}
+
+.story-media-stack-frame[data-frame='xs'] {
+  --story-media-cap: 22rem;
+}
+
+.story-media-stack-caption {
+  position: absolute;
+  inset: auto auto 0.75rem auto;
+  max-width: calc(100% - 1.5rem);
+  width: min(80%, 26rem);
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.65rem;
+  text-align: center;
+  font-size: 0.7rem;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+.story-carousel-wrapper {
+  display: grid;
+  gap: 1rem;
+}
+
+.story-carousel {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 100%;
+  gap: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 1rem;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--site-accent) 55%, transparent)
+    color-mix(in oklab, var(--site-surface) 50%, transparent);
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
+}
+
+.story-carousel::-webkit-scrollbar {
+  height: 0.5rem;
+}
+
+.story-carousel::-webkit-scrollbar-track {
+  background: color-mix(in oklab, var(--site-surface) 54%, transparent);
+  border-radius: 999px;
+}
+
+.story-carousel::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--site-accent) 52%, transparent);
+  border-radius: 999px;
+}
+
+.story-carousel-item {
+  scroll-snap-align: start;
+}
+
+.story-carousel-controls {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+#phd-at-boston-university .story-carousel-wrapper {
+  gap: 0.5rem;
+}
+
+#phd-at-boston-university .story-carousel {
+  padding-bottom: 0.25rem;
+  height: var(--carousel-lock-height, auto);
+}
+
+#phd-at-boston-university .story-carousel-item {
+  height: var(--carousel-lock-height, auto);
+  display: flex;
+  align-items: center;
+}
+
+#imperial-crick-training .story-carousel {
+  height: var(--carousel-lock-height, auto);
+}
+
+#imperial-crick-training .story-carousel-item {
+  height: var(--carousel-lock-height, auto);
+}
+
+.story-carousel-button,
+.story-nav-link {
+  min-height: 2.1rem;
+  border: 1px solid transparent;
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in oklab, var(--site-surface) 78%, transparent),
+      color-mix(in oklab, var(--site-surface-strong) 84%, transparent)
+    ),
+    color-mix(in oklab, var(--site-surface) 52%, transparent);
+  color: color-mix(in oklab, var(--site-text) 84%, transparent);
+  transition:
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.story-carousel-button:hover,
+.story-nav-link:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in oklab, var(--site-accent) 36%, transparent);
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in oklab, var(--site-accent) 24%, transparent),
+      color-mix(in oklab, var(--site-accent-soft) 20%, transparent)
+    ),
+    color-mix(in oklab, var(--site-surface) 57%, transparent);
+  color: var(--site-text);
+}
+
+.story-carousel-button {
+  border-radius: var(--site-radius-control);
+  padding: 0.4rem 1.1rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.story-carousel-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.story-chapter-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.story-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: var(--site-radius-control);
+  padding: 0.4rem 1.1rem;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+.story-chapter-cta {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in oklab, var(--site-surface) 76%, transparent),
+      color-mix(in oklab, var(--site-surface-strong) 84%, transparent)
+    ),
+    color-mix(in oklab, var(--site-surface) 54%, transparent);
+  transition:
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 220ms ease,
+    color 220ms ease,
+    background-color 220ms ease;
+}
+
+.story-chapter-cta:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in oklab, var(--site-accent) 36%, transparent);
+  color: var(--site-text);
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in oklab, var(--site-accent) 20%, transparent),
+      color-mix(in oklab, var(--site-accent-soft) 18%, transparent)
+    ),
+    color-mix(in oklab, var(--site-surface) 56%, transparent);
+}

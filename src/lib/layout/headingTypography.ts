@@ -1,0 +1,43 @@
+/*
+--------------------------------------------------------------------------------
+personal-site
+src/lib/layout/headingTypography.ts
+
+Defines shared heading typography classes used by page layout surfaces.
+
+Module Author(s): Eric J. South
+--------------------------------------------------------------------------------
+*/
+
+export const headingTypographyClasses = {
+  '[&_h1]:font-header': true,
+  '[&_h2]:font-header': true,
+  '[&_h3]:font-header': true,
+  '[&_h4]:font-header': true,
+  '[&_h5]:font-header': true,
+  '[&_h6]:font-header': true,
+  '[&_h1]:font-bold': true,
+  '[&_h2]:font-bold': true,
+  '[&_h3]:font-bold': true,
+  '[&_h4]:font-bold': true,
+  '[&_h5]:font-bold': true,
+  '[&_h6]:font-bold': true,
+  '[&_h1]:text-base-content': true,
+  '[&_h2]:text-base-content': true,
+  '[&_h3]:text-base-content': true,
+  '[&_h4]:text-base-content': true,
+  '[&_h5]:text-base-content': true,
+  '[&_h6]:text-base-content': true,
+  '[&_h1]:leading-tight': true,
+  '[&_h2]:leading-tight': true,
+  '[&_h3]:leading-tight': true,
+  '[&_h4]:leading-tight': true,
+  '[&_h5]:leading-tight': true,
+  '[&_h6]:leading-tight': true,
+  '[&_h1]:tracking-tight': true,
+  '[&_h2]:tracking-tight': true,
+  '[&_h3]:tracking-tight': true,
+  '[&_h4]:tracking-tight': true,
+  '[&_h5]:tracking-tight': true,
+  '[&_h6]:tracking-tight': true,
+};

@@ -18,7 +18,12 @@ export default [
     },
   },
   {
-    files: ['src/lib/home.ts'],
+    files: [
+      'src/lib/home.ts',
+      'src/lib/home/**/*.ts',
+      'src/lib/layout/**/*.ts',
+      'src/lib/projectCarousel*.ts',
+    ],
     languageOptions: {
       globals: {
         ...globals.browser,

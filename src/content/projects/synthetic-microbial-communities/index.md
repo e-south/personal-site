@@ -13,6 +13,10 @@ tech:
   ]
 order: 1
 featured: true
+banners:
+  - placement: above
+    image: ./CrickYeastPhysicalWorkflow.svg
+    alt: 'Crick yeast workflow schematic for synthetic microbial communities.'
 publication:
   label: 'Related works:'
   links:

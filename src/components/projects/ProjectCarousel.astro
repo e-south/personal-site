@@ -1,8 +1,20 @@
 ---
+/*
+--------------------------------------------------------------------------------
+personal-site
+src/components/projects/ProjectCarousel.astro
+
+Renders the projects carousel with navigation controls.
+
+Module Author(s): Eric J. South
+--------------------------------------------------------------------------------
+*/
+
 import ProjectCarouselNav from '@/components/projects/ProjectCarouselNav.astro';
+import ProjectCarouselSideControl from '@/components/projects/ProjectCarouselSideControl.astro';
 import ProjectPanel from '@/components/projects/ProjectPanel.astro';
 import type { ProjectPanel as ProjectPanelType } from '@/lib/projects';
-import { hashToHue } from '@/lib/colors';
+import '@/styles/project-carousel.css';
 
 type Props = {
   projects: ProjectPanelType[];
@@ -21,7 +33,6 @@ const classes = [
 ]
   .join(' ')
   .trim();
-const pastelHue = hashToHue('projects-carousel');
 
 const projectMeta = projects.map((project) => {
   const slug = project.entry.slug;
@@ -40,37 +51,26 @@ const projectMeta = projects.map((project) => {
   data-project-carousel
   aria-roledescription="carousel"
   aria-label="Projects carousel"
-  style={`--pill-hue:${pastelHue};`}
 >
   <div class="project-carousel-frame relative">
     <div class="project-carousel-grid grid">
-      <div class="pointer-events-none col-start-1 row-start-1 z-10">
+      <div
+        class="pointer-events-none project-carousel-nav-layer col-start-1 row-start-1 z-10"
+      >
         <div class="story-carousel-side">
-          <button
-            type="button"
-            class="pointer-events-auto project-carousel-button rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-wide text-base-content/70 shadow-sm backdrop-blur transition hover:text-base-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-            data-carousel-prev
-            aria-label="Previous project"
-          >
-            Prev
-          </button>
+          <ProjectCarouselSideControl direction="prev" />
         </div>
       </div>
-      <div class="pointer-events-none col-start-1 row-start-1 z-10">
+      <div
+        class="pointer-events-none project-carousel-nav-layer col-start-1 row-start-1 z-10"
+      >
         <div class="story-carousel-side story-carousel-side--right">
-          <button
-            type="button"
-            class="pointer-events-auto project-carousel-button rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-wide text-base-content/70 shadow-sm backdrop-blur transition hover:text-base-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-            data-carousel-next
-            aria-label="Next project"
-          >
-            Next
-          </button>
+          <ProjectCarouselSideControl direction="next" />
         </div>
       </div>
       <div class="col-start-1 row-start-1">
         <div
-          class="project-carousel-track h-full overflow-x-auto overflow-y-hidden overscroll-x-contain rounded-3xl bg-base-200/20"
+          class="focus-ring project-carousel-track glass-card overflow-x-auto overflow-y-hidden overscroll-x-contain rounded-3xl"
           data-carousel-track
           tabindex="0"
           aria-label="Projects"
@@ -94,263 +94,8 @@ const projectMeta = projects.map((project) => {
   <ProjectCarouselNav projects={projectMeta} position="bottom" />
 </section>
 
-<script type="module" is:inline data-astro-rerun>
-  const initProjectCarousel = () => {
-    const carousel = document.querySelector('[data-project-carousel]');
-    if (!(carousel instanceof HTMLElement)) {
-      return;
-    }
+<script>
+  import { bindProjectCarousel } from '@/lib/projectCarouselRuntime';
 
-    if (carousel.dataset.carouselReady === 'true') {
-      return;
-    }
-    carousel.dataset.carouselReady = 'true';
-
-    const track = carousel.querySelector('[data-carousel-track]');
-    if (!(track instanceof HTMLElement)) {
-      throw new Error('[projects-carousel] Track element not found.');
-    }
-
-    const panels = Array.from(
-      track.querySelectorAll('[data-carousel-panel]'),
-    ).filter((panel) => panel instanceof HTMLElement);
-
-    if (panels.length === 0) {
-      throw new Error('[projects-carousel] No panels found.');
-    }
-
-    const dots = Array.from(
-      carousel.querySelectorAll('[data-carousel-dot]'),
-    ).filter((dot) => dot instanceof HTMLButtonElement);
-
-    if (dots.length === 0 || dots.length % panels.length !== 0) {
-      throw new Error(
-        '[projects-carousel] Dot count does not match panel count.',
-      );
-    }
-
-    const prevButtons = Array.from(
-      carousel.querySelectorAll('[data-carousel-prev]'),
-    ).filter((button) => button instanceof HTMLButtonElement);
-
-    const nextButtons = Array.from(
-      carousel.querySelectorAll('[data-carousel-next]'),
-    ).filter((button) => button instanceof HTMLButtonElement);
-
-    const prefersReducedMotion = window.matchMedia(
-      '(prefers-reduced-motion: reduce)',
-    );
-
-    const total = panels.length;
-    let activeIndex = 0;
-
-    const wrapIndex = (index) => ((index % total) + total) % total;
-    const getBehavior = () =>
-      prefersReducedMotion.matches ? 'auto' : 'smooth';
-
-    const setActiveIndex = (nextIndex) => {
-      activeIndex = wrapIndex(nextIndex);
-      dots.forEach((dot) => {
-        const dotIndex = Number(dot.dataset.index);
-        if (!Number.isInteger(dotIndex)) {
-          throw new Error('[projects-carousel] Dot index is invalid.');
-        }
-        const isActive = dotIndex === activeIndex;
-        dot.dataset.active = String(isActive);
-        dot.setAttribute('aria-current', isActive ? 'true' : 'false');
-      });
-      carousel.dataset.activeIndex = String(activeIndex);
-    };
-
-    const scrollToIndex = (nextIndex) => {
-      const wrapped = wrapIndex(nextIndex);
-      const panel = panels[wrapped];
-      if (!panel) {
-        throw new Error('[projects-carousel] Target panel is missing.');
-      }
-      const trackRect = track.getBoundingClientRect();
-      const panelRect = panel.getBoundingClientRect();
-      track.scrollTo({
-        left: track.scrollLeft + (panelRect.left - trackRect.left),
-        behavior: getBehavior(),
-      });
-    };
-
-    prevButtons.forEach((button) => {
-      button.addEventListener('click', () => {
-        scrollToIndex(activeIndex - 1);
-      });
-    });
-
-    nextButtons.forEach((button) => {
-      button.addEventListener('click', () => {
-        scrollToIndex(activeIndex + 1);
-      });
-    });
-
-    dots.forEach((dot) => {
-      const index = Number(dot.dataset.index);
-      if (!Number.isInteger(index)) {
-        throw new Error('[projects-carousel] Dot index is invalid.');
-      }
-      dot.addEventListener('click', () => {
-        scrollToIndex(index);
-      });
-    });
-
-    track.addEventListener('keydown', (event) => {
-      if (event.key === 'ArrowLeft') {
-        event.preventDefault();
-        scrollToIndex(activeIndex - 1);
-      }
-      if (event.key === 'ArrowRight') {
-        event.preventDefault();
-        scrollToIndex(activeIndex + 1);
-      }
-      if (event.key === 'Home') {
-        event.preventDefault();
-        scrollToIndex(0);
-      }
-      if (event.key === 'End') {
-        event.preventDefault();
-        scrollToIndex(total - 1);
-      }
-    });
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.filter((entry) => entry.isIntersecting);
-        if (visible.length === 0) return;
-        const mostVisible = visible.reduce((best, entry) =>
-          entry.intersectionRatio > best.intersectionRatio ? entry : best,
-        );
-        const index = Number(mostVisible.target.dataset.index);
-        if (!Number.isInteger(index)) {
-          throw new Error('[projects-carousel] Panel index is invalid.');
-        }
-        setActiveIndex(index);
-      },
-      {
-        root: track,
-        threshold: [0.45, 0.6, 0.75],
-      },
-    );
-
-    panels.forEach((panel) => observer.observe(panel));
-    setActiveIndex(0);
-  };
-
-  initProjectCarousel();
+  bindProjectCarousel();
 </script>
-
-<style>
-  .project-carousel {
-    min-height: 70vh;
-    min-height: 70svh;
-    min-height: 70dvh;
-  }
-
-  .project-carousel-frame {
-    flex: 1 1 auto;
-    min-height: 0;
-    width: 100%;
-    min-width: 0;
-  }
-
-  .project-carousel-grid {
-    height: 100%;
-    width: 100%;
-    min-width: 0;
-  }
-
-  .project-carousel-track {
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: 100%;
-    scroll-snap-type: x proximity;
-    scroll-padding-inline: clamp(1rem, 4vw, 1.5rem);
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-    touch-action: pan-x pan-y;
-  }
-
-  .project-carousel-track::-webkit-scrollbar {
-    display: none;
-  }
-
-  @media (min-width: 768px) {
-    .project-carousel-track {
-      scroll-snap-type: x mandatory;
-    }
-  }
-
-  @media (min-width: 768px) {
-    .project-carousel {
-      min-height: 80vh;
-      min-height: 80svh;
-      min-height: 80dvh;
-    }
-  }
-
-  @media (max-width: 767px) {
-    .project-carousel-frame {
-      flex: 0 0 auto;
-      min-height: auto;
-    }
-
-    .project-carousel-grid {
-      height: auto;
-    }
-  }
-
-  .project-carousel-button {
-    background-color: hsl(var(--pill-hue) 65% 60% / 0.2);
-    border: 1px solid transparent;
-    color: hsl(var(--pill-hue) 70% 82%);
-  }
-
-  .project-carousel-button:hover {
-    background-color: hsl(var(--pill-hue) 65% 60% / 0.3);
-    color: hsl(var(--pill-hue) 75% 90%);
-  }
-
-  .story-carousel-side {
-    position: sticky;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    justify-content: flex-start;
-    padding: 0 0.75rem;
-  }
-
-  .story-carousel-side--right {
-    justify-content: flex-end;
-  }
-
-  @media (max-width: 767px) {
-    .story-carousel-side {
-      display: none;
-    }
-
-    .project-carousel-button {
-      padding: 0.5rem 0.75rem;
-      font-size: 0.75rem;
-    }
-  }
-
-  .project-carousel-hint {
-    display: none;
-    text-align: center;
-    font-size: 0.7rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: color-mix(in oklab, currentColor 55%, transparent);
-  }
-
-  @media (max-width: 767px) {
-    .project-carousel-hint {
-      display: block;
-      margin-top: 0.25rem;
-    }
-  }
-</style>

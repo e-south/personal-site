@@ -14,7 +14,10 @@ import { withBase } from '@/lib/urls';
       Even our smartest algorithms couldn't find it!
     </p>
     <div class="flex gap-4">
-      <a href={withBase('/')} class="btn btn-primary text-primary-content">
+      <a
+        href={withBase('/')}
+        class="focus-ring btn btn-primary text-primary-content"
+      >
         Go Home
       </a>
       <button class="btn btn-outline btn-accent" onclick="history.back()">

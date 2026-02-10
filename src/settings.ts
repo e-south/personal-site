@@ -81,9 +81,9 @@ export const template = {
   menu_left: false,
   transitions: true,
   darkTheme: 'dark',
-  bodyFont: 'serif' as 'serif' | 'sans',
-  displayFont: 'display' as 'display' | 'serif' | 'sans',
-  proseFont: 'serif' as TemplateConfig['proseFont'],
+  bodyFont: 'sans' as 'serif' | 'sans',
+  displayFont: 'serif' as 'display' | 'serif' | 'sans',
+  proseFont: 'sans' as TemplateConfig['proseFont'],
   excerptLength: 200,
   postPerPage: 5,
 } satisfies TemplateConfig;

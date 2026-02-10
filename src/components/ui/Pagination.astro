@@ -1,4 +1,15 @@
 ---
+/*
+--------------------------------------------------------------------------------
+personal-site
+src/components/ui/Pagination.astro
+
+Renders the blog pagination controls.
+
+Module Author(s): Eric J. South
+--------------------------------------------------------------------------------
+*/
+
 const { page } = Astro.props;
 const prevUrl = page?.url?.prev ?? '';
 const nextUrl = page?.url?.next ?? '';
@@ -29,7 +40,11 @@ const nextDisabled = !nextUrl;
         <span class="pagination-pill__label">Prev</span>
       </span>
     ) : (
-      <a href={prevUrl} class="pagination-pill" aria-label="Previous page">
+      <a
+        href={prevUrl}
+        class="pagination-pill focus-ring"
+        aria-label="Previous page"
+      >
         <svg
           class="h-3.5 w-3.5"
           viewBox="0 0 24 24"
@@ -64,7 +79,11 @@ const nextDisabled = !nextUrl;
         </svg>
       </span>
     ) : (
-      <a href={nextUrl} class="pagination-pill" aria-label="Next page">
+      <a
+        href={nextUrl}
+        class="pagination-pill focus-ring"
+        aria-label="Next page"
+      >
         <span class="pagination-pill__label">Next</span>
         <svg
           class="h-3.5 w-3.5"
@@ -86,38 +105,46 @@ const nextDisabled = !nextUrl;
   .pagination-pill {
     display: inline-flex;
     align-items: center;
-    gap: 0.6rem;
-    border-radius: 999px;
-    padding: 0.5rem 1.1rem;
-    border: 0;
-    background-color: color-mix(in oklab, hsl(var(--p)) 18%, transparent);
-    color: color-mix(in oklab, hsl(var(--p)) 70%, currentColor 30%);
+    gap: 0.4rem;
+    border-radius: var(--site-radius-control);
+    padding: 0.4rem 0.9rem;
+    border: 1px solid transparent;
+    background:
+      linear-gradient(
+        145deg,
+        color-mix(in oklab, var(--site-surface) 74%, transparent),
+        color-mix(in oklab, var(--site-surface-strong) 84%, transparent)
+      ),
+      color-mix(in oklab, var(--site-surface) 52%, transparent);
+    color: color-mix(in oklab, var(--site-text) 84%, transparent);
     transition:
+      transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.2s ease,
       background-color 0.2s ease,
-      color 0.2s ease,
-      transform 0.2s ease;
+      color 0.2s ease;
   }
 
   .pagination-pill:hover {
-    background-color: color-mix(in oklab, hsl(var(--p)) 28%, transparent);
-    color: color-mix(in oklab, hsl(var(--p)) 80%, currentColor 20%);
     transform: translateY(-1px);
+    border-color: color-mix(in oklab, var(--site-accent) 36%, transparent);
+    background:
+      linear-gradient(
+        145deg,
+        color-mix(in oklab, var(--site-accent) 22%, transparent),
+        color-mix(in oklab, var(--site-accent-soft) 18%, transparent)
+      ),
+      color-mix(in oklab, var(--site-surface) 56%, transparent);
+    color: var(--site-text);
   }
 
   .pagination-pill[aria-disabled='true'] {
     opacity: 0.5;
     cursor: not-allowed;
-    transform: none;
   }
 
   .pagination-pill__label {
-    font-size: 0.6rem;
+    font-size: 0.58rem;
     text-transform: uppercase;
-    letter-spacing: 0.25em;
-  }
-
-  .pagination-pill:focus-visible {
-    outline: 2px solid color-mix(in oklab, hsl(var(--p)) 70%, transparent);
-    outline-offset: 3px;
+    letter-spacing: 0.18em;
   }
 </style>

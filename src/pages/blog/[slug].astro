@@ -29,7 +29,7 @@ const showViewCounts =
   <div class="max-w-4xl mx-auto">
     <article class="space-y-8" data-email-root>
       <!-- Header section -->
-      <div class="mb-8 border-b pb-8">
+      <div class="section-divider-bottom mb-8 pb-8">
         <h1 class="text-4xl font-bold mb-4 text-base-content">{title}</h1>
         <div class="flex flex-wrap items-center gap-4 text-base-content/70">
           <!-- Date -->
@@ -76,7 +76,7 @@ const showViewCounts =
           <Image
             src={post.data.cover}
             alt={requireValue(post.data.coverAlt, `blog/${post.slug} coverAlt`)}
-            class="rounded-lg mb-8 w-full aspect-video object-cover"
+            class="blog-cover-media media-depth-surface rounded-lg mb-8 w-full aspect-video object-cover"
           />
         )
       }

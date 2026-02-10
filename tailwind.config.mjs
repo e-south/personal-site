@@ -4,9 +4,11 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        inter: ['Inter Variable', 'system-ui', 'sans-serif'],
+        header: ['Plus Jakarta Sans Variable', 'system-ui', 'sans-serif'],
         sans: ['Manrope Variable', 'system-ui', 'sans-serif'],
-        display: ['Fraunces Variable', 'ui-serif', 'serif'],
-        mono: ['JetBrains Mono Variable', 'ui-monospace', 'monospace'],
+        display: ['Source Serif 4 Variable', 'ui-serif', 'serif'],
+        mono: ['ui-monospace', 'monospace'],
         serif: ['Source Serif 4 Variable', 'ui-serif', 'serif'],
       },
     },
