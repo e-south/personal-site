@@ -25,6 +25,7 @@ import {
   runQuickTrackScroll,
   runQuickWindowScroll,
 } from '@/lib/projectCarouselMotion';
+import { createProjectCarouselHeightSyncController } from '@/lib/projectCarouselHeightSync';
 import { createProjectCarouselVisibilityObserver } from '@/lib/projectCarouselVisibilityObserver';
 import {
   cancelProgrammaticCarouselTransition,
@@ -97,8 +98,6 @@ const initProjectCarousel = () => {
   let activeIndex = -1;
   let trackQuickScrollFrame: number | null = null;
   let windowQuickScrollFrame: number | null = null;
-  let trackHeightSyncFrame: number | null = null;
-  let activePanelResizeObserver: ResizeObserver | null = null;
   let programmaticTargetIndex: number | null = null;
   let isProgrammaticTransition = false;
   const panelIndexById = new Map<string, number>();
@@ -156,12 +155,18 @@ const initProjectCarousel = () => {
     }
   };
 
-  const stopTrackHeightSync = () => {
-    if (trackHeightSyncFrame !== null) {
-      window.cancelAnimationFrame(trackHeightSyncFrame);
-      trackHeightSyncFrame = null;
-    }
-  };
+  const heightSyncController = createProjectCarouselHeightSyncController({
+    track,
+    panels,
+    wrapIndex,
+    resolveActiveIndex: () => activeIndex,
+  });
+  const stopTrackHeightSync = heightSyncController.stopTrackHeightSync;
+  const scheduleTrackHeightSync = heightSyncController.scheduleTrackHeightSync;
+  const disconnectActivePanelResizeObserver =
+    heightSyncController.disconnectActivePanelResizeObserver;
+  const observeActivePanelHeight =
+    heightSyncController.observeActivePanelHeight;
 
   const stopQuickScrolls = () => {
     stopTrackQuickScroll();
@@ -187,53 +192,6 @@ const initProjectCarousel = () => {
   };
   const clearLongJumpVisualState = () => {
     track.classList.remove('project-carousel-track--soft-swap');
-  };
-
-  const getPanelHeight = (panel: HTMLElement) => {
-    const height = panel.getBoundingClientRect().height;
-    if (!Number.isFinite(height) || height <= 0) {
-      return 1;
-    }
-    return Math.ceil(height);
-  };
-
-  const syncTrackHeight = (index = activeIndex) => {
-    const panel = panels[wrapIndex(index)];
-    if (!(panel instanceof HTMLElement)) {
-      return;
-    }
-    const nextHeight = getPanelHeight(panel);
-    track.style.height = `${nextHeight}px`;
-  };
-
-  const scheduleTrackHeightSync = (index = activeIndex) => {
-    stopTrackHeightSync();
-    trackHeightSyncFrame = window.requestAnimationFrame(() => {
-      trackHeightSyncFrame = null;
-      syncTrackHeight(index);
-    });
-  };
-
-  const disconnectActivePanelResizeObserver = () => {
-    if (activePanelResizeObserver !== null) {
-      activePanelResizeObserver.disconnect();
-      activePanelResizeObserver = null;
-    }
-  };
-
-  const observeActivePanelHeight = () => {
-    disconnectActivePanelResizeObserver();
-    if (typeof ResizeObserver === 'undefined') {
-      return;
-    }
-    const panel = panels[activeIndex];
-    if (!(panel instanceof HTMLElement)) {
-      return;
-    }
-    activePanelResizeObserver = new ResizeObserver(() => {
-      scheduleTrackHeightSync();
-    });
-    activePanelResizeObserver.observe(panel);
   };
 
   const quickScrollTrackTo = (
@@ -461,7 +419,7 @@ const initProjectCarousel = () => {
     if (!(currentPanel instanceof HTMLElement)) {
       throw new Error('[projects-carousel] Active panel is missing.');
     }
-    return getPanelHeight(currentPanel);
+    return heightSyncController.getPanelHeightForIndex(wrappedCurrentIndex);
   };
 
   const getTargetPanelHeight = (wrappedTargetIndex: number) => {
@@ -469,7 +427,7 @@ const initProjectCarousel = () => {
     if (!(targetPanel instanceof HTMLElement)) {
       throw new Error('[projects-carousel] Target panel is missing.');
     }
-    return getPanelHeight(targetPanel);
+    return heightSyncController.getPanelHeightForIndex(wrappedTargetIndex);
   };
 
   const cancelCurrentTransition = () => {

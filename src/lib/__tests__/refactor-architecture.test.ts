@@ -384,6 +384,27 @@ describe('project carousel helper extraction', () => {
     expect(visibilityObserver).toContain('heightSyncIntersectionRatio');
   });
 
+  it('extracts project carousel height-sync and panel ResizeObserver handling into a dedicated module', async () => {
+    const runtime = await read('src/lib/projectCarouselRuntime.ts');
+    const heightSync = await read('src/lib/projectCarouselHeightSync.ts');
+
+    expect(runtime).toContain(
+      "import { createProjectCarouselHeightSyncController } from '@/lib/projectCarouselHeightSync';",
+    );
+    expect(runtime).toContain(
+      'const heightSyncController = createProjectCarouselHeightSyncController({',
+    );
+    expect(runtime).toContain(
+      'heightSyncController.disconnectActivePanelResizeObserver',
+    );
+
+    expect(heightSync).toContain(
+      'export const createProjectCarouselHeightSyncController = ({',
+    );
+    expect(heightSync).toContain('new ResizeObserver(() => {');
+    expect(heightSync).toContain('const scheduleTrackHeightSync = (');
+  });
+
   it('extracts project carousel transition timer scheduling into a dedicated module', async () => {
     const runtime = await read('src/lib/projectCarouselRuntime.ts');
     const transitionTimers = await read(
