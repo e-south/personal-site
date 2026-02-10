@@ -369,3 +369,21 @@ describe('story chapter rendering modularization', () => {
     );
   });
 });
+
+describe('story media registry modularization', () => {
+  it('delegates story registry validation to a dedicated helper module', async () => {
+    const storyMedia = await read('src/data/storyMedia.ts');
+    const storyMediaValidation = await read('src/lib/storyMediaValidation.ts');
+
+    expect(storyMedia).toContain(
+      "import { assertStoryRegistry } from '@/lib/storyMediaValidation';",
+    );
+    expect(storyMedia).toContain('assertStoryRegistry({');
+    expect(storyMediaValidation).toContain(
+      'export const assertStoryRegistry =',
+    );
+    expect(storyMediaValidation).toContain(
+      'Story chapter order contains duplicates.',
+    );
+  });
+});

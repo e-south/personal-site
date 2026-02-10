@@ -23,6 +23,7 @@ import lanzatechGroup from '@/assets/story/lanzatech-internship/LanzaTechGroup.j
 import lanzatechGasChamberPoster from '@/assets/story/lanzatech-internship/LanzaTechGasChamber-poster.jpg';
 import lanzatechGasChamberVideo from '@/assets/story/lanzatech-internship/LanzaTechGasChamber.mp4';
 import dunlopLab from '@/assets/story/computation-and-sequence-design/DunlopLab.png';
+import { assertStoryRegistry } from '@/lib/storyMediaValidation';
 
 const assetPath = (relativePath: string) =>
   resolve(process.cwd(), 'src', 'assets', relativePath);
@@ -356,76 +357,9 @@ export const storyRegistry = {
 
 export const storyMedia = Object.values(storyMediaByIdClean);
 
-const assertStoryRegistry = () => {
-  const chapterOrderSet = new Set(storyChapterOrder);
-  if (chapterOrderSet.size !== storyChapterOrder.length) {
-    throw new Error('Story chapter order contains duplicates.');
-  }
-
-  const missingChapterKeys = storyChapterOrder.filter(
-    (slug) => !(slug in storyChapterMedia),
-  );
-  if (missingChapterKeys.length > 0) {
-    throw new Error(
-      `Story chapter media map is missing entries for: ${missingChapterKeys.join(
-        ', ',
-      )}.`,
-    );
-  }
-
-  const extraChapterKeys = Object.keys(storyChapterMedia).filter(
-    (slug) => !chapterOrderSet.has(slug as StoryChapterSlug),
-  );
-  if (extraChapterKeys.length > 0) {
-    throw new Error(
-      `Story chapter media map has unknown chapters: ${extraChapterKeys.join(', ')}.`,
-    );
-  }
-
-  Object.entries(storyChapterMedia).forEach(([slug, mediaIds]) => {
-    const mediaSet = new Set(mediaIds);
-    if (mediaSet.size !== mediaIds.length) {
-      throw new Error(`Story chapter "${slug}" repeats media IDs.`);
-    }
-    mediaIds.forEach((id) => {
-      if (!(id in storyMediaById)) {
-        throw new Error(`Story media "${id}" is missing.`);
-      }
-    });
-  });
-
-  Object.entries(storyMediaById).forEach(([id, item]) => {
-    if (item.kind === 'stack') {
-      if (item.items.length === 0) {
-        throw new Error(`Story media "${id}" stack is empty.`);
-      }
-      const itemIds = new Set<string>();
-      item.items.forEach((stackItem) => {
-        if (stackItem.kind === 'video' && !stackItem.poster) {
-          throw new Error(`Story video "${stackItem.id}" is missing a poster.`);
-        }
-        if (itemIds.has(stackItem.id)) {
-          throw new Error(`Story media "${id}" repeats items.`);
-        }
-        itemIds.add(stackItem.id);
-        stackItem.assetPaths.forEach((path) => {
-          if (!existsSync(path)) {
-            throw new Error(
-              `Story media "${stackItem.id}" is missing asset "${path}".`,
-            );
-          }
-        });
-      });
-    } else if (item.kind === 'video' && !item.poster) {
-      throw new Error(`Story video "${item.id}" is missing a poster.`);
-    }
-
-    item.assetPaths.forEach((path) => {
-      if (!existsSync(path)) {
-        throw new Error(`Story media "${id}" is missing asset "${path}".`);
-      }
-    });
-  });
-};
-
-assertStoryRegistry();
+assertStoryRegistry({
+  chapterOrder: storyChapterOrder,
+  chapterMedia: storyChapterMedia,
+  mediaById: storyMediaById,
+  doesAssetExist: existsSync,
+});
