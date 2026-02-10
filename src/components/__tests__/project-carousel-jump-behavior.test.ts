@@ -299,21 +299,38 @@ describe('Project carousel jump behavior', () => {
     const projectCarouselRuntime = await read(
       'src/lib/projectCarouselRuntime.ts',
     );
+    const transitionTimers = await read(
+      'src/lib/projectCarouselTransitionTimers.ts',
+    );
 
     expect(projectCarouselRuntime).toContain(
+      "import { createProjectCarouselTransitionTimers } from '@/lib/projectCarouselTransitionTimers';",
+    );
+    expect(projectCarouselRuntime).toContain(
+      'const transitionTimers = createProjectCarouselTransitionTimers({',
+    );
+    expect(projectCarouselRuntime).toContain(
+      'transitionTimers.clearPendingTransitionTimers();',
+    );
+    expect(projectCarouselRuntime).toContain(
+      'transitionTimers.schedulePendingPreScrollTimer(',
+    );
+    expect(projectCarouselRuntime).toContain(
+      'transitionTimers.schedulePendingIndexFinalizeTimer(',
+    );
+    expect(projectCarouselRuntime).toContain(
+      'transitionTimers.schedulePendingLongJumpSwapTimer(',
+    );
+    expect(projectCarouselRuntime).toContain(
+      'transitionTimers.schedulePendingLongJumpReleaseTimer(',
+    );
+    expect(transitionTimers).toContain(
+      'export const createProjectCarouselTransitionTimers = ({',
+    );
+    expect(transitionTimers).toContain(
       'const clearPendingTransitionTimers = () => {',
     );
-    expect(projectCarouselRuntime).toContain('clearPendingPreScrollTimer();');
-    expect(projectCarouselRuntime).toContain(
-      'clearPendingIndexFinalizeTimer();',
-    );
-    expect(projectCarouselRuntime).toContain(
-      'clearPendingLongJumpSwapTimer();',
-    );
-    expect(projectCarouselRuntime).toContain(
-      'clearPendingLongJumpReleaseTimer();',
-    );
-    expect(projectCarouselRuntime).toContain('clearPendingTransitionTimers();');
+    expect(transitionTimers).toContain('clearPendingPreScrollTimer();');
   });
 
   it('uses a shared relative-index transition helper for controls and keyboard arrows', async () => {

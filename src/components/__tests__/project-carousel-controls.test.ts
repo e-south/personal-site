@@ -47,6 +47,9 @@ describe('ProjectCarousel controls', () => {
     const transitionOrchestration = await read(
       'src/lib/projectCarouselTransitionOrchestration.ts',
     );
+    const transitionTimers = await read(
+      'src/lib/projectCarouselTransitionTimers.ts',
+    );
 
     expect(contents).toContain('const transitionPolicy = {');
     expect(contents).toContain('preExpandDurationMs');
@@ -59,7 +62,12 @@ describe('ProjectCarousel controls', () => {
     expect(transitionOrchestration).toContain('targetIndex: number');
     expect(transitionOrchestration).toContain('useQuickMotion = false');
     expect(contents).not.toContain("transitionIntent = 'nearest'");
-    expect(contents).toContain('pendingPreScrollTimer = window.setTimeout');
+    expect(contents).toContain(
+      'transitionTimers.schedulePendingPreScrollTimer(',
+    );
+    expect(transitionTimers).toContain(
+      'const schedulePendingPreScrollTimer = (',
+    );
   });
 
   it('guards against stale observer and duplicate index updates during pre-expand transitions', async () => {

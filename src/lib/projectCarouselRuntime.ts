@@ -32,6 +32,7 @@ import {
   cancelProgrammaticCarouselTransition,
   resetProgrammaticCarouselState,
 } from '@/lib/projectCarouselTransitionState';
+import { createProjectCarouselTransitionTimers } from '@/lib/projectCarouselTransitionTimers';
 import { bindProjectCarouselEventBindings } from '@/lib/projectCarouselEventBindings';
 import { createProjectCarouselTransitionOrchestration } from '@/lib/projectCarouselTransitionOrchestration';
 import { createProjectCarouselViewportController } from '@/lib/projectCarouselViewport';
@@ -100,10 +101,6 @@ const initProjectCarousel = () => {
   let windowQuickScrollFrame: number | null = null;
   let trackHeightSyncFrame: number | null = null;
   let activePanelResizeObserver: ResizeObserver | null = null;
-  let pendingPreScrollTimer: number | null = null;
-  let pendingIndexFinalizeTimer: number | null = null;
-  let pendingLongJumpSwapTimer: number | null = null;
-  let pendingLongJumpReleaseTimer: number | null = null;
   let programmaticTargetIndex: number | null = null;
   let isProgrammaticTransition = false;
   const panelVisibilityRatios = panels.map(() => 0);
@@ -184,36 +181,10 @@ const initProjectCarousel = () => {
     });
   };
 
-  const clearPendingPreScrollTimer = () => {
-    if (pendingPreScrollTimer !== null) {
-      window.clearTimeout(pendingPreScrollTimer);
-      pendingPreScrollTimer = null;
-    }
-  };
-  const clearPendingIndexFinalizeTimer = () => {
-    if (pendingIndexFinalizeTimer !== null) {
-      window.clearTimeout(pendingIndexFinalizeTimer);
-      pendingIndexFinalizeTimer = null;
-    }
-  };
-  const clearPendingLongJumpSwapTimer = () => {
-    if (pendingLongJumpSwapTimer !== null) {
-      window.clearTimeout(pendingLongJumpSwapTimer);
-      pendingLongJumpSwapTimer = null;
-    }
-  };
-  const clearPendingLongJumpReleaseTimer = () => {
-    if (pendingLongJumpReleaseTimer !== null) {
-      window.clearTimeout(pendingLongJumpReleaseTimer);
-      pendingLongJumpReleaseTimer = null;
-    }
-  };
-  const clearPendingTransitionTimers = () => {
-    clearPendingPreScrollTimer();
-    clearPendingIndexFinalizeTimer();
-    clearPendingLongJumpSwapTimer();
-    clearPendingLongJumpReleaseTimer();
-  };
+  const transitionTimers = createProjectCarouselTransitionTimers({
+    setTimeout: (callback, delayMs) => window.setTimeout(callback, delayMs),
+    clearTimeout: (timerId) => window.clearTimeout(timerId),
+  });
   const setProgrammaticTrackState = (active: boolean) => {
     track.classList.toggle('project-carousel-track--programmatic', active);
   };
@@ -456,9 +427,7 @@ const initProjectCarousel = () => {
       finalizeIndexScroll();
       return;
     }
-    clearPendingIndexFinalizeTimer();
-    pendingIndexFinalizeTimer = window.setTimeout(() => {
-      pendingIndexFinalizeTimer = null;
+    transitionTimers.schedulePendingIndexFinalizeTimer(() => {
       finalizeIndexScroll();
     }, QUICK_SCROLL_DURATION_MS);
   };
@@ -467,7 +436,7 @@ const initProjectCarousel = () => {
     disconnectActivePanelResizeObserver();
     stopTrackHeightSync();
     stopTrackQuickScroll();
-    clearPendingTransitionTimers();
+    transitionTimers.clearPendingTransitionTimers();
     isProgrammaticTransition = true;
     setProgrammaticTargetIndex(targetIndex);
     setProgrammaticTrackState(true);
@@ -488,16 +457,16 @@ const initProjectCarousel = () => {
       if (LONG_JUMP_FADE_IN_MS <= 0) {
         return;
       }
-      pendingLongJumpReleaseTimer = window.setTimeout(() => {
-        pendingLongJumpReleaseTimer = null;
-      }, LONG_JUMP_FADE_IN_MS);
+      transitionTimers.schedulePendingLongJumpReleaseTimer(
+        () => {},
+        LONG_JUMP_FADE_IN_MS,
+      );
     };
     if (LONG_JUMP_FADE_OUT_MS <= 0) {
       finalizeLongJump();
       return;
     }
-    pendingLongJumpSwapTimer = window.setTimeout(() => {
-      pendingLongJumpSwapTimer = null;
+    transitionTimers.schedulePendingLongJumpSwapTimer(() => {
       finalizeLongJump();
     }, LONG_JUMP_FADE_OUT_MS);
   };
@@ -520,7 +489,8 @@ const initProjectCarousel = () => {
 
   const cancelCurrentTransition = () => {
     cancelProgrammaticCarouselTransition({
-      clearPendingTransitionTimers,
+      clearPendingTransitionTimers:
+        transitionTimers.clearPendingTransitionTimers,
       stopQuickScrolls,
       stopNativeSmoothScroll,
       clearVerticalCorrectionTimer:
@@ -541,9 +511,7 @@ const initProjectCarousel = () => {
       executeIndexScroll(wrappedTargetIndex, useQuickMotion);
       return;
     }
-    clearPendingPreScrollTimer();
-    pendingPreScrollTimer = window.setTimeout(() => {
-      pendingPreScrollTimer = null;
+    transitionTimers.schedulePendingPreScrollTimer(() => {
       executeIndexScroll(wrappedTargetIndex, useQuickMotion);
     }, delayMs);
   };
@@ -694,7 +662,8 @@ const initProjectCarousel = () => {
     observer.disconnect();
     disposeEventBindings();
     cancelProgrammaticCarouselTransition({
-      clearPendingTransitionTimers,
+      clearPendingTransitionTimers:
+        transitionTimers.clearPendingTransitionTimers,
       stopQuickScrolls,
       clearVerticalCorrectionTimer:
         viewportController.clearVerticalCorrectionTimer,

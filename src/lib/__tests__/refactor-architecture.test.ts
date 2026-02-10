@@ -341,6 +341,40 @@ describe('project carousel helper extraction', () => {
     expect(viewport).toContain('const scrollCarouselIntoView = (');
   });
 
+  it('extracts project carousel transition timer scheduling into a dedicated module', async () => {
+    const runtime = await read('src/lib/projectCarouselRuntime.ts');
+    const transitionTimers = await read(
+      'src/lib/projectCarouselTransitionTimers.ts',
+    );
+
+    expect(runtime).toContain(
+      "import { createProjectCarouselTransitionTimers } from '@/lib/projectCarouselTransitionTimers';",
+    );
+    expect(runtime).toContain(
+      'const transitionTimers = createProjectCarouselTransitionTimers({',
+    );
+    expect(runtime).toContain('transitionTimers.clearPendingTransitionTimers');
+    expect(runtime).toContain(
+      'transitionTimers.schedulePendingPreScrollTimer(',
+    );
+    expect(runtime).toContain(
+      'transitionTimers.schedulePendingIndexFinalizeTimer(',
+    );
+    expect(runtime).toContain(
+      'transitionTimers.schedulePendingLongJumpSwapTimer(',
+    );
+
+    expect(transitionTimers).toContain(
+      'export const createProjectCarouselTransitionTimers = ({',
+    );
+    expect(transitionTimers).toContain(
+      'const clearPendingTransitionTimers = () => {',
+    );
+    expect(transitionTimers).toContain(
+      'const schedulePendingIndexFinalizeTimer = (',
+    );
+  });
+
   it('uses extracted hash helpers for project panel hash parsing and updates', async () => {
     const runtime = await read('src/lib/projectCarouselRuntime.ts');
     const eventBindings = await read('src/lib/projectCarouselEventBindings.ts');
