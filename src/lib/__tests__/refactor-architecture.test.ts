@@ -170,6 +170,9 @@ describe('layout enhancement modularization', () => {
     const projectCarouselRuntime = await read(
       'src/lib/projectCarouselRuntime.ts',
     );
+    const projectCarouselTargetTop = await read(
+      'src/lib/projectCarouselTargetTop.ts',
+    );
     const stickyHeaderOffset = await read(
       'src/lib/layout/stickyHeaderOffset.ts',
     );
@@ -194,10 +197,14 @@ describe('layout enhancement modularization', () => {
     expect(storyNavigation).toContain('getStickyHeaderOffset');
 
     expect(projectCarouselRuntime).toContain(
+      "from '@/lib/projectCarouselTargetTop';",
+    );
+    expect(projectCarouselRuntime).toContain('resolveProjectCarouselTargetTop');
+    expect(projectCarouselTargetTop).toContain(
       "from '@/lib/layout/stickyHeaderOffset';",
     );
-    expect(projectCarouselRuntime).toContain('getStickyHeader');
-    expect(projectCarouselRuntime).toContain('getStickyHeaderOffset');
+    expect(projectCarouselTargetTop).toContain('getStickyHeader');
+    expect(projectCarouselTargetTop).toContain('getStickyHeaderOffset');
   });
 
   it('uses a dedicated helper for layout heading typography classes', async () => {
@@ -339,6 +346,22 @@ describe('project carousel helper extraction', () => {
     );
     expect(viewport).toContain('const clearVerticalCorrectionTimer = () => {');
     expect(viewport).toContain('const scrollCarouselIntoView = (');
+  });
+
+  it('extracts project carousel viewport target-top resolution into a dedicated helper', async () => {
+    const runtime = await read('src/lib/projectCarouselRuntime.ts');
+    const targetTop = await read('src/lib/projectCarouselTargetTop.ts');
+
+    expect(runtime).toContain(
+      "import { resolveProjectCarouselTargetTop } from '@/lib/projectCarouselTargetTop';",
+    );
+    expect(runtime).toContain('resolveProjectCarouselTargetTop({');
+
+    expect(targetTop).toContain(
+      'export const resolveProjectCarouselTargetTop = (',
+    );
+    expect(targetTop).toContain('getStickyHeaderOffset({');
+    expect(targetTop).toContain('window.scrollY');
   });
 
   it('extracts project carousel transition timer scheduling into a dedicated module', async () => {

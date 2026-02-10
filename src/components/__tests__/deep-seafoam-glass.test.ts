@@ -319,8 +319,8 @@ describe('Requested polish adjustments', () => {
 
   it('accounts for sticky header offset in story and project hash scrolling', async () => {
     const storyNavigation = await read('src/lib/home/storyNavigation.ts');
-    const projectCarouselRuntime = await read(
-      'src/lib/projectCarouselRuntime.ts',
+    const projectCarouselTargetTop = await read(
+      'src/lib/projectCarouselTargetTop.ts',
     );
     const stickyHeaderOffset = await read(
       'src/lib/layout/stickyHeaderOffset.ts',
@@ -328,8 +328,8 @@ describe('Requested polish adjustments', () => {
 
     expect(storyNavigation).toContain('getStickyHeaderOffset({');
     expect(storyNavigation).toContain('baseOffsetPx: 24 + marginTop');
-    expect(projectCarouselRuntime).toContain('scrollCarouselIntoView');
-    expect(projectCarouselRuntime).toContain('getStickyHeaderOffset({');
+    expect(projectCarouselTargetTop).toContain('getStickyHeaderOffset({');
+    expect(projectCarouselTargetTop).toContain('baseOffsetPx');
     expect(stickyHeaderOffset).toContain(
       'export const getStickyHeaderOffset =',
     );

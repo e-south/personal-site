@@ -20,10 +20,7 @@ import {
   type CarouselIndexTransitionResult,
 } from '@/lib/projectCarouselTransitions';
 import { getPanelIdFromHash } from '@/lib/projectCarouselHash';
-import {
-  getStickyHeader,
-  getStickyHeaderOffset,
-} from '@/lib/layout/stickyHeaderOffset';
+import { resolveProjectCarouselTargetTop } from '@/lib/projectCarouselTargetTop';
 import {
   runQuickTrackScroll,
   runQuickWindowScroll,
@@ -555,16 +552,10 @@ const initProjectCarousel = () => {
   };
 
   const getCarouselTargetTop = () => {
-    const headerOffset = getStickyHeaderOffset({
-      header: getStickyHeader(),
+    return resolveProjectCarouselTargetTop({
+      carousel,
       baseOffsetPx: 20,
     });
-    return Math.max(
-      0,
-      Math.round(
-        window.scrollY + carousel.getBoundingClientRect().top - headerOffset,
-      ),
-    );
   };
   const viewportController = createProjectCarouselViewportController({
     getTargetTop: getCarouselTargetTop,
