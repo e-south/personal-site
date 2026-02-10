@@ -25,14 +25,16 @@ describe('Typography policy contract', () => {
     expect(layout).toContain("import '@fontsource-variable/manrope';");
     expect(layout).toContain("import '@fontsource-variable/source-serif-4';");
     expect(layout).toContain("import '@fontsource-variable/inter';");
-    expect(layout).toContain("import '@fontsource-variable/geist';");
+    expect(layout).toContain(
+      "import '@fontsource-variable/plus-jakarta-sans';",
+    );
     expect(layout).not.toContain("import '@fontsource-variable/fraunces';");
     expect(layout).not.toContain(
       "import '@fontsource-variable/jetbrains-mono';",
     );
 
     expect(packageJson).toContain('"@fontsource-variable/inter"');
-    expect(packageJson).toContain('"@fontsource-variable/geist"');
+    expect(packageJson).toContain('"@fontsource-variable/plus-jakarta-sans"');
     expect(packageJson).not.toContain('"@fontsource-variable/fraunces"');
     expect(packageJson).not.toContain('"@fontsource-variable/jetbrains-mono"');
 
@@ -40,7 +42,7 @@ describe('Typography policy contract', () => {
       "sans: ['Manrope Variable', 'system-ui', 'sans-serif']",
     );
     expect(tailwind).toContain(
-      "header: ['Geist Variable', 'system-ui', 'sans-serif']",
+      "header: ['Plus Jakarta Sans Variable', 'system-ui', 'sans-serif']",
     );
     expect(tailwind).toContain(
       "inter: ['Inter Variable', 'system-ui', 'sans-serif']",
@@ -66,16 +68,16 @@ describe('Typography policy contract', () => {
     expect(headingTypography).toContain('[&_h2]:font-header');
     expect(headingTypography).toContain('[&_h3]:font-header');
     expect(headingTypography).toContain('[&_h4]:font-header');
-    expect(headingTypography).toContain('[&_h1]:font-black');
-    expect(headingTypography).toContain('[&_h2]:font-black');
-    expect(headingTypography).toContain('[&_h3]:font-black');
-    expect(headingTypography).toContain('[&_h4]:font-black');
+    expect(headingTypography).toContain('[&_h1]:font-extrabold');
+    expect(headingTypography).toContain('[&_h2]:font-extrabold');
+    expect(headingTypography).toContain('[&_h3]:font-extrabold');
+    expect(headingTypography).toContain('[&_h4]:font-extrabold');
 
     expect(prose).toContain('prose-headings:font-header');
-    expect(prose).toContain('prose-headings:font-black');
+    expect(prose).toContain('prose-headings:font-extrabold');
 
     expect(navLink).toContain('font-header');
-    expect(navLink).toContain('font-black');
+    expect(navLink).toContain('font-extrabold');
     expect(navbar).toContain('font-header text-lg');
   });
 });

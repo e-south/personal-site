@@ -5,7 +5,7 @@ export default {
     extend: {
       fontFamily: {
         inter: ['Inter Variable', 'system-ui', 'sans-serif'],
-        header: ['Geist Variable', 'system-ui', 'sans-serif'],
+        header: ['Plus Jakarta Sans Variable', 'system-ui', 'sans-serif'],
         sans: ['Manrope Variable', 'system-ui', 'sans-serif'],
         display: ['Source Serif 4 Variable', 'ui-serif', 'serif'],
         mono: ['ui-monospace', 'monospace'],
