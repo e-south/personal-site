@@ -12,6 +12,7 @@ Module Author(s): Eric J. South
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { readStylesheetBundle } from '../../test/readStylesheetBundle';
 
 const read = async (relativePath: string) =>
   readFile(path.resolve(process.cwd(), relativePath), 'utf-8');
@@ -19,8 +20,9 @@ const read = async (relativePath: string) =>
 describe('Deep Seafoam Glass theme contract', () => {
   it('defines global seafoam tokens, glass utilities, focus rings, and progressive reveals', async () => {
     const layout = await read('src/layouts/Layout.astro');
-    const contents = await read('src/styles/layout.css');
+    const contents = await readStylesheetBundle('src/styles/layout.css');
     const enhancements = await read('src/lib/layout/pageEnhancements.ts');
+    const revealEffects = await read('src/lib/layout/revealEffects.ts');
     const layoutClient = await read('src/lib/layout/layoutClient.ts');
 
     expect(layout).toContain("import '@/styles/layout.css';");
@@ -33,8 +35,9 @@ describe('Deep Seafoam Glass theme contract', () => {
     expect(contents).toContain("data-reveal-ready='true'");
     expect(layout).toContain('initLayoutClient();');
     expect(layoutClient).toContain('bindLayoutEnhancements();');
-    expect(enhancements).toContain('IntersectionObserver');
-    expect(enhancements).toContain('(prefers-reduced-motion: reduce)');
+    expect(enhancements).toContain('createRevealEffectsController');
+    expect(revealEffects).toContain('IntersectionObserver');
+    expect(revealEffects).toContain('(prefers-reduced-motion: reduce)');
   });
 
   it('uses deterministic accent styles instead of hashed hues', async () => {
@@ -55,12 +58,12 @@ describe('Deep Seafoam Glass theme contract', () => {
   });
 
   it('uses page-anchored corner glows without scroll-following overlays', async () => {
-    const contents = await read('src/styles/layout.css');
+    const contents = await readStylesheetBundle('src/styles/layout.css');
 
     expect(contents).toContain('1260px circle at 10% -14%');
     expect(contents).toContain('site-shell');
     expect(contents).toContain('radial-gradient(');
-    expect(contents).toContain('at 108% 50%');
+    expect(contents).toContain('at 106% 50%');
     expect(contents).toContain(
       'color-mix(in oklab, var(--site-accent) 14%, transparent) 0%',
     );
@@ -109,12 +112,14 @@ describe('Security and UX hardening contract', () => {
   it('applies focus-ring styling on key inline links', async () => {
     const blogIndex = await read('src/pages/blog/index.astro');
     const blogPaged = await read('src/pages/blog/[page].astro');
+    const blogPostList = await read('src/components/blog/BlogPostList.astro');
     const projectPanel = await read(
       'src/components/projects/ProjectPanel.astro',
     );
 
-    expect(blogIndex).toContain('class="focus-ring hover:text-accent"');
-    expect(blogPaged).toContain('class="focus-ring hover:text-accent"');
+    expect(blogIndex).toContain('BlogPostList');
+    expect(blogPaged).toContain('BlogPostList');
+    expect(blogPostList).toContain('class="focus-ring hover:text-accent"');
     expect(projectPanel).toContain(
       'class="focus-ring text-accent/80 transition hover:text-accent"',
     );
@@ -220,7 +225,7 @@ describe('Requested polish adjustments', () => {
   });
 
   it('uses a shared liquid-glass fill for media captions', async () => {
-    const layout = await read('src/styles/layout.css');
+    const layout = await readStylesheetBundle('src/styles/layout.css');
     const homePage = await read('src/pages/index.astro');
     const storyMediaLeaf = await read(
       'src/components/home/StoryMediaLeaf.astro',
@@ -304,14 +309,17 @@ describe('Requested polish adjustments', () => {
   it('uses depth-first blog cover media without nested border cards', async () => {
     const blogIndex = await read('src/pages/blog/index.astro');
     const blogPaged = await read('src/pages/blog/[page].astro');
+    const blogPostList = await read('src/components/blog/BlogPostList.astro');
     const blogSlug = await read('src/pages/blog/[slug].astro');
-    const layout = await read('src/styles/layout.css');
+    const layout = await readStylesheetBundle('src/styles/layout.css');
 
-    expect(blogIndex).toContain('class="blog-cover-media media-depth-surface');
-    expect(blogPaged).toContain('class="blog-cover-media media-depth-surface');
+    expect(blogIndex).toContain('BlogPostList');
+    expect(blogPaged).toContain('BlogPostList');
+    expect(blogPostList).toContain(
+      'class="blog-cover-media media-depth-surface',
+    );
     expect(blogSlug).toContain('class="blog-cover-media media-depth-surface');
-    expect(blogIndex).not.toContain('border border-base-content/10');
-    expect(blogPaged).not.toContain('border border-base-content/10');
+    expect(blogPostList).not.toContain('border border-base-content/10');
     expect(layout).toContain('--site-media-depth-shadow:');
     expect(layout).toContain('.media-depth-surface');
     expect(layout).toContain('box-shadow: var(--site-media-depth-shadow);');
@@ -319,8 +327,8 @@ describe('Requested polish adjustments', () => {
 
   it('accounts for sticky header offset in story and project hash scrolling', async () => {
     const storyNavigation = await read('src/lib/home/storyNavigation.ts');
-    const projectCarouselRuntime = await read(
-      'src/lib/projectCarouselRuntime.ts',
+    const projectCarouselTargetTop = await read(
+      'src/lib/projectCarouselTargetTop.ts',
     );
     const stickyHeaderOffset = await read(
       'src/lib/layout/stickyHeaderOffset.ts',
@@ -328,8 +336,8 @@ describe('Requested polish adjustments', () => {
 
     expect(storyNavigation).toContain('getStickyHeaderOffset({');
     expect(storyNavigation).toContain('baseOffsetPx: 24 + marginTop');
-    expect(projectCarouselRuntime).toContain('scrollCarouselIntoView');
-    expect(projectCarouselRuntime).toContain('getStickyHeaderOffset({');
+    expect(projectCarouselTargetTop).toContain('getStickyHeaderOffset({');
+    expect(projectCarouselTargetTop).toContain('baseOffsetPx');
     expect(stickyHeaderOffset).toContain(
       'export const getStickyHeaderOffset =',
     );
@@ -338,13 +346,20 @@ describe('Requested polish adjustments', () => {
 
 describe('Smart scroll offset hardening', () => {
   it('defines and updates a global scroll offset token from sticky header height', async () => {
-    const layout = await read('src/styles/layout.css');
+    const layout = await readStylesheetBundle('src/styles/layout.css');
     const enhancements = await read('src/lib/layout/pageEnhancements.ts');
+    const scrollOffsetTracker = await read(
+      'src/lib/layout/scrollOffsetTracker.ts',
+    );
 
     expect(layout).toContain('--site-scroll-offset');
     expect(layout).toContain('scroll-padding-top: var(--site-scroll-offset);');
-    expect(enhancements).toContain('ResizeObserver');
-    expect(enhancements).toContain('setScrollOffsetToken');
+    expect(enhancements).toContain('createScrollOffsetTracker');
+    expect(scrollOffsetTracker).toContain('ResizeObserver');
+    expect(scrollOffsetTracker).toContain('isStickyHeader');
+    expect(scrollOffsetTracker).toContain('headerIsSticky ? 24 : 0');
+    expect(scrollOffsetTracker).toContain('headerIsSticky ? 56 : 0');
+    expect(scrollOffsetTracker).toContain('setScrollOffsetToken');
   });
 
   it('applies a final corrective alignment pass after home smooth-scroll jumps', async () => {

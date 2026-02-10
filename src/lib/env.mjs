@@ -1,9 +1,13 @@
 // Shared env parsing for build + runtime. Keep logic minimal and explicit.
 
 const DEFAULT_DEV_SITE_URL = 'http://localhost:4321';
+const LOCALHOST_HOSTNAMES = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
 
 const toTrimmedString = (value) =>
   typeof value === 'string' ? value.trim() : '';
+
+const isLocalhostHostname = (hostname) =>
+  LOCALHOST_HOSTNAMES.has(toTrimmedString(hostname).toLowerCase());
 
 const normalizeBasePath = (value) => {
   const trimmed = toTrimmedString(value);
@@ -18,7 +22,11 @@ const normalizeBasePath = (value) => {
   return trimmed;
 };
 
-const normalizeAbsoluteUrl = (value, label, { allowPath = true } = {}) => {
+const normalizeAbsoluteUrl = (
+  value,
+  label,
+  { allowPath = true, allowHttpLocalhost = false } = {},
+) => {
   const trimmed = toTrimmedString(value);
   if (!trimmed) {
     throw new Error(`${label} is required.`);
@@ -28,6 +36,16 @@ const normalizeAbsoluteUrl = (value, label, { allowPath = true } = {}) => {
     parsed = new URL(trimmed);
   } catch {
     throw new Error(`${label} must be a valid absolute URL.`);
+  }
+
+  if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+    throw new Error(`${label} must use http or https.`);
+  }
+  if (
+    parsed.protocol === 'http:' &&
+    (!allowHttpLocalhost || !isLocalhostHostname(parsed.hostname))
+  ) {
+    throw new Error(`${label} must use https unless hostname is localhost.`);
   }
 
   if (!allowPath) {
@@ -65,6 +83,7 @@ export const resolvePublicSiteEnv = (env, { isDev } = {}) => {
 
   const normalizedSite = normalizeAbsoluteUrl(site, 'PUBLIC_SITE_URL', {
     allowPath: false,
+    allowHttpLocalhost: true,
   });
   const normalizedBase = normalizeBasePath(base);
 
@@ -78,7 +97,9 @@ export const resolveNewsletterEnv = (env) => {
   const listUuids = parseCsv(env.PUBLIC_LISTMONK_LIST_UUIDS ?? '');
   const listUrlRaw = toTrimmedString(env.PUBLIC_LISTMONK_URL ?? '');
   const listUrl = listUrlRaw
-    ? normalizeAbsoluteUrl(listUrlRaw, 'PUBLIC_LISTMONK_URL')
+    ? normalizeAbsoluteUrl(listUrlRaw, 'PUBLIC_LISTMONK_URL', {
+        allowHttpLocalhost: true,
+      })
     : '';
 
   if (listUrl && listUuids.length === 0) {
@@ -102,7 +123,9 @@ export const resolveNewsletterEnv = (env) => {
 export const resolveAnalyticsEnv = (env) => {
   const endpointRaw = toTrimmedString(env.PUBLIC_GOATCOUNTER_ENDPOINT ?? '');
   const endpoint = endpointRaw
-    ? normalizeAbsoluteUrl(endpointRaw, 'PUBLIC_GOATCOUNTER_ENDPOINT')
+    ? normalizeAbsoluteUrl(endpointRaw, 'PUBLIC_GOATCOUNTER_ENDPOINT', {
+        allowHttpLocalhost: true,
+      })
     : '';
 
   return {

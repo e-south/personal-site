@@ -16,7 +16,6 @@ import type { ImageMetadata } from 'astro';
 import { heroImages } from '@/data/heroImages';
 import { storyRegistry } from '@/data/storyMedia';
 import PillLink from '@/components/ui/PillLink.astro';
-import HomeController from '@/components/home/HomeController';
 import StoryChapters from '@/components/home/StoryChapters.astro';
 import SubscribeCta from '@/components/ui/SubscribeCta.astro';
 import { getImage } from 'astro:assets';
@@ -105,7 +104,9 @@ const heroFirst = heroImageVariants[0];
                 </p>
               )
             }
-            <h1 class="text-4xl sm:text-5xl font-semibold tracking-tight">
+            <h1
+              class="page-main-header page-main-header--home text-4xl sm:text-5xl font-semibold tracking-tight"
+            >
               {name}
             </h1>
             {
@@ -208,9 +209,17 @@ const heroFirst = heroImageVariants[0];
     <StoryChapters chapters={storyEntries} registry={storyRegistry} />
   </section>
 
-  <HomeController client:load />
+  <script>
+    import { initHomePage } from '@/lib/home';
+
+    initHomePage();
+  </script>
 
   <style>
+    [data-hero-rotator] {
+      touch-action: pan-y;
+    }
+
     [data-hero-rotator].is-fading [data-hero-image],
     [data-hero-rotator].is-fading [data-hero-caption] {
       opacity: 0;

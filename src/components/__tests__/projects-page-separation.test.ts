@@ -34,6 +34,9 @@ describe('Projects page section separation', () => {
     const projectCarouselRuntime = await read(
       'src/lib/projectCarouselRuntime.ts',
     );
+    const projectCarouselHeightSync = await read(
+      'src/lib/projectCarouselHeightSync.ts',
+    );
     const projectPanel = await read(
       'src/components/projects/ProjectPanel.astro',
     );
@@ -45,7 +48,18 @@ describe('Projects page section separation', () => {
     );
     expect(projectCarouselStyles).toContain('align-items: start;');
     expect(projectCarouselRuntime).toContain(
+      'createProjectCarouselHeightSyncController',
+    );
+    expect(projectCarouselHeightSync).toContain(
       'track.style.height = `${nextHeight}px`;',
+    );
+    expect(projectCarouselRuntime).toContain(
+      'heightSyncController.scheduleTrackHeightSync',
+    );
+    expect(projectPanel).not.toContain('px-0 py-8 sm:px-6');
+    expect(projectPanel).not.toContain('px-4 py-8 sm:px-6');
+    expect(projectPanel).toContain(
+      'px-[clamp(1.05rem,4.2vw,1.35rem)] py-8 sm:px-6',
     );
     expect(projectPanel).not.toContain('h-full w-full min-w-full');
     expect(projectPanel).not.toContain('min-h-full');

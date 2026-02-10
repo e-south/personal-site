@@ -24,20 +24,34 @@ const readHeaderHeight = (header: Element | null) => {
   return coerceFiniteNumber(header.offsetHeight);
 };
 
+const readHeaderPosition = (header: Element | null) => {
+  if (!(header instanceof HTMLElement) || typeof window === 'undefined') {
+    return '';
+  }
+  return window.getComputedStyle(header).position;
+};
+
 type StickyHeaderOffsetOptions = {
   header: Element | null;
   baseOffsetPx?: number;
   minOffsetPx?: number;
 };
 
-export const getStickyHeader = () => document.querySelector('header');
+export const getStickyHeader = () =>
+  document.querySelector('[data-site-header]');
+
+export const isStickyHeader = (header: Element | null) => {
+  const position = readHeaderPosition(header);
+  return position === 'sticky' || position === '-webkit-sticky';
+};
 
 export const getStickyHeaderOffset = ({
   header,
   baseOffsetPx = 0,
   minOffsetPx = Number.NEGATIVE_INFINITY,
 }: StickyHeaderOffsetOptions) => {
-  const offset = readHeaderHeight(header) + coerceFiniteNumber(baseOffsetPx);
+  const headerHeight = isStickyHeader(header) ? readHeaderHeight(header) : 0;
+  const offset = headerHeight + coerceFiniteNumber(baseOffsetPx);
   return Math.max(coerceFiniteNumber(minOffsetPx), offset);
 };
 

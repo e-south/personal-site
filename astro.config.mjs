@@ -3,7 +3,6 @@ import { defineConfig } from 'astro/config';
 import { loadEnv } from 'vite';
 import { resolvePublicSiteEnv } from './src/lib/env.mjs';
 
-import react from '@astrojs/react';
 import tailwind from '@astrojs/tailwind';
 
 import sitemap from '@astrojs/sitemap';
@@ -16,7 +15,7 @@ const { site, base } = resolvePublicSiteEnv(env, {
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [react(), tailwind(), sitemap()],
+  integrations: [tailwind(), sitemap()],
   site,
   base,
 });

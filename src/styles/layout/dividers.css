@@ -1,0 +1,39 @@
+/*
+--------------------------------------------------------------------------------
+personal-site
+src/styles/layout/dividers.css
+
+Defines shared section-divider utilities and depth styling.
+
+Module Author(s): Eric J. South
+--------------------------------------------------------------------------------
+*/
+
+.section-divider-line {
+  height: 1px;
+  width: 100%;
+  background: var(--site-divider-line);
+  box-shadow: var(--site-divider-shadow);
+  opacity: 0.92;
+}
+
+.section-divider-bottom {
+  position: relative;
+}
+
+.section-divider-bottom::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  pointer-events: none;
+  background: var(--site-divider-line);
+  box-shadow: var(--site-divider-shadow);
+  opacity: 0.92;
+}
+
+.section-divider-bottom:last-child::after {
+  display: none;
+}

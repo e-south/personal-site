@@ -12,6 +12,8 @@ Module Author(s): Eric J. South
 type StoryCarouselsOptions = {
   getScrollBehavior: () => 'auto' | 'smooth';
 };
+const MIN_SWIPE_X_PX = 36;
+const SCROLL_SETTLE_DELAY_MS = 120;
 
 const fixedHeightChapters = new Set([
   'phd-at-boston-university',
@@ -32,21 +34,6 @@ const getItemOffset = (carousel: HTMLElement, item: HTMLElement) => {
   const carouselRect = carousel.getBoundingClientRect();
   const itemRect = item.getBoundingClientRect();
   return itemRect.left - carouselRect.left + carousel.scrollLeft;
-};
-
-const getClosestIndex = (carousel: HTMLElement, items: HTMLElement[]) => {
-  const scrollLeft = carousel.scrollLeft;
-  let closestIndex = 0;
-  let closestDistance = Number.POSITIVE_INFINITY;
-  items.forEach((item, index) => {
-    const offset = getItemOffset(carousel, item);
-    const distance = Math.abs(offset - scrollLeft);
-    if (distance < closestDistance) {
-      closestDistance = distance;
-      closestIndex = index;
-    }
-  });
-  return closestIndex;
 };
 
 const updateControls = (
@@ -95,6 +82,35 @@ export const initStoryCarousels = ({
 
     const items = getCarouselItems(carousel);
     const maxIndex = items.length - 1;
+    let itemOffsets: number[] = [];
+    let offsetsDirty = true;
+    const rebuildItemOffsets = () => {
+      itemOffsets = items.map((item) => getItemOffset(carousel, item));
+      offsetsDirty = false;
+    };
+    const markOffsetsDirty = () => {
+      offsetsDirty = true;
+    };
+    const ensureItemOffsets = () => {
+      if (!offsetsDirty && itemOffsets.length === items.length) {
+        return;
+      }
+      rebuildItemOffsets();
+    };
+    const getClosestIndexFromOffsets = () => {
+      ensureItemOffsets();
+      const scrollLeft = carousel.scrollLeft;
+      let closestIndex = 0;
+      let closestDistance = Number.POSITIVE_INFINITY;
+      itemOffsets.forEach((offset, index) => {
+        const distance = Math.abs(offset - scrollLeft);
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestIndex = index;
+        }
+      });
+      return closestIndex;
+    };
 
     const chapterRoot = wrapper.closest('[data-story-chapter]');
     const shouldFixHeight =
@@ -115,13 +131,18 @@ export const initStoryCarousels = ({
     };
 
     let resizeObserver: ResizeObserver | null = null;
-    if (shouldFixHeight && 'ResizeObserver' in window) {
+    if ('ResizeObserver' in window) {
       resizeObserver = new ResizeObserver(() => {
-        window.requestAnimationFrame(updateLockHeight);
+        markOffsetsDirty();
+        if (shouldFixHeight) {
+          window.requestAnimationFrame(updateLockHeight);
+        }
       });
+      resizeObserver.observe(carousel);
       items.forEach((item) => resizeObserver?.observe(item));
     }
 
+    rebuildItemOffsets();
     updateLockHeight();
 
     const scrollToIndex = (nextIndex: number) => {
@@ -130,8 +151,9 @@ export const initStoryCarousels = ({
       if (!target) {
         throw new Error('Story carousel target item is missing.');
       }
+      ensureItemOffsets();
       carousel.scrollTo({
-        left: getItemOffset(carousel, target),
+        left: itemOffsets[clampedIndex] ?? getItemOffset(carousel, target),
         behavior: getScrollBehavior(),
       });
       updateControls(prevButton, nextButton, clampedIndex, maxIndex);
@@ -139,11 +161,60 @@ export const initStoryCarousels = ({
 
     const handlePrev = (event: Event) => {
       event.preventDefault();
-      scrollToIndex(getClosestIndex(carousel, items) - 1);
+      scrollToIndex(getClosestIndexFromOffsets() - 1);
     };
     const handleNext = (event: Event) => {
       event.preventDefault();
-      scrollToIndex(getClosestIndex(carousel, items) + 1);
+      scrollToIndex(getClosestIndexFromOffsets() + 1);
+    };
+
+    let touchStartX: number | null = null;
+    let touchStartY: number | null = null;
+    let touchStartIndex = 0;
+    let settleTimer: number | null = null;
+    const scheduleSettle = () => {
+      if (settleTimer !== null) {
+        window.clearTimeout(settleTimer);
+      }
+      settleTimer = window.setTimeout(() => {
+        settleTimer = null;
+        scrollToIndex(getClosestIndexFromOffsets());
+      }, SCROLL_SETTLE_DELAY_MS);
+    };
+    const clearTouchStart = () => {
+      touchStartX = null;
+      touchStartY = null;
+    };
+    const handleTouchStart = (event: TouchEvent) => {
+      const touch = event.touches[0];
+      if (!touch) {
+        return;
+      }
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+      touchStartIndex = getClosestIndexFromOffsets();
+    };
+    const handleTouchEnd = (event: TouchEvent) => {
+      const touch = event.changedTouches[0];
+      if (!touch || touchStartX === null || touchStartY === null) {
+        clearTouchStart();
+        return;
+      }
+      const deltaX = touch.clientX - touchStartX;
+      const deltaY = touch.clientY - touchStartY;
+      clearTouchStart();
+      if (
+        Math.abs(deltaX) >= MIN_SWIPE_X_PX &&
+        Math.abs(deltaX) > Math.abs(deltaY)
+      ) {
+        const direction = deltaX < 0 ? 1 : -1;
+        scrollToIndex(touchStartIndex + direction);
+        return;
+      }
+      scrollToIndex(getClosestIndexFromOffsets());
+    };
+    const handleTouchCancel = () => {
+      clearTouchStart();
     };
 
     let scrollFrame: number | null = null;
@@ -156,18 +227,33 @@ export const initStoryCarousels = ({
         updateControls(
           prevButton,
           nextButton,
-          getClosestIndex(carousel, items),
+          getClosestIndexFromOffsets(),
           maxIndex,
         );
+        scheduleSettle();
       });
     };
 
     prevButton.addEventListener('click', handlePrev);
     nextButton.addEventListener('click', handleNext);
     carousel.addEventListener('scroll', handleScroll, { passive: true });
+    carousel.addEventListener('touchstart', handleTouchStart, {
+      passive: true,
+    });
+    carousel.addEventListener('touchend', handleTouchEnd, { passive: true });
+    carousel.addEventListener('touchcancel', handleTouchCancel, {
+      passive: true,
+    });
     addCleanup(() => prevButton.removeEventListener('click', handlePrev));
     addCleanup(() => nextButton.removeEventListener('click', handleNext));
     addCleanup(() => carousel.removeEventListener('scroll', handleScroll));
+    addCleanup(() =>
+      carousel.removeEventListener('touchstart', handleTouchStart),
+    );
+    addCleanup(() => carousel.removeEventListener('touchend', handleTouchEnd));
+    addCleanup(() =>
+      carousel.removeEventListener('touchcancel', handleTouchCancel),
+    );
     addCleanup(() => {
       if (scrollFrame !== null) {
         window.cancelAnimationFrame(scrollFrame);
@@ -175,13 +261,30 @@ export const initStoryCarousels = ({
       }
     });
     addCleanup(() => {
+      clearTouchStart();
+    });
+    addCleanup(() => {
+      if (settleTimer !== null) {
+        window.clearTimeout(settleTimer);
+        settleTimer = null;
+      }
+    });
+    addCleanup(() => {
       resizeObserver?.disconnect();
     });
+    const handleWindowResize = () => {
+      markOffsetsDirty();
+      if (shouldFixHeight) {
+        window.requestAnimationFrame(updateLockHeight);
+      }
+    };
+    window.addEventListener('resize', handleWindowResize, { passive: true });
+    addCleanup(() => window.removeEventListener('resize', handleWindowResize));
 
     updateControls(
       prevButton,
       nextButton,
-      getClosestIndex(carousel, items),
+      getClosestIndexFromOffsets(),
       maxIndex,
     );
   });

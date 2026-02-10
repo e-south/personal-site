@@ -1,15 +1,13 @@
 ---
 import Pagination from '@/components/ui/Pagination.astro';
 import Layout from '@/layouts/Layout.astro';
-import { Image } from 'astro:assets';
 import { template } from '@/settings';
 import { getBlogListItems } from '@/lib/content';
 import { getEntry } from 'astro:content';
 import type { BlogListItem } from '@/lib/content';
-import PillLink from '@/components/ui/PillLink.astro';
+import BlogPostList from '@/components/blog/BlogPostList.astro';
 import SubscribeCta from '@/components/ui/SubscribeCta.astro';
-import { requireEntry, requireValue } from '@/lib/require';
-import { formatLongDate } from '@/lib/dates';
+import { requireEntry } from '@/lib/require';
 
 type PageData = {
   data: BlogListItem[];
@@ -44,49 +42,20 @@ const intro = blogData.intro;
 <Layout title={title}>
   <div class="mx-auto max-w-3xl space-y-12">
     <header class="space-y-3">
-      <h1 class="text-4xl sm:text-5xl font-semibold">{title}</h1>
+      <h1
+        class="page-main-header page-main-header--blog text-4xl sm:text-5xl font-semibold"
+      >
+        {title}
+      </h1>
       <p class="text-base-content/70">{intro}</p>
     </header>
 
     <SubscribeCta />
 
-    <div class="space-y-10">
-      {
-        page.data.map((post) => (
-          <article class="section-divider-bottom pb-10 last:pb-0">
-            {post.cover && (
-              <figure class="blog-cover-media media-depth-surface aspect-video mb-6 overflow-hidden rounded-xl">
-                <Image
-                  src={post.cover}
-                  alt={requireValue(
-                    post.coverAlt,
-                    `blog/${post.slug} coverAlt`,
-                  )}
-                  class="w-full h-full object-cover"
-                />
-              </figure>
-            )}
-            <div class="space-y-3">
-              <div class="flex flex-wrap items-center gap-3 text-sm text-base-content/70 uppercase tracking-[0.12em]">
-                <time datetime={post.date.toISOString()}>
-                  {formatLongDate(post.date)}
-                </time>
-                {post.badge && (
-                  <span class="text-base-content/60">{post.badge}</span>
-                )}
-              </div>
-              <h2 class="text-2xl font-semibold">
-                <a href={post.slug} class="focus-ring hover:text-accent">
-                  {post.title}
-                </a>
-              </h2>
-              <p class="text-base-content/80 leading-relaxed">{post.excerpt}</p>
-              <PillLink href={post.slug}>Read more</PillLink>
-            </div>
-          </article>
-        ))
-      }
-    </div>
+    <BlogPostList
+      posts={page.data}
+      articleClass="section-divider-bottom pb-10 last:pb-0"
+    />
 
     <div class="flex justify-center">
       <Pagination page={page} />

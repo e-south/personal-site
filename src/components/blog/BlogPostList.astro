@@ -1,0 +1,63 @@
+---
+/*
+--------------------------------------------------------------------------------
+personal-site
+src/components/blog/BlogPostList.astro
+
+Renders repeated blog post listing markup for blog index and paginated routes.
+
+Module Author(s): Eric J. South
+--------------------------------------------------------------------------------
+*/
+
+import { Image } from 'astro:assets';
+import type { BlogListItem } from '@/lib/content';
+import PillLink from '@/components/ui/PillLink.astro';
+import { requireValue } from '@/lib/require';
+import { formatLongDate } from '@/lib/dates';
+
+const {
+  posts,
+  articleClass,
+  reveal = false,
+} = Astro.props as {
+  posts: BlogListItem[];
+  articleClass: string;
+  reveal?: boolean;
+};
+---
+
+<div class="space-y-10" data-reveal={reveal ? true : undefined}>
+  {
+    posts.map((post) => (
+      <article class={articleClass}>
+        {post.cover && (
+          <figure class="blog-cover-media media-depth-surface aspect-video mb-6 overflow-hidden rounded-xl">
+            <Image
+              src={post.cover}
+              alt={requireValue(post.coverAlt, `blog/${post.slug} coverAlt`)}
+              class="w-full h-full object-cover"
+            />
+          </figure>
+        )}
+        <div class="space-y-3">
+          <div class="flex flex-wrap items-center gap-3 text-sm text-base-content/70 uppercase tracking-[0.12em]">
+            <time datetime={post.date.toISOString()}>
+              {formatLongDate(post.date)}
+            </time>
+            {post.badge && (
+              <span class="text-base-content/60">{post.badge}</span>
+            )}
+          </div>
+          <h2 class="text-2xl font-semibold">
+            <a href={post.slug} class="focus-ring hover:text-accent">
+              {post.title}
+            </a>
+          </h2>
+          <p class="text-base-content/80 leading-relaxed">{post.excerpt}</p>
+          <PillLink href={post.slug}>Read more</PillLink>
+        </div>
+      </article>
+    ))
+  }
+</div>

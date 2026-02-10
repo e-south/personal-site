@@ -14,7 +14,8 @@ const currentPath = Astro.url.pathname;
 ---
 
 <header
-  class="sticky top-0 z-40 border-b border-base-content/15 bg-base-100/70 backdrop-blur-xl shadow-[0_10px_30px_color-mix(in_oklab,#000_38%,transparent)]"
+  data-site-header
+  class="site-header-edge sticky top-0 z-40 bg-base-100/70 backdrop-blur-xl shadow-[0_10px_30px_color-mix(in_oklab,#000_38%,transparent)]"
 >
   <div
     class="mx-auto flex w-full max-w-5xl flex-col gap-4 px-6 py-4 md:flex-row md:items-center md:justify-between"
@@ -37,7 +38,7 @@ const currentPath = Astro.url.pathname;
       {
         hasExternalLinks && (
           <div
-            class="flex flex-wrap items-center gap-2 border-t border-base-content/10 pt-3 md:border-t-0 md:border-l md:pl-4 md:pt-0"
+            class="site-header-external-divider flex flex-wrap items-center gap-2 pt-3 md:pl-4 md:pt-0"
             aria-label="External profiles"
           >
             {externalLinks.map((link) => (
@@ -47,5 +48,7 @@ const currentPath = Astro.url.pathname;
         )
       }
     </div>
+  </div>
+  <div class="site-header-edge-line" data-site-header-edge aria-hidden="true">
   </div>
 </header>

@@ -1,6 +1,8 @@
 const baseUrl = import.meta.env.BASE_URL;
 
 const SAFE_EXTERNAL_SCHEMES = new Set(['http', 'https', 'mailto', 'tel']);
+const isInternalPath = (value: string) =>
+  value.startsWith('/') && !value.startsWith('//');
 
 export const hasScheme = (value: string) => /^[a-z][a-z0-9+.-]*:/i.test(value);
 
@@ -19,7 +21,7 @@ export const sanitizeHref = (value: string) => {
   if (isSafeExternalHref(value)) {
     return value;
   }
-  if (value.startsWith('/') || value.startsWith('#') || value.startsWith('?')) {
+  if (isInternalPath(value) || value.startsWith('#') || value.startsWith('?')) {
     return value;
   }
   return '#';
@@ -36,6 +38,10 @@ export const withBase = (path: string) => {
 
   if (path.startsWith('#') || path.startsWith('?')) {
     return path;
+  }
+
+  if (!isInternalPath(path)) {
+    return baseUrl;
   }
 
   const normalized = path.startsWith('/') ? path.slice(1) : path;

@@ -17,11 +17,15 @@ type UpdateHashForPanelIdOptions = {
 };
 
 const decodePanelId = (value: string) => {
-  const panelId = decodeURIComponent(value);
-  if (!panelId) {
+  try {
+    const panelId = decodeURIComponent(value);
+    if (!panelId) {
+      return null;
+    }
+    return panelId;
+  } catch {
     return null;
   }
-  return panelId;
 };
 
 export const getPanelIdFromHash = (hash: string) => {
