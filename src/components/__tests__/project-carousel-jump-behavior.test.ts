@@ -22,15 +22,14 @@ describe('Project carousel jump behavior', () => {
     const projectCarouselRuntime = await read(
       'src/lib/projectCarouselRuntime.ts',
     );
+    const eventBindings = await read('src/lib/projectCarouselEventBindings.ts');
 
     expect(projectCard).toContain('data-project-card-jump');
     expect(projectCarouselRuntime).toContain("'[data-project-card-jump]'");
-    expect(projectCarouselRuntime).toContain('event.preventDefault()');
-    expect(projectCarouselRuntime).toContain('history.pushState');
+    expect(eventBindings).toContain('event.preventDefault()');
+    expect(eventBindings).toContain('history.pushState');
     expect(projectCarouselRuntime).toContain('scrollCarouselIntoView');
-    expect(projectCarouselRuntime).toContain(
-      'navigateToPanelId(panelId, true)',
-    );
+    expect(eventBindings).toContain('navigateToPanelId(panelId, true)');
   });
 
   it('lets project-card asset regions click through to the same jump overlay behavior', async () => {
@@ -77,22 +76,23 @@ describe('Project carousel jump behavior', () => {
     const projectCarouselRuntime = await read(
       'src/lib/projectCarouselRuntime.ts',
     );
-    const projectCarousel = await read(
-      'src/components/projects/ProjectCarousel.astro',
-    );
+    const projectCarouselStyles = await read('src/styles/project-carousel.css');
 
     expect(projectCarouselRuntime).toContain(
       'project-carousel-track--programmatic',
     );
-    expect(projectCarousel).toContain(
+    expect(projectCarouselStyles).toContain(
       '.project-carousel-track.project-carousel-track--programmatic {',
     );
-    expect(projectCarousel).toContain('scroll-snap-type: none;');
+    expect(projectCarouselStyles).toContain('scroll-snap-type: none;');
   });
 
   it('treats same-target card clicks as vertical-only jumps without horizontal carousel repositioning', async () => {
     const projectCarouselRuntime = await read(
       'src/lib/projectCarouselRuntime.ts',
+    );
+    const transitionOrchestration = await read(
+      'src/lib/projectCarouselTransitionOrchestration.ts',
     );
 
     expect(projectCarouselRuntime).toContain(
@@ -101,19 +101,19 @@ describe('Project carousel jump behavior', () => {
     expect(projectCarouselRuntime).not.toContain(
       'const syncActiveIndexToTrackPosition = () => {',
     );
-    expect(projectCarouselRuntime).toContain(
-      'const originIndex = getClosestVisiblePanelIndex();',
+    expect(transitionOrchestration).toContain(
+      'const originIndex = resolveCurrentIndex();',
     );
-    expect(projectCarouselRuntime).toContain(
+    expect(transitionOrchestration).toContain(
       'const plan = createCarouselHeightTransitionPlan({',
     );
-    expect(projectCarouselRuntime).toContain(
+    expect(transitionOrchestration).toContain(
       'if (plan.wrappedTargetIndex === originIndex) {',
     );
     expect(projectCarouselRuntime).toContain(
       'cancelProgrammaticCarouselTransition({',
     );
-    expect(projectCarouselRuntime).toContain("return 'same';");
+    expect(transitionOrchestration).toContain("return 'same';");
   });
 
   it('cancels in-flight native smooth scrolling before applying a new target transition', async () => {
@@ -179,6 +179,10 @@ describe('Project carousel jump behavior', () => {
     const projectCarouselRuntime = await read(
       'src/lib/projectCarouselRuntime.ts',
     );
+    const eventBindings = await read('src/lib/projectCarouselEventBindings.ts');
+    const transitionOrchestration = await read(
+      'src/lib/projectCarouselTransitionOrchestration.ts',
+    );
 
     expect(projectCarouselRuntime).toContain(
       'const originIndex = getClosestVisiblePanelIndex();',
@@ -189,14 +193,14 @@ describe('Project carousel jump behavior', () => {
     expect(projectCarouselRuntime).not.toContain(
       'runIndexTransition(originIndex + 1, true);',
     );
-    expect(projectCarouselRuntime).toContain('runRelativeIndexTransition(-1);');
-    expect(projectCarouselRuntime).toContain('runRelativeIndexTransition(1);');
+    expect(eventBindings).toContain('runRelativeIndexTransition(-1);');
+    expect(eventBindings).toContain('runRelativeIndexTransition(1);');
     expect(projectCarouselRuntime).not.toContain(
       'const isDirectionalWrapTransition = (',
     );
     expect(projectCarouselRuntime).not.toContain('transitionIntent');
     expect(projectCarouselRuntime).not.toContain("return 'wrap';");
-    expect(projectCarouselRuntime).toContain(
+    expect(transitionOrchestration).toContain(
       "if (transitionMode === 'long') {",
     );
     expect(projectCarouselRuntime).not.toContain('runForwardWrapTransition');
@@ -311,6 +315,7 @@ describe('Project carousel jump behavior', () => {
     const projectCarouselRuntime = await read(
       'src/lib/projectCarouselRuntime.ts',
     );
+    const eventBindings = await read('src/lib/projectCarouselEventBindings.ts');
 
     expect(projectCarouselRuntime).toContain(
       'const runRelativeIndexTransition = (offset: number) => {',
@@ -318,8 +323,8 @@ describe('Project carousel jump behavior', () => {
     expect(projectCarouselRuntime).toContain(
       'runIndexTransition(originIndex + offset, true);',
     );
-    expect(projectCarouselRuntime).toContain('runRelativeIndexTransition(-1);');
-    expect(projectCarouselRuntime).toContain('runRelativeIndexTransition(1);');
+    expect(eventBindings).toContain('runRelativeIndexTransition(-1);');
+    expect(eventBindings).toContain('runRelativeIndexTransition(1);');
   });
 
   it('keeps project panel vertical scrolling chained to page scrolling', async () => {

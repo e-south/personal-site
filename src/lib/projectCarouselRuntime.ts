@@ -14,18 +14,12 @@ import {
   getPanelTargetLeft as getPanelTargetLeftFromGeometry,
   getTrackScrollPaddingInlineStart as getTrackScrollPaddingInlineStartFromTrack,
 } from '@/lib/projectCarousel';
-import { createCarouselHeightTransitionPlan } from '@/lib/projectCarouselTransitions';
-import { getCarouselTransitionMode } from '@/lib/projectCarouselTransitions';
 import { parseRequiredCarouselIndex } from '@/lib/projectCarouselTransitions';
 import {
   wrapCarouselIndex,
   type CarouselIndexTransitionResult,
 } from '@/lib/projectCarouselTransitions';
-import {
-  getPanelIdFromHash,
-  getPanelIdFromHref,
-  updateHashForPanelId,
-} from '@/lib/projectCarouselHash';
+import { getPanelIdFromHash } from '@/lib/projectCarouselHash';
 import {
   getStickyHeader,
   getStickyHeaderOffset,
@@ -38,6 +32,8 @@ import {
   cancelProgrammaticCarouselTransition,
   resetProgrammaticCarouselState,
 } from '@/lib/projectCarouselTransitionState';
+import { bindProjectCarouselEventBindings } from '@/lib/projectCarouselEventBindings';
+import { createProjectCarouselTransitionOrchestration } from '@/lib/projectCarouselTransitionOrchestration';
 
 const initProjectCarousel = () => {
   const carousel = document.querySelector('[data-project-carousel]');
@@ -126,15 +122,6 @@ const initProjectCarousel = () => {
     preExpandDurationMs: prefersReducedMotion.matches ? 0 : 220,
     preExpandMinDeltaPx: 14,
   };
-  const scrollCancelKeys = new Set([
-    'ArrowUp',
-    'ArrowDown',
-    'PageUp',
-    'PageDown',
-    'Home',
-    'End',
-    ' ',
-  ]);
   type ActiveIndexOptions = {
     syncHeight?: boolean;
     observeHeight?: boolean;
@@ -531,10 +518,7 @@ const initProjectCarousel = () => {
     return getPanelHeight(targetPanel);
   };
 
-  const runIndexTransition = (
-    targetIndex: number,
-    useQuickMotion = false,
-  ): CarouselIndexTransitionResult => {
+  const cancelCurrentTransition = () => {
     cancelProgrammaticCarouselTransition({
       clearPendingTransitionTimers,
       stopQuickScrolls,
@@ -545,56 +529,49 @@ const initProjectCarousel = () => {
       clearProgrammaticTargetIndex,
       setProgrammaticTransitionActive,
     });
-    const originIndex = getClosestVisiblePanelIndex();
-    const plan = createCarouselHeightTransitionPlan({
+  };
+
+  const runPreExpandedScroll = (
+    wrappedTargetIndex: number,
+    useQuickMotion: boolean,
+    delayMs: number,
+  ) => {
+    if (delayMs <= 0) {
+      executeIndexScroll(wrappedTargetIndex, useQuickMotion);
+      return;
+    }
+    clearPendingPreScrollTimer();
+    pendingPreScrollTimer = window.setTimeout(() => {
+      pendingPreScrollTimer = null;
+      executeIndexScroll(wrappedTargetIndex, useQuickMotion);
+    }, delayMs);
+  };
+
+  const transitionOrchestration = createProjectCarouselTransitionOrchestration({
+    total,
+    longJumpThreshold: LONG_JUMP_THRESHOLD,
+    transitionPolicy,
+    track,
+    resolveCurrentIndex: getClosestVisiblePanelIndex,
+    getCurrentPanelHeight,
+    getTargetPanelHeight,
+    cancelCurrentTransition,
+    setActiveIndex,
+    executeIndexScroll,
+    runPreExpandedScroll,
+    runLongJumpTransition,
+    disconnectActivePanelResizeObserver,
+    stopTrackHeightSync,
+  });
+
+  const runIndexTransition = (
+    targetIndex: number,
+    useQuickMotion = false,
+  ): CarouselIndexTransitionResult => {
+    return transitionOrchestration.runIndexTransition(
       targetIndex,
-      currentIndex: originIndex,
-      total,
-      preExpandMinDeltaPx: transitionPolicy.preExpandMinDeltaPx,
-      preExpandDurationMs: transitionPolicy.preExpandDurationMs,
-      getCurrentHeight: getCurrentPanelHeight,
-      getTargetHeight: getTargetPanelHeight,
-    });
-    if (plan.wrappedTargetIndex === originIndex) {
-      setActiveIndex(originIndex, { force: true });
-      return 'same';
-    }
-    const transitionMode = getCarouselTransitionMode({
-      fromIndex: originIndex,
-      toIndex: plan.wrappedTargetIndex,
-      total,
-      longJumpThreshold: LONG_JUMP_THRESHOLD,
-    });
-    if (transitionMode === 'long') {
-      runLongJumpTransition(plan.wrappedTargetIndex, plan.targetHeight);
-      return transitionMode;
-    }
-    disconnectActivePanelResizeObserver();
-    stopTrackHeightSync();
-    if (plan.preExpandBeforeScroll) {
-      track.style.height = `${plan.targetHeight}px`;
-      if (plan.preExpandDurationMs <= 0) {
-        executeIndexScroll(plan.wrappedTargetIndex, useQuickMotion);
-        return transitionMode;
-      }
-      pendingPreScrollTimer = window.setTimeout(() => {
-        pendingPreScrollTimer = null;
-        executeIndexScroll(plan.wrappedTargetIndex, useQuickMotion);
-      }, plan.preExpandDurationMs);
-      return transitionMode;
-    }
-    if (plan.postContractAfterScroll) {
-      executeIndexScroll(plan.wrappedTargetIndex, useQuickMotion, () => {
-        track.style.height = `${plan.targetHeight}px`;
-      });
-      return transitionMode;
-    }
-    track.style.height = `${plan.targetHeight}px`;
-    if (!plan.preExpandBeforeScroll) {
-      executeIndexScroll(plan.wrappedTargetIndex, useQuickMotion);
-      return transitionMode;
-    }
-    return transitionMode;
+      useQuickMotion,
+    );
   };
 
   const scrollToPanelId = (
@@ -691,108 +668,23 @@ const initProjectCarousel = () => {
   };
 
   const cancelProgrammaticReposition = () => {
-    cancelProgrammaticCarouselTransition({
-      clearPendingTransitionTimers,
-      stopQuickScrolls,
-      stopNativeSmoothScroll,
-      clearVerticalCorrectionTimer,
-      setProgrammaticTrackState,
-      clearLongJumpVisualState,
-      clearProgrammaticTargetIndex,
-      setProgrammaticTransitionActive,
-    });
+    cancelCurrentTransition();
   };
 
-  prevButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-      runRelativeIndexTransition(-1);
-    });
+  const disposeEventBindings = bindProjectCarouselEventBindings({
+    track,
+    total,
+    dots,
+    prevButtons,
+    nextButtons,
+    cardJumpLinks,
+    runRelativeIndexTransition,
+    runIndexTransition,
+    navigateToPanelId,
+    cancelProgrammaticReposition,
+    scheduleTrackHeightSync,
+    handleHashNavigation,
   });
-
-  nextButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-      runRelativeIndexTransition(1);
-    });
-  });
-
-  dots.forEach((dot) => {
-    const index = parseRequiredCarouselIndex(
-      dot.dataset.index,
-      '[projects-carousel] Dot index is invalid.',
-    );
-    dot.addEventListener('click', () => {
-      runIndexTransition(index, true);
-    });
-  });
-  const cardJumpCleanup: Array<() => void> = [];
-  cardJumpLinks.forEach((link) => {
-    const handleCardJump = (event: MouseEvent) => {
-      const href = link.getAttribute('href') ?? '';
-      const panelId = getPanelIdFromHref(href);
-      if (!panelId) {
-        return;
-      }
-      event.preventDefault();
-      if (!navigateToPanelId(panelId, true)) {
-        return;
-      }
-      updateHashForPanelId({
-        panelId,
-        currentHash: window.location.hash,
-        replaceHash: (nextHash) => {
-          history.replaceState(null, '', nextHash);
-        },
-        pushHash: (nextHash) => {
-          history.pushState(null, '', nextHash);
-        },
-      });
-    };
-    link.addEventListener('click', handleCardJump);
-    cardJumpCleanup.push(() => {
-      link.removeEventListener('click', handleCardJump);
-    });
-  });
-
-  track.addEventListener('keydown', (event) => {
-    if (event.key === 'ArrowLeft') {
-      event.preventDefault();
-      runRelativeIndexTransition(-1);
-    }
-    if (event.key === 'ArrowRight') {
-      event.preventDefault();
-      runRelativeIndexTransition(1);
-    }
-    if (event.key === 'Home') {
-      event.preventDefault();
-      runIndexTransition(0, true);
-    }
-    if (event.key === 'End') {
-      event.preventDefault();
-      runIndexTransition(total - 1, true);
-    }
-  });
-
-  const handleCancelKeys = (event: KeyboardEvent) => {
-    if (!scrollCancelKeys.has(event.key)) {
-      return;
-    }
-    cancelProgrammaticReposition();
-  };
-  const handleTrackContentLoad = () => {
-    scheduleTrackHeightSync();
-  };
-  const handleResize = () => {
-    scheduleTrackHeightSync();
-  };
-  window.addEventListener('wheel', cancelProgrammaticReposition, {
-    passive: true,
-  });
-  window.addEventListener('touchmove', cancelProgrammaticReposition, {
-    passive: true,
-  });
-  window.addEventListener('keydown', handleCancelKeys);
-  window.addEventListener('resize', handleResize, { passive: true });
-  track.addEventListener('load', handleTrackContentLoad, true);
 
   const observer = new IntersectionObserver(
     (entries) => {
@@ -835,19 +727,9 @@ const initProjectCarousel = () => {
   panels.forEach((panel) => observer.observe(panel));
   setActiveIndex(0);
   handleHashNavigation(true);
-  const handleHashChange = () => {
-    handleHashNavigation(true);
-  };
-  window.addEventListener('hashchange', handleHashChange);
   const cleanup = () => {
     observer.disconnect();
-    window.removeEventListener('hashchange', handleHashChange);
-    window.removeEventListener('wheel', cancelProgrammaticReposition);
-    window.removeEventListener('touchmove', cancelProgrammaticReposition);
-    window.removeEventListener('keydown', handleCancelKeys);
-    window.removeEventListener('resize', handleResize);
-    track.removeEventListener('load', handleTrackContentLoad, true);
-    cardJumpCleanup.forEach((dispose) => dispose());
+    disposeEventBindings();
     cancelProgrammaticCarouselTransition({
       clearPendingTransitionTimers,
       stopQuickScrolls,

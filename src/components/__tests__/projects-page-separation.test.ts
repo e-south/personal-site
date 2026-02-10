@@ -30,6 +30,7 @@ describe('Projects page section separation', () => {
     const projectCarousel = await read(
       'src/components/projects/ProjectCarousel.astro',
     );
+    const projectCarouselStyles = await read('src/styles/project-carousel.css');
     const projectCarouselRuntime = await read(
       'src/lib/projectCarouselRuntime.ts',
     );
@@ -42,7 +43,7 @@ describe('Projects page section separation', () => {
     expect(projectCarousel).not.toContain(
       'project-carousel-track glass-card h-full',
     );
-    expect(projectCarousel).toContain('align-items: start;');
+    expect(projectCarouselStyles).toContain('align-items: start;');
     expect(projectCarouselRuntime).toContain(
       'track.style.height = `${nextHeight}px`;',
     );

@@ -14,6 +14,7 @@ import {
   getStickyHeader,
   getStickyHeaderOffset,
 } from '@/lib/layout/stickyHeaderOffset';
+import { createStoryNavigationState } from '@/lib/home/storyNavigationState';
 
 type StoryNavigationOptions = {
   prefersReducedMotion: () => boolean;
@@ -48,23 +49,16 @@ export const initStoryNavigation = ({
 
   const cleanup: Array<() => void> = [];
   const addCleanup = (fn: () => void) => cleanup.push(fn);
-  const html = document.documentElement;
-  const snapClass = 'story-snap';
-  let suppressSnap = false;
-  let snapTimer: number | null = null;
-  let activeScrollTarget: HTMLElement | null = null;
-  let activeScrollFrame: number | null = null;
-
-  const applySnapState = (enabled: boolean) => {
-    if (enabled && !activeScrollTarget) {
-      return;
-    }
-    if (enabled) {
-      html.classList.add(snapClass);
-    } else {
-      html.classList.remove(snapClass);
-    }
-  };
+  const state = createStoryNavigationState({
+    html: document.documentElement,
+    cancelAnimationFrame: (frameId) => {
+      window.cancelAnimationFrame(frameId);
+    },
+    clearTimeout: (timerId) => {
+      window.clearTimeout(timerId);
+    },
+    setTimeout: (callback, delayMs) => window.setTimeout(callback, delayMs),
+  });
 
   const getSnapOffset = () =>
     getStickyHeaderOffset({
@@ -90,12 +84,7 @@ export const initStoryNavigation = ({
   };
 
   const clearActiveScroll = () => {
-    if (activeScrollFrame !== null) {
-      window.cancelAnimationFrame(activeScrollFrame);
-      activeScrollFrame = null;
-    }
-    activeScrollTarget = null;
-    applySnapState(false);
+    state.clearActiveScroll();
   };
 
   const getScrollOffset = (target: HTMLElement) => {
@@ -112,41 +101,22 @@ export const initStoryNavigation = ({
   };
 
   const restoreSnap = () => {
-    suppressSnap = false;
-    applySnapState(isStoryInView());
-  };
-
-  const releaseScrollControl = () => {
-    clearActiveScroll();
-    suppressSnap = true;
-    if (snapTimer !== null) {
-      window.clearTimeout(snapTimer);
-      snapTimer = null;
-    }
+    state.restoreSnap(isStoryInView);
   };
 
   const cancelActiveScrollLock = () => {
-    if (!activeScrollTarget) {
-      return;
-    }
-    releaseScrollControl();
+    state.cancelActiveScrollLock();
   };
 
   const handleScroll = () => {
-    if (!suppressSnap && !activeScrollTarget) {
-      applySnapState(isStoryInView());
+    if (!state.isSnapSuppressed() && !state.hasActiveScrollTarget()) {
+      state.applySnapState(isStoryInView());
       return;
     }
-    if (!suppressSnap || activeScrollTarget) {
+    if (!state.isSnapSuppressed() || state.hasActiveScrollTarget()) {
       return;
     }
-    if (snapTimer !== null) {
-      window.clearTimeout(snapTimer);
-    }
-    snapTimer = window.setTimeout(() => {
-      snapTimer = null;
-      restoreSnap();
-    }, 160);
+    state.scheduleSnapRestore(restoreSnap, 160);
   };
 
   window.addEventListener('scroll', handleScroll, { passive: true });
@@ -197,7 +167,7 @@ export const initStoryNavigation = ({
 
     const start = performance.now();
     const check = () => {
-      if (activeScrollTarget !== target) {
+      if (!state.isActiveScrollTarget(target)) {
         return;
       }
       const currentOffset = getScrollOffset(target);
@@ -211,20 +181,13 @@ export const initStoryNavigation = ({
         restoreSnap();
         return;
       }
-      activeScrollFrame = window.requestAnimationFrame(check);
+      state.setActiveScrollFrame(window.requestAnimationFrame(check));
     };
-    activeScrollFrame = window.requestAnimationFrame(check);
+    state.setActiveScrollFrame(window.requestAnimationFrame(check));
   };
 
   const scrollToTarget = (target: HTMLElement, href?: string) => {
-    clearActiveScroll();
-    activeScrollTarget = target;
-    suppressSnap = true;
-    applySnapState(true);
-    if (snapTimer !== null) {
-      window.clearTimeout(snapTimer);
-      snapTimer = null;
-    }
+    state.beginProgrammaticScroll(target);
     const behavior = getScrollBehavior();
     const offset = href === '#top' ? 0 : getScrollOffset(target);
     const performScroll = () => {
@@ -295,13 +258,13 @@ export const initStoryNavigation = ({
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
-        if (suppressSnap) {
+        if (state.isSnapSuppressed()) {
           return;
         }
         if (entry.isIntersecting && !isHeroVisible()) {
-          applySnapState(true);
+          state.applySnapState(true);
         } else {
-          applySnapState(false);
+          state.applySnapState(false);
         }
       });
     },
@@ -314,11 +277,7 @@ export const initStoryNavigation = ({
   observer.observe(storyRoot);
   addCleanup(() => {
     observer.disconnect();
-    applySnapState(false);
-    if (snapTimer !== null) {
-      window.clearTimeout(snapTimer);
-      snapTimer = null;
-    }
+    state.cleanup();
   });
 
   return () => {
