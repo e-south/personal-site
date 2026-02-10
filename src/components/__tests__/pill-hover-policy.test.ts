@@ -41,14 +41,14 @@ describe('Pill hover policy', () => {
   });
 
   it('applies the same borderless defaults and hover lift to narrative and pagination pills', async () => {
-    const storyChapters = await read('src/components/home/StoryChapters.astro');
+    const storyChapterStyles = await read('src/styles/story-chapters.css');
     const pagination = await read('src/components/ui/Pagination.astro');
 
-    expect(storyChapters).not.toContain('border border-base-300');
-    expect(storyChapters).toContain('border: 1px solid transparent;');
-    expect(storyChapters).toContain('.story-carousel-button:hover');
-    expect(storyChapters).toContain('.story-nav-link:hover');
-    expect(storyChapters).toContain('transform: translateY(-1px);');
+    expect(storyChapterStyles).not.toContain('border border-base-300');
+    expect(storyChapterStyles).toContain('border: 1px solid transparent;');
+    expect(storyChapterStyles).toContain('.story-carousel-button:hover');
+    expect(storyChapterStyles).toContain('.story-nav-link:hover');
+    expect(storyChapterStyles).toContain('transform: translateY(-1px);');
 
     expect(pagination).toContain('border: 1px solid transparent;');
     expect(pagination).toContain('.pagination-pill:hover');

@@ -17,7 +17,7 @@ describe('Pill slimming styles', () => {
   it('uses slimmer narrative pills', async () => {
     const filePath = path.resolve(
       process.cwd(),
-      'src/components/home/StoryChapters.astro',
+      'src/styles/story-chapters.css',
     );
     const contents = await readFile(filePath, 'utf-8');
 

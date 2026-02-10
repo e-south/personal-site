@@ -339,6 +339,16 @@ describe('project carousel helper extraction', () => {
 });
 
 describe('story chapter rendering modularization', () => {
+  it('loads story chapter styles from a dedicated stylesheet module', async () => {
+    const storyChapters = await read('src/components/home/StoryChapters.astro');
+    const storyChapterStyles = await read('src/styles/story-chapters.css');
+
+    expect(storyChapters).toContain("import '@/styles/story-chapters.css';");
+    expect(storyChapters).not.toContain('<style>');
+    expect(storyChapterStyles).toContain('.story-carousel');
+    expect(storyChapterStyles).toContain('.story-chapter-cta:hover');
+  });
+
   it('delegates story media item rendering from story chapters component', async () => {
     const storyChapters = await read('src/components/home/StoryChapters.astro');
 
