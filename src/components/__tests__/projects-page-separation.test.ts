@@ -56,6 +56,8 @@ describe('Projects page section separation', () => {
     expect(projectCarouselRuntime).toContain(
       'heightSyncController.scheduleTrackHeightSync',
     );
+    expect(projectPanel).not.toContain('px-0 py-8 sm:px-6');
+    expect(projectPanel).toContain('px-4 py-8 sm:px-6');
     expect(projectPanel).not.toContain('h-full w-full min-w-full');
     expect(projectPanel).not.toContain('min-h-full');
     expect(projectPanel).not.toContain('height: 100%;');
