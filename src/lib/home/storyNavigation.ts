@@ -15,6 +15,7 @@ import {
   getStickyHeaderOffset,
 } from '@/lib/layout/stickyHeaderOffset';
 import { createStoryNavigationState } from '@/lib/home/storyNavigationState';
+import { bindStoryNavigationLinks } from '@/lib/home/storyNavigationLinks';
 
 type StoryNavigationOptions = {
   prefersReducedMotion: () => boolean;
@@ -219,15 +220,11 @@ export const initStoryNavigation = ({
     throw new Error('Story navigation controls are missing.');
   }
   const boundLinks = new Set<Element>();
-  const bindScrollLink = (link: HTMLAnchorElement, label: string) => {
-    const href = link.getAttribute('href') ?? '';
-    if (!href.startsWith('#')) {
-      throw new Error(`${label} href must be a hash.`);
-    }
-    const target = document.querySelector(href);
-    if (!(target instanceof HTMLElement)) {
-      throw new Error(`${label} target is missing.`);
-    }
+  const bindToTarget = (
+    link: HTMLAnchorElement,
+    target: HTMLElement,
+    href: string,
+  ) => {
     const handleNext = (event: Event) => {
       event.preventDefault();
       scrollToTarget(target, href);
@@ -236,24 +233,18 @@ export const initStoryNavigation = ({
     addCleanup(() => link.removeEventListener('click', handleNext));
   };
 
-  const bindLinks = (links: Element[], label: string) => {
-    links.forEach((link) => {
-      if (boundLinks.has(link)) {
-        return;
-      }
-      if (!(link instanceof HTMLAnchorElement)) {
-        throw new Error(`${label} control must be a link.`);
-      }
-      boundLinks.add(link);
-      bindScrollLink(link, label);
-    });
-  };
-
-  bindLinks(storyNavLinks, 'Story navigation');
-  bindLinks(
-    Array.from(document.querySelectorAll('[data-scroll-link]')),
-    'Scroll link',
-  );
+  bindStoryNavigationLinks({
+    links: storyNavLinks,
+    label: 'Story navigation',
+    boundLinks,
+    bindToTarget,
+  });
+  bindStoryNavigationLinks({
+    links: Array.from(document.querySelectorAll('[data-scroll-link]')),
+    label: 'Scroll link',
+    boundLinks,
+    bindToTarget,
+  });
 
   const observer = new IntersectionObserver(
     (entries) => {

@@ -367,8 +367,14 @@ describe('Smart scroll offset hardening', () => {
     const projectCarouselRuntime = await read(
       'src/lib/projectCarouselRuntime.ts',
     );
+    const projectCarouselViewport = await read(
+      'src/lib/projectCarouselViewport.ts',
+    );
 
-    expect(projectCarouselRuntime).toContain('correctCarouselVerticalOffset');
+    expect(projectCarouselRuntime).toContain(
+      'createProjectCarouselViewportController',
+    );
+    expect(projectCarouselViewport).toContain('correctCarouselVerticalOffset');
     expect(projectCarouselRuntime).toContain("behavior: 'auto'");
   });
 });

@@ -34,6 +34,7 @@ import {
 } from '@/lib/projectCarouselTransitionState';
 import { bindProjectCarouselEventBindings } from '@/lib/projectCarouselEventBindings';
 import { createProjectCarouselTransitionOrchestration } from '@/lib/projectCarouselTransitionOrchestration';
+import { createProjectCarouselViewportController } from '@/lib/projectCarouselViewport';
 
 const initProjectCarousel = () => {
   const carousel = document.querySelector('[data-project-carousel]');
@@ -95,7 +96,6 @@ const initProjectCarousel = () => {
   const total = panels.length;
   const HEIGHT_SYNC_INTERSECTION_RATIO = 0.72;
   let activeIndex = -1;
-  let verticalCorrectionTimer: number | null = null;
   let trackQuickScrollFrame: number | null = null;
   let windowQuickScrollFrame: number | null = null;
   let trackHeightSyncFrame: number | null = null;
@@ -523,7 +523,8 @@ const initProjectCarousel = () => {
       clearPendingTransitionTimers,
       stopQuickScrolls,
       stopNativeSmoothScroll,
-      clearVerticalCorrectionTimer,
+      clearVerticalCorrectionTimer:
+        viewportController.clearVerticalCorrectionTimer,
       setProgrammaticTrackState,
       clearLongJumpVisualState,
       clearProgrammaticTargetIndex,
@@ -597,55 +598,15 @@ const initProjectCarousel = () => {
       ),
     );
   };
-
-  const clearVerticalCorrectionTimer = () => {
-    if (verticalCorrectionTimer !== null) {
-      window.clearTimeout(verticalCorrectionTimer);
-      verticalCorrectionTimer = null;
-    }
-  };
-
-  const correctCarouselVerticalOffset = (useQuickMotion = false) => {
-    const targetTop = getCarouselTargetTop();
-    const delta = targetTop - window.scrollY;
-    if (Math.abs(delta) < CORRECTION_THRESHOLD_PX) {
-      return;
-    }
-    if (useQuickMotion && !prefersReducedMotion.matches) {
-      quickScrollWindowTo(targetTop);
-      return;
-    }
-    window.scrollTo({
-      top: targetTop,
-      behavior: getBehavior(),
-    });
-  };
-
-  const scrollCarouselIntoView = (useQuickMotion = false) => {
-    clearVerticalCorrectionTimer();
-    const targetTop = getCarouselTargetTop();
-    if (useQuickMotion && !prefersReducedMotion.matches) {
-      quickScrollWindowTo(targetTop);
-      verticalCorrectionTimer = window.setTimeout(() => {
-        verticalCorrectionTimer = null;
-        correctCarouselVerticalOffset(true);
-      }, QUICK_CORRECTION_DELAY_MS);
-      return;
-    }
-    stopWindowQuickScroll();
-    window.scrollTo({
-      top: targetTop,
-      behavior: getBehavior(),
-    });
-    if (getBehavior() === 'smooth') {
-      verticalCorrectionTimer = window.setTimeout(() => {
-        verticalCorrectionTimer = null;
-        correctCarouselVerticalOffset(false);
-      }, QUICK_CORRECTION_DELAY_MS);
-      return;
-    }
-    correctCarouselVerticalOffset(false);
-  };
+  const viewportController = createProjectCarouselViewportController({
+    getTargetTop: getCarouselTargetTop,
+    getBehavior,
+    prefersReducedMotion,
+    quickCorrectionDelayMs: QUICK_CORRECTION_DELAY_MS,
+    correctionThresholdPx: CORRECTION_THRESHOLD_PX,
+    quickScrollWindowTo,
+    stopWindowQuickScroll,
+  });
 
   const navigateToPanelId = (
     panelId: string,
@@ -655,7 +616,9 @@ const initProjectCarousel = () => {
     if (!transitionMode) {
       return false;
     }
-    scrollCarouselIntoView(useQuickMotion && transitionMode !== 'wrap');
+    viewportController.scrollCarouselIntoView(
+      useQuickMotion && transitionMode !== 'wrap',
+    );
     return true;
   };
 
@@ -733,7 +696,8 @@ const initProjectCarousel = () => {
     cancelProgrammaticCarouselTransition({
       clearPendingTransitionTimers,
       stopQuickScrolls,
-      clearVerticalCorrectionTimer,
+      clearVerticalCorrectionTimer:
+        viewportController.clearVerticalCorrectionTimer,
       setProgrammaticTrackState,
       clearLongJumpVisualState,
       clearProgrammaticTargetIndex,

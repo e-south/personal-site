@@ -68,7 +68,7 @@ describe('Project carousel jump behavior', () => {
       'project-carousel-track--soft-swap',
     );
     expect(projectCarouselRuntime).toContain(
-      "scrollCarouselIntoView(useQuickMotion && transitionMode !== 'wrap')",
+      'viewportController.scrollCarouselIntoView(',
     );
   });
 
@@ -162,15 +162,20 @@ describe('Project carousel jump behavior', () => {
     const projectCarouselRuntime = await read(
       'src/lib/projectCarouselRuntime.ts',
     );
+    const projectCarouselViewport = await read(
+      'src/lib/projectCarouselViewport.ts',
+    );
 
     expect(projectCarouselRuntime).toContain(
       'const CORRECTION_THRESHOLD_PX = 10;',
     );
-    expect(projectCarouselRuntime).toContain(
+    expect(projectCarouselViewport).toContain(
       'const correctCarouselVerticalOffset = (useQuickMotion = false) => {',
     );
-    expect(projectCarouselRuntime).toContain('quickScrollWindowTo(targetTop);');
-    expect(projectCarouselRuntime).toContain(
+    expect(projectCarouselViewport).toContain(
+      'quickScrollWindowTo(targetTop);',
+    );
+    expect(projectCarouselViewport).toContain(
       'correctCarouselVerticalOffset(true);',
     );
   });
@@ -286,7 +291,7 @@ describe('Project carousel jump behavior', () => {
     );
 
     expect(projectCarouselRuntime).toContain(
-      "scrollCarouselIntoView(useQuickMotion && transitionMode !== 'wrap');",
+      'viewportController.scrollCarouselIntoView(',
     );
   });
 

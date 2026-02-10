@@ -66,6 +66,9 @@ describe('home runtime modularization', () => {
     const storyNavigationState = await read(
       'src/lib/home/storyNavigationState.ts',
     );
+    const storyNavigationLinks = await read(
+      'src/lib/home/storyNavigationLinks.ts',
+    );
 
     expect(homeRuntime).toContain(
       "import { initStoryNavigation } from '@/lib/home/storyNavigation';",
@@ -81,6 +84,15 @@ describe('home runtime modularization', () => {
       'export const createStoryNavigationState = (',
     );
     expect(storyNavigationState).toContain('const applySnapState = (');
+    expect(storyNavigation).toContain(
+      "import { bindStoryNavigationLinks } from '@/lib/home/storyNavigationLinks';",
+    );
+    expect(storyNavigation).toContain('bindStoryNavigationLinks({');
+    expect(storyNavigationLinks).toContain(
+      'export const bindStoryNavigationLinks = ({',
+    );
+    expect(storyNavigationLinks).toContain('href must be a hash.');
+    expect(storyNavigationLinks).toContain('target is missing.');
   });
 
   it('extracts hero rotator and story video modules', async () => {
@@ -305,6 +317,28 @@ describe('project carousel helper extraction', () => {
 
     expect(motion).toContain('export const runQuickTrackScroll = (');
     expect(motion).toContain('export const runQuickWindowScroll = (');
+  });
+
+  it('extracts carousel viewport alignment and correction handling into a dedicated module', async () => {
+    const runtime = await read('src/lib/projectCarouselRuntime.ts');
+    const viewport = await read('src/lib/projectCarouselViewport.ts');
+
+    expect(runtime).toContain(
+      "import { createProjectCarouselViewportController } from '@/lib/projectCarouselViewport';",
+    );
+    expect(runtime).toContain(
+      'const viewportController = createProjectCarouselViewportController({',
+    );
+    expect(runtime).toContain('viewportController.scrollCarouselIntoView(');
+    expect(runtime).toContain(
+      'viewportController.clearVerticalCorrectionTimer',
+    );
+
+    expect(viewport).toContain(
+      'export const createProjectCarouselViewportController = ({',
+    );
+    expect(viewport).toContain('const clearVerticalCorrectionTimer = () => {');
+    expect(viewport).toContain('const scrollCarouselIntoView = (');
   });
 
   it('uses extracted hash helpers for project panel hash parsing and updates', async () => {
