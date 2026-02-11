@@ -125,6 +125,9 @@ Module Author(s): Eric J. South
 
 .story-carousel-item {
   scroll-snap-align: start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .story-carousel-controls {
@@ -139,26 +142,79 @@ Module Author(s): Eric J. South
   }
 
   .story-carousel {
-    padding-inline: 2.25rem;
-    scroll-padding-inline: 2.25rem;
+    --story-carousel-mobile-height: clamp(240px, 52vh, 420px);
+    padding-inline: 1rem;
+    scroll-padding-inline: 1rem;
+  }
+
+  .story-carousel-item {
+    min-height: var(--story-carousel-mobile-height);
+    overflow: hidden;
+  }
+
+  .story-carousel-item .story-media-frame,
+  .story-carousel-item .story-media-stack-frame {
+    --story-media-frame-width: 100%;
+    --story-media-frame-max-width: 100%;
+    --story-media-frame-height: var(--story-carousel-mobile-height);
+    --story-media-viewport-height: var(--story-carousel-mobile-height);
+    --story-media-surface-width: 100%;
+    --story-media-surface-height: 100%;
+    --story-media-asset-max-width: 100%;
+    width: 100%;
+    max-width: 100%;
+    min-height: var(--story-carousel-mobile-height);
+    height: var(--story-carousel-mobile-height);
+    max-height: var(--story-carousel-mobile-height);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .story-carousel-item .story-media-surface,
+  .story-carousel-item .story-media-stack {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .story-carousel-item .story-media-stack {
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-block: 0.35rem;
+  }
+
+  .story-carousel-item .story-media-stack .story-media-frame {
+    --story-media-frame-height: calc(
+      (var(--story-carousel-mobile-height) - 1.45rem) / 2
+    );
+    --story-media-viewport-height: calc(
+      (var(--story-carousel-mobile-height) - 1.45rem) / 2
+    );
+    min-height: calc((var(--story-carousel-mobile-height) - 1.45rem) / 2);
+    height: calc((var(--story-carousel-mobile-height) - 1.45rem) / 2);
+    max-height: calc((var(--story-carousel-mobile-height) - 1.45rem) / 2);
+  }
+
+  .story-carousel-item .story-media-asset {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
   }
 
   .story-carousel-controls {
-    position: absolute;
-    inset-inline: 0.3rem;
-    top: 50%;
-    transform: translateY(-50%);
-    justify-content: space-between;
+    display: none;
     pointer-events: none;
-    z-index: 2;
   }
 
   .story-carousel-button {
-    pointer-events: auto;
-    border-radius: 999px;
-    min-width: 2.55rem;
-    padding: 0.42rem 0.6rem;
-    letter-spacing: 0.1em;
+    display: none;
+    pointer-events: none;
   }
 }
 
@@ -166,23 +222,23 @@ Module Author(s): Eric J. South
   gap: 0.5rem;
 }
 
-#phd-at-boston-university .story-carousel {
-  padding-bottom: 0.25rem;
-  height: var(--carousel-lock-height, auto);
-}
+@media (min-width: 768px) {
+  #phd-at-boston-university .story-carousel {
+    padding-bottom: 0.25rem;
+    height: var(--carousel-lock-height, auto);
+  }
 
-#phd-at-boston-university .story-carousel-item {
-  height: var(--carousel-lock-height, auto);
-  display: flex;
-  align-items: center;
-}
+  #phd-at-boston-university .story-carousel-item {
+    height: var(--carousel-lock-height, auto);
+  }
 
-#imperial-crick-training .story-carousel {
-  height: var(--carousel-lock-height, auto);
-}
+  #imperial-crick-training .story-carousel {
+    height: var(--carousel-lock-height, auto);
+  }
 
-#imperial-crick-training .story-carousel-item {
-  height: var(--carousel-lock-height, auto);
+  #imperial-crick-training .story-carousel-item {
+    height: var(--carousel-lock-height, auto);
+  }
 }
 
 .story-carousel-button,

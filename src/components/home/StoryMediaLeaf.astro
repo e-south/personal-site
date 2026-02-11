@@ -83,17 +83,34 @@ const maxHeight = getFrameHeight(effectiveFrame);
 
 <style>
   .story-media-frame {
-    position: relative;
-    width: fit-content;
-    max-width: min(var(--story-media-max, 720px), var(--story-media-cap, 100%));
-    max-height: var(--story-media-height, 70vh);
-    max-height: var(--story-media-height-svh, var(--story-media-height, 70vh));
-    max-height: var(
-      --story-media-height-dvh,
+    --story-media-effective-max-height: var(
+      --story-media-viewport-height,
+      var(--story-media-height, 70vh)
+    );
+    --story-media-effective-max-height-svh: var(
+      --story-media-viewport-height,
       var(--story-media-height-svh, var(--story-media-height, 70vh))
     );
+    --story-media-effective-max-height-dvh: var(
+      --story-media-viewport-height,
+      var(
+        --story-media-height-dvh,
+        var(--story-media-height-svh, var(--story-media-height, 70vh))
+      )
+    );
+    position: relative;
+    width: var(--story-media-frame-width, fit-content);
+    max-width: var(
+      --story-media-frame-max-width,
+      min(var(--story-media-max, 720px), var(--story-media-cap, 100%))
+    );
+    height: var(--story-media-frame-height, auto);
+    max-height: var(--story-media-effective-max-height);
+    max-height: var(--story-media-effective-max-height-svh);
+    max-height: var(--story-media-effective-max-height-dvh);
     margin: 0 auto;
     display: flex;
+    align-items: center;
     justify-content: center;
     border-radius: var(--site-radius-card);
     overflow: hidden;
@@ -103,7 +120,11 @@ const maxHeight = getFrameHeight(effectiveFrame);
 
   .story-media-surface {
     position: relative;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--story-media-surface-width, auto);
+    height: var(--story-media-surface-height, auto);
     max-width: 100%;
     background: transparent;
     border-radius: inherit;
@@ -114,13 +135,13 @@ const maxHeight = getFrameHeight(effectiveFrame);
   .story-media-asset {
     width: auto;
     height: auto;
-    max-width: min(100%, var(--story-media-cap, 100%));
-    max-height: var(--story-media-height, 70vh);
-    max-height: var(--story-media-height-svh, var(--story-media-height, 70vh));
-    max-height: var(
-      --story-media-height-dvh,
-      var(--story-media-height-svh, var(--story-media-height, 70vh))
+    max-width: var(
+      --story-media-asset-max-width,
+      min(100%, var(--story-media-cap, 100%))
     );
+    max-height: var(--story-media-effective-max-height);
+    max-height: var(--story-media-effective-max-height-svh);
+    max-height: var(--story-media-effective-max-height-dvh);
     border-radius: inherit;
     object-fit: contain;
     display: block;
