@@ -14,15 +14,30 @@ Module Author(s): Eric J. South
 }
 
 .liquid-caption {
+  --site-liquid-caption-base: color-mix(
+    in oklab,
+    var(--site-surface) 58%,
+    transparent
+  );
+  --site-liquid-caption-strong: color-mix(
+    in oklab,
+    var(--site-surface-strong) 66%,
+    transparent
+  );
+  --site-liquid-caption-fill: color-mix(
+    in oklab,
+    var(--site-surface) 42%,
+    transparent
+  );
   box-sizing: border-box;
-  border: 1px solid color-mix(in oklab, var(--site-border) 64%, transparent);
+  border: 1px solid color-mix(in oklab, var(--site-border) 52%, transparent);
   background:
     linear-gradient(
       145deg,
-      color-mix(in oklab, var(--site-surface) 74%, transparent),
-      color-mix(in oklab, var(--site-surface-strong) 82%, transparent)
+      var(--site-liquid-caption-base),
+      var(--site-liquid-caption-strong)
     ),
-    color-mix(in oklab, var(--site-surface) 58%, transparent);
+    var(--site-liquid-caption-fill);
   color: color-mix(in oklab, var(--site-text) 92%, transparent);
   box-shadow:
     inset 0 1px 0 color-mix(in oklab, #fff 10%, transparent),

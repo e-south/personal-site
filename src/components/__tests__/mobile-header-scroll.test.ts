@@ -18,7 +18,7 @@ const read = async (relativePath: string) =>
   readFile(path.resolve(process.cwd(), relativePath), 'utf-8');
 
 describe('Header scroll behavior', () => {
-  it('keeps the top banner sticky and applies hide/reveal on scroll direction across desktop and mobile', async () => {
+  it('keeps the top banner sticky and uses intent-gated reveal behavior across desktop and mobile', async () => {
     const navbar = await read('src/components/ui/Navbar.astro');
     const pageEnhancements = await read('src/lib/layout/pageEnhancements.ts');
     const mobileHeaderVisibility = await read(
@@ -45,11 +45,27 @@ describe('Header scroll behavior', () => {
     expect(mobileHeaderVisibility).toContain(
       "header.classList.toggle('site-header-mobile-hidden'",
     );
+    expect(mobileHeaderVisibility).toContain('const FORCE_SHOW_NEAR_TOP_PX =');
+    expect(mobileHeaderVisibility).toContain(
+      'const DIRECTION_CHANGE_DEADBAND_PX =',
+    );
+    expect(mobileHeaderVisibility).toContain(
+      'const UPWARD_DISTANCE_TO_SHOW_PX =',
+    );
+    expect(mobileHeaderVisibility).toContain('const UPWARD_TIME_TO_SHOW_MS =');
+    expect(mobileHeaderVisibility).toContain(
+      'const getInputProfile = (): InputProfile =>',
+    );
+    expect(mobileHeaderVisibility).toContain(
+      'if (Math.abs(delta) < DIRECTION_CHANGE_DEADBAND_PX) {',
+    );
+    expect(mobileHeaderVisibility).toContain('upwardAccumulatedPx');
+    expect(mobileHeaderVisibility).toContain('upwardStartTs');
     expect(mobileHeaderVisibility).not.toContain(
       'window.innerWidth >= MOBILE_BREAKPOINT_PX',
     );
     expect(mobileHeaderVisibility).toContain(
-      'if (currentScrollY <= TOP_REVEAL_SCROLL_PX) {',
+      'if (currentScrollY <= FORCE_SHOW_NEAR_TOP_PX) {',
     );
     expect(layoutStyles).toContain('.site-header-edge {');
     expect(layoutStyles).toContain(

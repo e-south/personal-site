@@ -39,7 +39,7 @@ describe('home mobile swipe UX', () => {
     expect(homePage).toContain('touch-action: pan-y;');
   });
 
-  it('snaps story carousel swipes to adjacent media instead of free scrolling drift', async () => {
+  it('snaps story carousel swipes to adjacent media with mobile-first full-asset viewport framing', async () => {
     const storyCarousels = await read('src/lib/home/storyCarousels.ts');
     const storyStyles = await read('src/styles/story-chapters.css');
 
@@ -66,7 +66,15 @@ describe('home mobile swipe UX', () => {
     expect(storyStyles).toContain('.story-carousel::-webkit-scrollbar {');
     expect(storyStyles).toContain('display: none;');
     expect(storyStyles).toContain('@media (max-width: 767px) {');
-    expect(storyStyles).toContain('position: absolute;');
-    expect(storyStyles).toContain('justify-content: space-between;');
+    expect(storyStyles).toContain(
+      '--story-carousel-mobile-height: clamp(240px, 52vh, 420px);',
+    );
+    expect(storyStyles).toContain('.story-carousel-item .story-media-frame,');
+    expect(storyStyles).toContain(
+      'min-height: var(--story-carousel-mobile-height);',
+    );
+    expect(storyStyles).toContain('.story-carousel-controls {');
+    expect(storyStyles).toContain('display: none;');
+    expect(storyStyles).not.toContain('justify-content: space-between;');
   });
 });

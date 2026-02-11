@@ -240,7 +240,7 @@ describe('Requested polish adjustments', () => {
     expect(layout).toContain('.liquid-caption');
     expect(layout).toContain('backdrop-filter: blur(var(--site-glass-blur));');
     expect(layout).toContain(
-      'color-mix(in oklab, var(--site-surface) 74%, transparent)',
+      'color-mix(in oklab, var(--site-surface) 58%, transparent)',
     );
 
     expect(homePage).toContain('data-hero-caption');
