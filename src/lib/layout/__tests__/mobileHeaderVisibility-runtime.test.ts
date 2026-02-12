@@ -153,7 +153,7 @@ describe('mobileHeaderVisibility runtime', () => {
     teardown();
   });
 
-  it('reveals after sustained upward intent on coarse-pointer devices', () => {
+  it('requires stronger sustained upward intent before revealing on coarse-pointer devices', () => {
     const { runFrame } = installRafQueue();
     installMatchMedia({ coarsePointer: true, compactViewport: true });
 
@@ -170,7 +170,7 @@ describe('mobileHeaderVisibility runtime', () => {
 
     const teardown = bindMobileHeaderVisibility();
 
-    scrollY = 188;
+    scrollY = 248;
     window.dispatchEvent(new Event('scroll'));
     runFrame(16);
 
@@ -178,7 +178,7 @@ describe('mobileHeaderVisibility runtime', () => {
       (header as HTMLElement).classList.contains('site-header-mobile-hidden'),
     ).toBe(true);
 
-    scrollY = 176;
+    scrollY = 236;
     window.dispatchEvent(new Event('scroll'));
     runFrame(48);
 
@@ -186,9 +186,25 @@ describe('mobileHeaderVisibility runtime', () => {
       (header as HTMLElement).classList.contains('site-header-mobile-hidden'),
     ).toBe(true);
 
-    scrollY = 164;
+    scrollY = 224;
     window.dispatchEvent(new Event('scroll'));
-    runFrame(260);
+    runFrame(220);
+
+    expect(
+      (header as HTMLElement).classList.contains('site-header-mobile-hidden'),
+    ).toBe(true);
+
+    scrollY = 212;
+    window.dispatchEvent(new Event('scroll'));
+    runFrame(300);
+
+    expect(
+      (header as HTMLElement).classList.contains('site-header-mobile-hidden'),
+    ).toBe(true);
+
+    scrollY = 200;
+    window.dispatchEvent(new Event('scroll'));
+    runFrame(380);
 
     expect(
       (header as HTMLElement).classList.contains('site-header-mobile-hidden'),

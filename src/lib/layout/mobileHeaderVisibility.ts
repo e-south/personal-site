@@ -12,11 +12,11 @@ Module Author(s): Eric J. South
 const FORCE_SHOW_NEAR_TOP_PX = 24;
 const DIRECTION_CHANGE_DEADBAND_PX = 6;
 const UPWARD_DISTANCE_TO_SHOW_PX = {
-  coarse: 56,
+  coarse: 96,
   fine: 32,
 } as const;
 const UPWARD_TIME_TO_SHOW_MS = {
-  coarse: 180,
+  coarse: 320,
   fine: 120,
 } as const;
 

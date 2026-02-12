@@ -52,7 +52,9 @@ describe('Header scroll behavior', () => {
     expect(mobileHeaderVisibility).toContain(
       'const UPWARD_DISTANCE_TO_SHOW_PX =',
     );
+    expect(mobileHeaderVisibility).toContain('coarse: 96');
     expect(mobileHeaderVisibility).toContain('const UPWARD_TIME_TO_SHOW_MS =');
+    expect(mobileHeaderVisibility).toContain('coarse: 320');
     expect(mobileHeaderVisibility).toContain(
       'const getInputProfile = (): InputProfile =>',
     );

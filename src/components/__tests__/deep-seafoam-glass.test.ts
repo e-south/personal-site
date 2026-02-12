@@ -412,6 +412,20 @@ describe('Home narrative media presentation', () => {
     expect(storyMediaLeaf).toContain('border-radius: var(--site-radius-card);');
     expect(storyMediaLeaf).toContain('box-shadow:');
   });
+
+  it('uses isolated rounded clipping for chapter media to prevent dark corner artifacts on mobile', async () => {
+    const storyMediaLeaf = await read(
+      'src/components/home/StoryMediaLeaf.astro',
+    );
+    const storyChapterStyles = await read('src/styles/story-chapters.css');
+
+    expect(storyMediaLeaf).toContain('isolation: isolate;');
+    expect(storyMediaLeaf).toContain(
+      '-webkit-mask-image: -webkit-radial-gradient(white, black);',
+    );
+    expect(storyChapterStyles).toContain('.story-carousel-item {');
+    expect(storyChapterStyles).toContain('overflow: visible;');
+  });
 });
 
 describe('Home hero image framing', () => {
