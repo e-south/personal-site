@@ -149,7 +149,7 @@ Module Author(s): Eric J. South
 
   .story-carousel-item {
     min-height: var(--story-carousel-mobile-height);
-    overflow: hidden;
+    overflow: visible;
   }
 
   .story-carousel-item .story-media-frame,
